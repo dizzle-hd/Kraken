@@ -49,9 +49,14 @@
 
   async function load() {
     try {
-      const res = await fetch(`${api}/releases?per_page=6`, { headers: { Accept: "application/vnd.github+json" } });
+      // the API does not return releases in date order (a new build can end up on position 7+),
+      // so load a whole page and sort by publish date ourselves
+      const res = await fetch(`${api}/releases?per_page=100`, { headers: { Accept: "application/vnd.github+json" } });
       if (!res.ok) throw new Error(res.status === 403 ? "GitHub-Limit erreicht – bitte später erneut versuchen." : "HTTP " + res.status);
-      const releases = (await res.json()).filter((r) => !r.draft);
+      const releases = (await res.json())
+        .filter((r) => !r.draft)
+        .sort((a, b) => new Date(b.published_at || b.created_at) - new Date(a.published_at || a.created_at))
+        .slice(0, 6);
       const latest = releases.find((r) => !r.prerelease && jarOf(r)) || releases.find((r) => jarOf(r));
       renderList(releases, latest);
       if (!latest) return fallback("Noch kein Release vorhanden – der erste Build läuft gleich.");
