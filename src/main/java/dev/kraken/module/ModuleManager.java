@@ -67,6 +67,10 @@ public final class ModuleManager {
         return n != null && n.isEnabled();
     }
 
+    public void onFrame() {
+        for (Module m : modules) if (m.isEnabled()) m.onFrame();
+    }
+
     public void onPreTick() {
         for (Module m : modules) if (m.isEnabled()) m.onPreTick();
     }

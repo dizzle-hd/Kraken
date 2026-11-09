@@ -12,7 +12,8 @@
     "LightCoordsUtilMixin",
     "LightmapRenderStateExtractorMixin",
     "LocalPlayerMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "MouseHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

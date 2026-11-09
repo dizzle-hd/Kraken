@@ -115,22 +115,52 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             sp.getConnection().waitForChunksRender();
 
             // --- SilentKillAura vs. a zombie (it is still enabled from the wheel click above) ---
-            sp.getServer().runCommand("execute at @a run summon minecraft:zombie ~2 ~ ~2 {NoAI:1b,PersistenceRequired:1b,Health:20f,CustomName:'\"Testzombie\"'}");
+            sp.getServer().runCommand("kill @e[type=!minecraft:player,type=!minecraft:armor_stand]");
+            java.util.UUID testZombie = spawnZombie(sp, 2, 2, 20f);
             ctx.waitTicks(10);
+            String before = zombieState(sp, testZombie);
             boolean auraOn = ctx.computeOnClient(c -> ModuleManager.get().get(dev.kraken.module.combat.SilentKillAura.class).isEnabled());
             float startYaw = ctx.computeOnClient(c -> c.player.getYRot());
             ctx.waitTicks(120);
-            String zombies = ctx.computeOnClient(c -> {
-                for (var e : c.level.entitiesForRendering()) {
-                    if (e instanceof net.minecraft.world.entity.monster.zombie.Zombie z && z.hasCustomName()
-                            && z.getCustomName().getString().equals("Testzombie")) return "alive hp=" + z.getHealth();
-                }
-                return "dead";
-            });
+            String after = zombieState(sp, testZombie);
             float endYaw = ctx.computeOnClient(c -> c.player.getYRot());
-            System.out.println("[KrakenTest] SilentKillAura enabled=" + auraOn + " testZombie=" + zombies
+            System.out.println("[KrakenTest] SilentKillAura enabled=" + auraOn + " testZombie before=" + before + " after=" + after
                     + " cameraYaw " + startYaw + " -> " + endYaw);
             ctx.takeScreenshot("08-after-killaura");
+
+            // --- BlatantKillAura: the camera must glide to the target, not snap ---
+            ctx.runOnClient(c -> {
+                ModuleManager.get().get(dev.kraken.module.combat.SilentKillAura.class).setEnabled(false);
+                c.player.setYRot(0);
+                c.player.setXRot(0);
+            });
+            // invulnerable target 3 blocks to the side (90 degrees away from the view)
+            sp.getServer().runCommand("kill @e[type=!minecraft:player,type=!minecraft:armor_stand]");
+            // tanky target 3 blocks to the west: expected camera yaw about +90
+            java.util.UUID target = spawnZombie(sp, -3, 0, 1000f);
+            ctx.waitTicks(5);
+            ctx.runOnClient(c -> ModuleManager.get().get(dev.kraken.module.combat.BlatantKillAura.class).setEnabled(true));
+            StringBuilder yaws = new StringBuilder();
+            float maxJump = 0;
+            float prev = ctx.computeOnClient(c -> c.player.getYRot());
+            for (int i = 0; i < 30; i++) {
+                ctx.waitTick();
+                float y = ctx.computeOnClient(c -> c.player.getYRot());
+                maxJump = Math.max(maxJump, Math.abs(y - prev));
+                prev = y;
+                yaws.append(String.format(java.util.Locale.ROOT, "%.1f ", y));
+            }
+            System.out.println("[KrakenTest] BlatantKillAura camera yaw per tick: " + yaws);
+            System.out.println("[KrakenTest] BlatantKillAura largest yaw change in one tick: " + maxJump);
+            String aimInfo = ctx.computeOnClient(c -> {
+                var z = c.level.getEntity(target);
+                if (z == null) return "target not found on the client";
+                float[] rot = dev.kraken.util.RotationUtil.rotationsTo(c.player.getEyePosition(), dev.kraken.util.RotationUtil.aimPoint(c.player.getEyePosition(), z));
+                return String.format(java.util.Locale.ROOT, "target dx=%.2f dz=%.2f expected yaw %.1f, camera yaw %.1f",
+                        z.getX() - c.player.getX(), z.getZ() - c.player.getZ(), rot[0], c.player.getYRot());
+            });
+            System.out.println("[KrakenTest] " + aimInfo + ", target " + zombieState(sp, target));
+            ctx.runOnClient(c -> ModuleManager.get().get(dev.kraken.module.combat.BlatantKillAura.class).setEnabled(false));
 
             // --- HUD: every element on ---
             ctx.runOnClient(c -> {
@@ -165,6 +195,32 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(5);
             ctx.takeScreenshot("12-hud-after-edit");
         }
+    }
+
+    /** Spawns a zombie without AI next to the player on the server and returns its UUID. */
+    private static java.util.UUID spawnZombie(TestSingleplayerContext sp, double dx, double dz, float health) {
+        return sp.getServer().computeOnServer(server -> {
+            var player = server.getPlayerList().getPlayers().get(0);
+            var level = player.level();
+            var z = net.minecraft.world.entity.EntityTypes.ZOMBIE.create(level, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            z.snapTo(player.getX() + dx, player.getY(), player.getZ() + dz);
+            z.setNoAi(true);
+            z.setPersistenceRequired();
+            z.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(health);
+            z.setHealth(health);
+            level.addFreshEntity(z);
+            return z.getUUID();
+        });
+    }
+
+    /** "alive hp=..", "dead" or "missing" (never spawned / removed) – checked on the server. */
+    private static String zombieState(TestSingleplayerContext sp, java.util.UUID id) {
+        return sp.getServer().computeOnServer(server -> {
+            var e = server.getPlayerList().getPlayers().get(0).level().getEntity(id);
+            if (e == null) return "removed";
+            if (e instanceof net.minecraft.world.entity.LivingEntity l) return l.isAlive() ? "alive hp=" + l.getHealth() : "dead";
+            return "?";
+        });
     }
 
     /** Moves the cursor onto the wheel segment at {@code angle} (degrees, clockwise from top) and clicks. */

@@ -74,6 +74,9 @@ public abstract class Module {
     /** Called at the end of every client tick (after the movement packets were sent). */
     public void onTick() {}
 
+    /** Called once per rendered frame (after the mouse input of the frame was applied). */
+    public void onFrame() {}
+
     /** World render pass. Use {@link dev.kraken.util.Render3D} for boxes / lines. */
     public void onRender3D(LevelRenderContext context, dev.kraken.util.Render3D render) {}
 
