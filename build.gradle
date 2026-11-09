@@ -34,7 +34,7 @@ java {
 fabricApi {
     configureTests {
         createSourceSet = true
-        modId = "kraken-gametest"
+        modId = "nautilusclient-gametest"
         enableGameTests = false
         enableClientGameTests = true
         eula = true

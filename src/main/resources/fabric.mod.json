@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "id": "kraken",
+  "id": "nautilusclient",
   "version": "${version}",
-  "name": "Kraken",
-  "description": "Kraken Client – radial wheel GUI, combat & SMP utilities.",
+  "name": "Nautilus Client",
+  "description": "Nautilus Client – radial wheel GUI, combat & SMP utilities.",
   "authors": ["dizzle-hd"],
   "license": "MIT",
-  "icon": "assets/kraken/icon.png",
+  "icon": "assets/nautilusclient/icon.png",
   "environment": "client",
   "entrypoints": {
-    "client": ["dev.kraken.Kraken"]
+    "client": ["dev.nautilus.NautilusClient"]
   },
-  "mixins": ["kraken.mixins.json"],
+  "mixins": ["nautilusclient.mixins.json"],
   "depends": {
     "fabricloader": ">=0.17.0",
     "minecraft": "~26.3",

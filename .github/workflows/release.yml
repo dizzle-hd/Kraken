@@ -45,13 +45,13 @@ jobs:
         id: jar
         run: |
           jar=$(ls build/libs/*.jar | grep -v -- '-sources' | head -n 1)
-          out="build/libs/kraken-${{ steps.version.outputs.base }}-build.${{ github.run_number }}.jar"
+          out="build/libs/nautilus-client-${{ steps.version.outputs.base }}-build.${{ github.run_number }}.jar"
           cp "$jar" "$out"
           echo "path=$out" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: kraken-${{ steps.version.outputs.full }}
+          name: nautilus-client-${{ steps.version.outputs.full }}
           path: ${{ steps.jar.outputs.path }}
 
       - name: Publish release
@@ -61,13 +61,13 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: Kraken ${{ steps.version.outputs.base }} Alpha (Build ${{ github.run_number }})
+          name: Nautilus Client ${{ steps.version.outputs.base }} Alpha (Build ${{ github.run_number }})
           make_latest: true
           files: ${{ steps.jar.outputs.path }}
           body: |
             > ⚠️ **Alpha – noch in Entwicklung.** Funktionen können fehlen, sich ändern oder Fehler haben. Bitte zuerst im Einzelspieler testen.
 
-            **Kraken ${{ steps.version.outputs.base }} Alpha**, automatischer Build #${{ github.run_number }}
+            **Nautilus Client ${{ steps.version.outputs.base }} Alpha**, automatischer Build #${{ github.run_number }}
 
             - Minecraft **26.3** · Fabric Loader **0.20+** · Fabric API · Java **25**
             - Commit: ${{ github.sha }}

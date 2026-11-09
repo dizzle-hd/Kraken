@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.nautilus.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "BlockMixin",
+    "BlockStateBaseMixin",
+    "CameraMixin",
+    "EntityMixin",
+    "ClientPacketListenerMixin",
+    "FluidRendererMixin",
+    "KeyboardInputMixin",
+    "GuiRendererMixin",
+    "LightCoordsUtilMixin",
+    "LightmapRenderStateExtractorMixin",
+    "LocalPlayerMixin",
+    "MinecraftMixin",
+    "MouseHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

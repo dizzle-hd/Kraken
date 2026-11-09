@@ -1,8 +1,8 @@
-# Kraken
+# Nautilus Client
 
-> ⚠️ **Alpha – Kraken ist noch in Entwicklung.** Funktionen können fehlen, sich ändern oder Fehler haben.
+> ⚠️ **Alpha – Nautilus Client ist noch in Entwicklung.** Funktionen können fehlen, sich ändern oder Fehler haben.
 >
-> ⚠️ **Sodium:** Kraken startet auch mit Sodium, XRay schaltet sich dann aber automatisch ab. Alles andere ist mit Sodium (und Iris) experimentell.
+> ⚠️ **Sodium:** Nautilus Client startet auch mit Sodium, XRay schaltet sich dann aber automatisch ab. Alles andere ist mit Sodium (und Iris) experimentell.
 
 Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric API 0.165+) with a radial wheel GUI instead of a click GUI.
 
@@ -28,7 +28,7 @@ veröffentlicht ihn als neues Release `v<version>-build.<nummer>`. Die Webseite 
 `.github/workflows/pages.yml`) liest das neueste Release über die GitHub-API.
 
 Rad, Mitte und HUD sind aus **Liquid Glass** (eigener Shader: Unschärfe nur hinter dem Glas, Lichtbrechung am Rand, Lichtkante; im HUD-Modul abschaltbar). Alle Icons sind echte, sich drehende 3D-Modelle, in der Mitte steht der Spieler als 3D-Büste und schaut zur Maus. Die Schrift ist
-[Nunito](https://github.com/googlefonts/nunito) (SIL Open Font License, siehe `assets/kraken/font/nunito_ofl_license.txt`).
+[Nunito](https://github.com/googlefonts/nunito) (SIL Open Font License, siehe `assets/nautilusclient/font/nunito_ofl_license.txt`).
 
 ## Einrichtung
 
@@ -48,7 +48,7 @@ Beim ersten Betreten einer Welt öffnet sich die **Einrichtung**: Hinweise (Alph
 | Zurück | Klick auf die Mitte oder `ESC` |
 | Modul-Taste setzen | In den Einstellungen auf „Taste“ klicken, Taste drücken (`Backspace` = entfernen) |
 
-Alles wird in `config/kraken.json` gespeichert.
+Alles wird in `config/nautilusclient.json` gespeichert (eine alte `config/kraken.json` wird beim ersten Start automatisch übernommen).
 
 ## Module
 
@@ -76,7 +76,7 @@ Alles wird in `config/kraken.json` gespeichert.
 - **HUD-Editor** – Klick im Rad öffnet den Editor: Elemente ziehen (rasten an Rändern, Mitte und anderen Elementen ein), Rechts-Klick blendet aus, Chips im Panel blenden ein/aus, „Zurücksetzen“ stellt das Standard-Layout her.
 - **HUD-Elemente** – Logo, Modulliste, Koordinaten (inkl. Nether/Oberwelt), FPS, Ping, TPS, Geschwindigkeit, Richtung, Uhrzeit, Benachrichtigungen.
 - **Benachrichtigungen** – Modul an/aus und BaseFinder-Funde erscheinen als Glas-Toasts im HUD statt im Chat.
-- **HUD** – Kraken-Logo (animierte Krake) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
+- **HUD** – Nautilus-Logo (sanft schaukelnde Nautilus-Muschel) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
 - **Notifications** – Chat-Meldung beim An-/Ausschalten.
 - **Zoom** – zoomt auf eigener Taste heran (Standard `C`, im Rad unter „Zoom-Taste“ änderbar). Modus Halten/Umschalten, Stärke 1,5–50×, Mausrad zoomt beim Zoomen weiter, weiches Ein-/Auszoomen, langsamere Maus.
 - **Freecam** – Kamera löst sich vom Spieler und fliegt frei (WASD, Leertaste, Shift, Sprint = schneller), auch durch Blöcke. Dein Spieler bleibt stehen und ist sichtbar; Tempo einstellbar.
@@ -86,7 +86,7 @@ Alles wird in `config/kraken.json` gespeichert.
 ```
 ./gradlew build
 ```
-Benötigt **JDK 25**. Die Mod liegt danach in `build/libs/kraken-2.0.0.jar` (benötigt Fabric Loader + Fabric API für 26.3).
+Benötigt **JDK 25**. Die Mod liegt danach in `build/libs/nautilus-client-2.0.0.jar` (benötigt Fabric Loader + Fabric API für 26.3).
 
 Minecraft 26.x ist nicht mehr obfuskiert – der Code nutzt direkt die offiziellen Mojang-Namen, ohne Yarn-Mappings.
 
@@ -101,6 +101,11 @@ Screenshots landen in `build/run/clientGameTest/screenshots`.
 
 ## Neues Modul hinzufügen
 
-1. Klasse in `dev.kraken.module.<kategorie>` von `Module` ableiten.
+1. Klasse in `dev.nautilus.module.<kategorie>` von `Module` ableiten.
 2. Settings mit `add(new BoolSetting(...))` usw. anlegen.
 3. In `ModuleManager.init()` registrieren. Neue Kategorien in `Category` eintragen – das Rad passt sich automatisch an.
+
+---
+
+© 2026 Nautilus Client. Alle Rechte vorbehalten. Der Name „Nautilus Client“ und das Nautilus-Logo gehören zum Nautilus-Client-Projekt.
+Nautilus Client ist ein unabhängiges Fan-Projekt und steht in keiner Verbindung zu Mojang oder Microsoft. Minecraft ist eine Marke von Mojang AB.

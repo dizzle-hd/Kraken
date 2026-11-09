@@ -1,6 +1,0 @@
-{
-  "providers": [
-    { "type": "ttf", "file": "kraken:nunito_bold.ttf", "size": 10.0, "oversample": 8.0, "shift": [0.0, 1.0] },
-    { "type": "reference", "id": "minecraft:default" }
-  ]
-}

@@ -99,7 +99,7 @@ main { padding: 0 clamp(16px, 4vw, 48px); max-width: 1240px; margin: 0 auto; }
 .logo-wrap { position: relative; width: 150px; height: 150px; margin-bottom: 8px; }
 .logo { position: relative; width: 150px; height: 150px; animation: float 5s ease-in-out infinite; filter: drop-shadow(0 12px 22px rgba(0,0,0,.3)); }
 @keyframes float { 50% { transform: translateY(-8px) rotate(-2deg); } }
-/* the three orange arcs of the wheel, rotating around the kraken */
+/* the three orange arcs of the wheel, rotating around the logo */
 .ring {
   position: absolute; inset: -18px; border-radius: 50%;
   border: 4px solid transparent; border-top-color: var(--accent);
@@ -264,3 +264,5 @@ footer .small { font-size: .82rem; opacity: .8; }
 .sodium-note { border-color: rgba(255, 122, 90, .45); background: linear-gradient(180deg, rgba(255, 110, 80, .24), rgba(255, 90, 60, .12)); color: #ffe2d8; }
 .sodium-note strong { color: #ffd0c2; }
 .chips .chip-warn { border-color: rgba(255, 122, 90, .6); color: #ffd0c2; background: rgba(255, 90, 60, .14); }
+
+footer .copyright { color: var(--text); font-weight: 700; }

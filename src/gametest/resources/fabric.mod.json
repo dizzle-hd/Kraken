@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "kraken-gametest",
+  "id": "nautilusclient-gametest",
   "version": "1.0.0",
-  "name": "Kraken GameTest",
+  "name": "Nautilus Client GameTest",
   "environment": "client",
   "entrypoints": {
-    "fabric-client-gametest": ["dev.kraken.test.KrakenClientGameTest"]
+    "fabric-client-gametest": ["dev.nautilus.test.NautilusClientGameTest"]
   },
-  "depends": { "kraken": "*" }
+  "depends": { "nautilusclient": "*" }
 }

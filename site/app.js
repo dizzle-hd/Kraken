@@ -1,4 +1,4 @@
-// Kraken download page: always links the newest GitHub release.
+// Nautilus Client download page: always links the newest GitHub release.
 (() => {
   // owner/repo: taken from the GitHub Pages URL (owner.github.io/repo), with a fallback
   const FALLBACK = { owner: "dizzle-hd", repo: "Kraken" };
