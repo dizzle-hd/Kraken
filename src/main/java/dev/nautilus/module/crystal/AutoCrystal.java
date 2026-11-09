@@ -35,11 +35,12 @@ import java.util.Set;
  * every crystal.
  */
 public class AutoCrystal extends Module {
+    private final ModeSetting mode = add(new ModeSetting("Modus", "Fadenkreuz = sobald du einen Kristall hältst und auf Obsidian/Bedrock schaust, wird sofort durchgecrystalt; Ziel = sucht selbst Gegner und den besten Platz", "Fadenkreuz", "Fadenkreuz", "Ziel"));
     // --- targets
-    private final BoolSetting players = add(new BoolSetting("Spieler", "Spieler angreifen", true));
-    private final BoolSetting hostiles = add(new BoolSetting("Monster", "Feindliche Mobs angreifen", false));
-    private final BoolSetting passives = add(new BoolSetting("Tiere", "Friedliche Mobs angreifen", false));
-    private final NumberSetting targetRange = add(new NumberSetting("Ziel-Reichweite", "Wie weit Ziele entfernt sein dürfen", 10, 3, 16, 0.5));
+    private final BoolSetting players = add(new BoolSetting("Spieler", "Spieler angreifen", true).visibleWhen(this::targetMode));
+    private final BoolSetting hostiles = add(new BoolSetting("Monster", "Feindliche Mobs angreifen", false).visibleWhen(this::targetMode));
+    private final BoolSetting passives = add(new BoolSetting("Tiere", "Friedliche Mobs angreifen", false).visibleWhen(this::targetMode));
+    private final NumberSetting targetRange = add(new NumberSetting("Ziel-Reichweite", "Wie weit Ziele entfernt sein dürfen", 10, 3, 16, 0.5).visibleWhen(this::targetMode));
     // --- place / break
     private final BoolSetting place = add(new BoolSetting("Platzieren", "Kristalle platzieren", true));
     private final BoolSetting breakOn = add(new BoolSetting("Zerstören", "Kristalle zerstören", true));
@@ -51,13 +52,13 @@ public class AutoCrystal extends Module {
     private final BoolSetting instant = add(new BoolSetting("Sofort zerstören", "Kristall-Spam: Kristall im selben Moment zerstören, in dem er erscheint", true));
     private final BoolSetting ownOnly = add(new BoolSetting("Nur eigene", "Nur Kristalle zerstören, die du selbst platziert hast", false));
     // --- damage
-    private final NumberSetting minDamage = add(new NumberSetting("Min. Schaden", "Mindestschaden am Ziel (Herzen ×2)", 6, 0, 36, 0.5));
-    private final NumberSetting maxSelf = add(new NumberSetting("Max. Eigenschaden", "Höchstens so viel Schaden an dir selbst", 8, 0, 36, 0.5));
+    private final NumberSetting minDamage = add(new NumberSetting("Min. Schaden", "Mindestschaden am Ziel (Herzen ×2)", 6, 0, 36, 0.5).visibleWhen(this::targetMode));
+    private final NumberSetting maxSelf = add(new NumberSetting("Max. Eigenschaden", "Höchstens so viel Schaden an dir selbst (nur Modus Ziel)", 8, 0, 36, 0.5).visibleWhen(this::targetMode));
     private final BoolSetting antiSuicide = add(new BoolSetting("Anti-Selbstmord", "Nie einen Kristall, der dich töten würde", true));
-    private final NumberSetting facePlace = add(new NumberSetting("Face-Place", "Unter diesem Leben des Ziels reicht 2 Schaden (0 = aus)", 8, 0, 36, 1));
+    private final NumberSetting facePlace = add(new NumberSetting("Face-Place", "Unter diesem Leben des Ziels reicht 2 Schaden (0 = aus)", 8, 0, 36, 1).visibleWhen(this::targetMode));
     // --- handling
     private final ModeSetting switchMode = add(new ModeSetting("Wechseln", "Keins = nur wenn du Kristalle hältst, Normal = auf Kristalle wechseln, Zurück = danach zurück", "Normal", "Keins", "Normal", "Zurück"));
-    private final ModeSetting rotate = add(new ModeSetting("Rotation", "Silent = Server sieht dich zum Kristall schauen, Keine = gar nicht drehen", "Silent", "Silent", "Keine"));
+    private final ModeSetting rotate = add(new ModeSetting("Rotation", "Silent = Server sieht dich zum Kristall schauen, Keine = gar nicht drehen", "Silent", "Silent", "Keine").visibleWhen(this::targetMode));
     private final BoolSetting throughWalls = add(new BoolSetting("Durch Wände", "Auch ohne Sichtlinie platzieren/zerstören", false));
     private final BoolSetting pauseOnEat = add(new BoolSetting("Pause beim Essen", "Nicht während du isst / trinkst", true));
     private final BoolSetting render = add(new BoolSetting("Anzeigen", "Platzier-Position als Box anzeigen", true));
@@ -70,9 +71,19 @@ public class AutoCrystal extends Module {
     private BlockPos renderPos;
     private long renderUntil;
     private final Set<BlockPos> placedByUs = new HashSet<>();
+    /** Crosshair mode: the obsidian/bedrock block that is being crystalled. */
+    private BlockPos lookBase;
+
+    private boolean targetMode() {
+        return mode.is("Ziel");
+    }
+
+    private boolean crosshairMode() {
+        return mode.is("Fadenkreuz");
+    }
 
     public AutoCrystal() {
-        super("AutoCrystal", "Platziert und zerstört End-Kristalle automatisch am besten Punkt beim Ziel – mit Schadens- und Selbstschutz-Berechnung.",
+        super("AutoCrystal", "Kristall halten + auf Obsidian schauen = sofort durchcrystallen. Modus Ziel: sucht Gegner und den besten Platz selbst.",
                 Category.CRYSTAL, Items.END_CRYSTAL);
     }
 
@@ -98,7 +109,7 @@ public class AutoCrystal extends Module {
         plannedPlace = null;
         plannedBreak = null;
         target = null;
-        if (paused()) return;
+        if (paused() || crosshairMode()) return;
         List<LivingEntity> list = TargetUtil.find(new TargetUtil.Filter(players.isOn(), hostiles.isOn(), passives.isOn(), true, false),
                 targetRange.get(), 360f, true, "Distanz");
         if (list.isEmpty()) return;
@@ -189,6 +200,10 @@ public class AutoCrystal extends Module {
     public void onTick() {
         if (placeWait > 0) placeWait--;
         if (breakWait > 0) breakWait--;
+        if (crosshairMode()) {
+            crosshairTick();
+            return;
+        }
         if (paused() || target == null || mc.gui.screen() != null) return;
 
         for (int i = 0; i < perTick.getInt(); i++) {
@@ -208,6 +223,77 @@ public class AutoCrystal extends Module {
             }
             if (!did) break;
         }
+    }
+
+    // =============================================================================================
+    // Crosshair mode: hold a crystal, look at obsidian/bedrock -> place, break the moment it
+    // appears, place again ... (no target search)
+    // =============================================================================================
+
+    private InteractionHand crystalHand() {
+        if (mc.player.getMainHandItem().is(Items.END_CRYSTAL)) return InteractionHand.MAIN_HAND;
+        if (mc.player.getOffhandItem().is(Items.END_CRYSTAL)) return InteractionHand.OFF_HAND;
+        return null;
+    }
+
+    /** Would this explosion kill us? (anti suicide is the only self check in crosshair mode) */
+    private boolean suicide(Vec3 boom) {
+        if (!antiSuicide.isOn()) return false;
+        float self = DamageUtil.explosion(mc.player, boom, DamageUtil.CRYSTAL, null, null);
+        return self >= mc.player.getHealth() + mc.player.getAbsorptionAmount() - 1f;
+    }
+
+    private void crosshairTick() {
+        lookBase = null;
+        if (paused() || mc.gui.screen() != null) return;
+        InteractionHand hand = crystalHand();
+        if (hand == null) return;
+        var hr = mc.hitResult;
+        if (hr == null) return;
+
+        for (int i = 0; i < perTick.getInt(); i++) {
+            // looking at a crystal: break it
+            if (hr instanceof net.minecraft.world.phys.EntityHitResult eh && eh.getEntity() instanceof EndCrystal c && c.isAlive()) {
+                lookBase = c.blockPosition().below();
+                if (breakOn.isOn() && breakWait <= 0 && !suicide(c.position())) {
+                    AttackUtil.attack(c);
+                    breakWait = breakDelay.getInt();
+                }
+                return;
+            }
+            if (!(hr instanceof net.minecraft.world.phys.BlockHitResult bh) || bh.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK) return;
+            BlockPos base = bh.getBlockPos();
+            var state = mc.level.getBlockState(base);
+            if (!state.is(net.minecraft.world.level.block.Blocks.OBSIDIAN) && !state.is(net.minecraft.world.level.block.Blocks.BEDROCK)) return;
+            lookBase = base;
+            renderPos = base;
+            renderUntil = System.currentTimeMillis() + 300;
+            // a crystal is already standing there: break it first
+            EndCrystal existing = crystalOn(base);
+            if (existing != null) {
+                if (breakOn.isOn() && breakWait <= 0 && !suicide(existing.position())) {
+                    AttackUtil.attack(existing);
+                    breakWait = breakDelay.getInt();
+                }
+                return;
+            }
+            if (!place.isOn() || placeWait > 0 || !WorldUtil.canPlaceCrystal(base)) return;
+            if (suicide(new Vec3(base.getX() + 0.5, base.getY() + 1, base.getZ() + 0.5))) return;
+            var r = mc.gameMode.useItemOn(mc.player, hand, bh);
+            if (r.consumesAction()) {
+                mc.player.swing(hand, mc.player.getItemInHand(hand).getInteractAnimation(), false);
+                placedByUs.add(base.immutable());
+                if (placedByUs.size() > 64) placedByUs.clear();
+                placeWait = placeDelay.getInt();
+            }
+            if (placeWait > 0) return;
+        }
+    }
+
+    private EndCrystal crystalOn(BlockPos base) {
+        AABB box = new AABB(base.above());
+        for (Entity e : mc.level.getEntities((Entity) null, box.inflate(0.1), x -> x instanceof EndCrystal && x.isAlive())) return (EndCrystal) e;
+        return null;
     }
 
     private BlockPos nextPlace() {
@@ -236,7 +322,18 @@ public class AutoCrystal extends Module {
 
     /** Crystal spam: called as soon as a crystal entity appears on the client. */
     public void onCrystalSpawn(EndCrystal crystal) {
-        if (!isEnabled() || !instant.isOn() || !breakOn.isOn() || paused() || target == null || mc.gui.screen() != null) return;
+        if (!isEnabled() || !instant.isOn() || !breakOn.isOn() || paused() || mc.gui.screen() != null) return;
+        if (crosshairMode()) {
+            // only the crystal on the block you are crystalling
+            if (lookBase == null || !crystal.blockPosition().below().equals(lookBase) || crystalHand() == null) return;
+            Vec3 eyes = mc.player.getEyePosition();
+            if (eyes.distanceTo(RotationUtil.closestPoint(eyes, crystal)) > breakRange.get() || suicide(crystal.position())) return;
+            AttackUtil.attack(crystal);
+            breakWait = breakDelay.getInt();
+            placeWait = 0; // the block is free again: place the next one right away
+            return;
+        }
+        if (target == null) return;
         if (!placedByUs.contains(crystal.blockPosition().below()) && ownOnly.isOn()) return;
         Vec3 eyes = mc.player.getEyePosition();
         if (eyes.distanceTo(RotationUtil.closestPoint(eyes, crystal)) > breakRange.get()) return;
@@ -255,6 +352,7 @@ public class AutoCrystal extends Module {
 
     @Override
     public String getInfo() {
+        if (crosshairMode()) return "Fadenkreuz";
         return target == null ? null : target.getName().getString() + (plannedDamage > 0 ? String.format(java.util.Locale.ROOT, " %.1f", plannedDamage) : "");
     }
 }

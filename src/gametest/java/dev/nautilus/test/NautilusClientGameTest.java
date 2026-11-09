@@ -346,6 +346,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         float hpBefore = playerHp(sp);
         ctx.runOnClient(c -> {
             var ac = mm.get(dev.nautilus.module.crystal.AutoCrystal.class);
+            set(ac, "Modus", "Ziel");
             set(ac, "Monster", true);
             set(ac, "Min. Schaden", 4.0);
             ac.setEnabled(true);
@@ -355,6 +356,29 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.AutoCrystal.class).setEnabled(false));
         System.out.println("[NautilusTest] AutoCrystal: zombie " + zombieState(sp, z) + ", crystals used "
                 + (crystalsBefore - count(ctx, net.minecraft.world.item.Items.END_CRYSTAL)) + ", player hp " + hpBefore + " -> " + playerHp(sp));
+
+        // AutoCrystal, crosshair mode: hold a crystal, look at obsidian -> it crystals through on its own
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
+        srv.runCommand("execute at @a run setblock ~ ~-1 ~3 minecraft:obsidian");
+        ctx.waitTicks(3);
+        int crystals2 = count(ctx, net.minecraft.world.item.Items.END_CRYSTAL);
+        ctx.runOnClient(c -> {
+            c.player.getInventory().setSelectedSlot(0); // crystals
+            var eyes = c.player.getEyePosition();
+            var base = c.player.blockPosition().below().south(3);
+            float[] rot = dev.nautilus.util.RotationUtil.rotationsTo(eyes, net.minecraft.world.phys.Vec3.atCenterOf(base).add(0, 0.5, 0));
+            c.player.setYRot(rot[0]);
+            c.player.setXRot(rot[1]);
+            var ac = mm.get(dev.nautilus.module.crystal.AutoCrystal.class);
+            set(ac, "Modus", "Fadenkreuz");
+            ac.setEnabled(true);
+        });
+        ctx.waitTicks(40);
+        ctx.takeScreenshot("14b-autocrystal-crosshair");
+        ctx.runOnClient(c -> { mm.get(dev.nautilus.module.crystal.AutoCrystal.class).setEnabled(false); c.player.getInventory().setSelectedSlot(5); });
+        System.out.println("[NautilusTest] AutoCrystal crosshair: crystals used in 2 s = " + (crystals2 - count(ctx, net.minecraft.world.item.Items.END_CRYSTAL))
+                + ", player hp " + playerHp(sp));
 
         // AnchorMacro + SafeAnchor: anchor 3 blocks south at foot level, a zombie behind it
         srv.runCommand("kill @e[type=!minecraft:player]");
@@ -397,6 +421,12 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         // Surround
         srv.runCommand("kill @e[type=!minecraft:player]");
         srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
+        // a clean platform away from the craters of the explosions above
+        srv.runCommand("execute at @a run tp @a ~40 ~6 ~");
+        ctx.waitTicks(2);
+        srv.runCommand("execute at @a run fill ~-4 ~-7 ~-4 ~4 ~-7 ~4 minecraft:stone");
+        srv.runCommand("execute at @a run fill ~-4 ~-6 ~-4 ~4 ~3 ~4 minecraft:air");
+        ctx.waitTicks(40);
         // stand off-centre first, so the surround has to walk to the middle
         ctx.runOnClient(c -> {
             var b = c.player.blockPosition();
@@ -406,18 +436,28 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         });
         ctx.waitTicks(5);
         String before = ctx.computeOnClient(c -> String.format(java.util.Locale.ROOT, "%.2f/%.2f", c.player.getX() - Math.floor(c.player.getX()), c.player.getZ() - Math.floor(c.player.getZ())));
+        float[] rotBefore = ctx.computeOnClient(c -> new float[]{c.player.getYRot(), c.player.getXRot()});
         ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.Surround.class).setEnabled(true));
-        ctx.waitTicks(40);
+        StringBuilder look = new StringBuilder();
+        for (int i = 0; i < 60; i++) {
+            ctx.waitTick();
+            if (i == 18) ctx.takeScreenshot("16a-surround-looking");
+            if (i % 4 == 0) {
+                String r = ctx.computeOnClient(c -> String.format(java.util.Locale.ROOT, "%.0f/%.0f ", c.player.getYRot(), c.player.getXRot()));
+                look.append(r);
+            }
+        }
+        System.out.println("[NautilusTest] Surround camera yaw/pitch every 4 ticks (start " + rotBefore[0] + "/" + rotBefore[1] + "): " + look);
         System.out.println("[NautilusTest] Surround centering by key taps: position in block " + before + " -> "
                 + ctx.computeOnClient(c -> String.format(java.util.Locale.ROOT, "%.2f/%.2f", c.player.getX() - Math.floor(c.player.getX()), c.player.getZ() - Math.floor(c.player.getZ()))));
         String around = ctx.computeOnClient(c -> {
             int n = 0;
             for (var d : net.minecraft.core.Direction.Plane.HORIZONTAL)
-                if (c.level.getBlockState(c.player.blockPosition().relative(d)).is(net.minecraft.world.level.block.Blocks.OBSIDIAN)) n++;
+                if (!c.level.getBlockState(c.player.blockPosition().relative(d)).canBeReplaced()) n++;
             return n + "/4";
         });
         ctx.takeScreenshot("16-surround");
-        System.out.println("[NautilusTest] Surround: obsidian around the feet " + around);
+        System.out.println("[NautilusTest] Surround: solid blocks around the feet " + around);
         ctx.runOnClient(c -> {
             mm.get(dev.nautilus.module.crystal.Surround.class).setEnabled(false);
             mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(false);

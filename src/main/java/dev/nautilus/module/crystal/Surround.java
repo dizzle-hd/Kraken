@@ -26,6 +26,10 @@ public class Surround extends Module {
     private final BoolSetting doubleHeight = add(new BoolSetting("Doppelt", "Zweite Reihe auf Kopfhöhe (gegen Kristalle auf Kopfhöhe)", false));
     private final BoolSetting disableOnMove = add(new BoolSetting("Aus beim Verlassen", "Ausschalten, sobald du den Block verlässt oder springst", true));
     private final BoolSetting switchBack = add(new BoolSetting("Zurückwechseln", "Danach wieder den vorherigen Slot halten", true));
+    private final ModeSetting placeMode = add(new ModeSetting("Platzieren", "Mit Blick = Kamera dreht sich zu jedem Block und setzt ihn per Rechtsklick wie von Hand, Direkt = ohne hinzuschauen", "Mit Blick", "Mit Blick", "Direkt"));
+    private final NumberSetting turnSpeed = add(new NumberSetting("Dreh-Tempo", "Wie schnell die Kamera zum nächsten Block schaut (Grad pro Sekunde)", 900, 180, 2000, 30).visibleWhen(() -> placeMode.is("Mit Blick")));
+    private final NumberSetting smooth = add(new NumberSetting("Glätte", "Wie weich die Kamera dreht (höher = weicher)", 3, 1, 10, 0.5).visibleWhen(() -> placeMode.is("Mit Blick")));
+    private final BoolSetting lookBack = add(new BoolSetting("Blick zurück", "Danach wieder dorthin schauen, wo du vorher hingeschaut hast", true).visibleWhen(() -> placeMode.is("Mit Blick")));
 
     private BlockPos start;
     /** Ticks left to walk to the block centre (0 = done). */
@@ -33,6 +37,13 @@ public class Surround extends Module {
     private int tap;
     private boolean pressing;
     private int wait;
+    // "with view": the block that is being aimed at and the point on the face that gets clicked
+    private BlockPos aimTarget;
+    private net.minecraft.world.phys.Vec3 aimPoint;
+    private float[] savedRot;
+    private boolean returning;
+    private long lastFrame;
+    private int aimTicks;
 
     public Surround() {
         super("Surround", "Umgibt deine Füße mit Obsidian, damit niemand Kristalle direkt neben dir platzieren kann.", Category.CRYSTAL, Items.OBSIDIAN);
@@ -69,6 +80,79 @@ public class Surround extends Module {
     protected void onDisable() {
         releaseKeys();
         centering = 0;
+        aimTarget = null;
+        aimPoint = null;
+        returning = false;
+        savedRot = null;
+    }
+
+    /** Every frame: turn the camera smoothly to the face that is clicked next (or back afterwards). */
+    @Override
+    public void onFrame() {
+        long now = System.nanoTime();
+        float dt = lastFrame == 0 ? 0f : Math.min(0.05f, (now - lastFrame) / 1_000_000_000f);
+        lastFrame = now;
+        if (mc.player == null || dt <= 0f || mc.gui.screen() != null) return;
+        float[] want;
+        if (aimPoint != null) want = dev.nautilus.util.RotationUtil.rotationsTo(mc.player.getEyePosition(), aimPoint);
+        else if (returning && savedRot != null) want = savedRot;
+        else return;
+        float yaw = mc.player.getYRot(), pitch = mc.player.getXRot();
+        if (aimPoint == null && dev.nautilus.util.RotationUtil.angleDifference(yaw, pitch, want) < 0.5f) {
+            returning = false;
+            savedRot = null;
+            return;
+        }
+        float[] step = dev.nautilus.util.RotationUtil.smoothStep(yaw, pitch, want, 40f / smooth.getFloat(), turnSpeed.getFloat(), dt);
+        mc.player.turn(step[0] / 0.15, step[1] / 0.15);
+    }
+
+    /** What the crosshair hits right now (fresh ray from the current camera rotation). */
+    private net.minecraft.world.phys.BlockHitResult crosshair() {
+        var eyes = mc.player.getEyePosition();
+        var end = eyes.add(dev.nautilus.util.RotationUtil.direction(mc.player.getYRot(), mc.player.getXRot()).scale(4.5));
+        return mc.level.clip(new net.minecraft.world.level.ClipContext(eyes, end, net.minecraft.world.level.ClipContext.Block.OUTLINE,
+                net.minecraft.world.level.ClipContext.Fluid.NONE, mc.player));
+    }
+
+    /** Next free surround position that has something to click against, with the point to look at. */
+    private boolean nextAim(BlockPos feet) {
+        for (BlockPos p : positions(feet)) {
+            if (!WorldUtil.isReplaceable(p) || WorldUtil.reach(p) > 4.5) continue;
+            if (mc.player.getBoundingBox().intersects(new net.minecraft.world.phys.AABB(p))) continue;
+            Object[] side = WorldUtil.placeSide(p, null);
+            if (side == null) continue;
+            BlockPos n = (BlockPos) side[0];
+            Direction face = (Direction) side[1];
+            aimTarget = p;
+            aimPoint = net.minecraft.world.phys.Vec3.atCenterOf(n).add(face.getStepX() * 0.499, face.getStepY() * 0.499, face.getStepZ() * 0.499);
+            aimTicks = 0;
+            return true;
+        }
+        return false;
+    }
+
+    /** "With view": place only when the crosshair really looks at a face that puts the block into the target. */
+    private void placeWithView(BlockPos feet, int slot) {
+        if (aimTarget != null && !WorldUtil.isReplaceable(aimTarget)) aimTarget = null;
+        if (aimTarget == null && !nextAim(feet)) {
+            // everything is placed: look back
+            if (aimPoint != null) returning = lookBack.isOn();
+            aimPoint = null;
+            return;
+        }
+        if (savedRot == null) savedRot = new float[]{mc.player.getYRot(), mc.player.getXRot()};
+        if (++aimTicks > 40) { aimTarget = null; return; } // cannot get a clear view: try the next one
+        var hit = crosshair();
+        if (hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK) return;
+        if (!hit.getBlockPos().relative(hit.getDirection()).equals(aimTarget)) return;
+        int prev = InvUtil.selected();
+        InvUtil.select(slot);
+        var r = mc.gameMode.useItemOn(mc.player, net.minecraft.world.InteractionHand.MAIN_HAND, hit);
+        if (r.consumesAction()) mc.player.swing(net.minecraft.world.InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getInteractAnimation(), false);
+        if (switchBack.isOn()) InvUtil.select(prev);
+        aimTarget = null;
+        wait = delay.getInt();
     }
 
     private void releaseKeys() {
@@ -138,6 +222,10 @@ public class Surround extends Module {
         if (wait > 0) { wait--; return; }
         int slot = InvUtil.hotbar(this::isBlock);
         if (slot < 0) return;
+        if (placeMode.is("Mit Blick")) {
+            placeWithView(feet, slot);
+            return;
+        }
         int prev = InvUtil.selected();
         int placed = 0;
         for (BlockPos p : positions(feet)) {

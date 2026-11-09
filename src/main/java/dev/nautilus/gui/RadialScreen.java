@@ -184,7 +184,7 @@ public class RadialScreen extends Screen {
 
     /** Radius of the wheel for a screen size, including the "Rad-Größe" setting (never larger than fits). */
     /** Height of the search bar strip above the wheel. */
-    public static final float SEARCH_STRIP = 18f;
+    public static final float SEARCH_STRIP = 22f;
 
     public static float wheelCenterY(float height) {
         return (height - 22f) / 2f + 3f + SEARCH_STRIP / 2f;
@@ -603,8 +603,8 @@ public class RadialScreen extends Screen {
     private void renderSearchBar(GuiGraphicsExtractor ctx, float close, int mouseX, int mouseY) {
         if (level == Level.SETTINGS) return;
         boolean active = level == Level.SEARCH;
-        float s = Math.max(0.7f, Math.min(1f, R / 150f));
-        float ph = 13f, pw = Math.min(width - 20f, Math.max(150f, R * 1.15f));
+        float s = Math.max(0.85f, Math.min(1.15f, R / 140f));
+        float ph = 16f, pw = Math.min(width - 20f, Math.max(170f, R * 1.25f));
         float x1 = width / 2f - pw / 2f, x2 = width / 2f + pw / 2f;
         float y1 = 3f, y2 = y1 + ph;
         float appear = ease((System.currentTimeMillis() - openedAt) / 300f) * close;
@@ -618,24 +618,24 @@ public class RadialScreen extends Screen {
         }
         bar.roundRectRim(x1, y1, x2, y2, ph / 2f, 0.8f, Shapes.alpha(active ? 0xCCFF6A3A : 0x40FFFFFF, appear));
         // magnifier
-        float mx = x1 + 9f, my = (y1 + y2) / 2f - 0.5f;
-        bar.ring(mx, my, 2.6f, 1.1f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
-        bar.line(mx + 1.9f, my + 1.9f, mx + 4f, my + 4f, 1.2f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
+        float mx = x1 + 10f, my = (y1 + y2) / 2f - 0.5f;
+        bar.ring(mx, my, 3f, 1.2f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
+        bar.line(mx + 2.2f, my + 2.2f, mx + 4.6f, my + 4.6f, 1.3f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
         bar.submit(ctx);
-        float tx = x1 + 17f, ty = (y1 + y2) / 2f;
+        float tx = x1 + 19f, ty = (y1 + y2) / 2f;
         if (active) {
             String shown = query;
             float maxW = pw - 26f;
-            while (shown.length() > 1 && textWidth(shown, false) * 0.8f * s > maxW) shown = shown.substring(1);
-            leftText(ctx, shown, tx, ty, 0.8f * s, Shapes.alpha(0xFFFFFFFF, appear), false);
+            while (shown.length() > 1 && textWidth(shown, false) * 0.95f * s > maxW) shown = shown.substring(1);
+            leftText(ctx, shown, tx, ty, 0.95f * s, Shapes.alpha(0xFFFFFFFF, appear), false);
             if ((System.currentTimeMillis() - lastTypedAt) % 1000 < 550) {
-                float cxp = tx + textWidth(shown, false) * 0.8f * s + 1f;
+                float cxp = tx + textWidth(shown, false) * 0.95f * s + 1f;
                 Shapes caret = new Shapes();
                 caret.rect(cxp, ty - 4f * s, cxp + 0.8f, ty + 4f * s, Shapes.alpha(ACCENT, appear));
                 caret.submit(ctx);
             }
         } else {
-            leftText(ctx, "Modul suchen … (einfach tippen)", tx, ty, 0.75f * s, Shapes.alpha(0x99FFFFFF, appear), false);
+            leftText(ctx, "Modul suchen … (einfach tippen)", tx, ty, 0.9f * s, Shapes.alpha(0x99FFFFFF, appear), false);
         }
         if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) hint = active ? "ESC oder Klick in die Mitte: Suche beenden" : "Einfach lostippen, um Module zu finden";
     }
