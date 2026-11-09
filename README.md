@@ -14,6 +14,15 @@ Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric A
 |---|---|
 | ![BaseFinder](docs/basefinder.png) | ![XRay](docs/xray.png) |
 
+## Download
+
+**Webseite:** https://dizzle-hd.github.io/Kraken/ – lädt automatisch immer den neuesten Build.
+Alternativ direkt unter [Releases](https://github.com/dizzle-hd/Kraken/releases/latest).
+
+Jeder Push auf den Standard-Branch baut den Mod per GitHub Actions (`.github/workflows/release.yml`) und
+veröffentlicht ihn als neues Release `v<version>-build.<nummer>`. Die Webseite (`site/`, veröffentlicht über
+`.github/workflows/pages.yml`) liest das neueste Release über die GitHub-API.
+
 Alle Icons und der Spielerkopf in der Mitte sind echte, sich drehende 3D-Modelle. Die Schrift ist
 [Nunito](https://github.com/googlefonts/nunito) (SIL Open Font License, siehe `assets/kraken/font/OFL.txt`).
 

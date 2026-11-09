@@ -1,0 +1,73 @@
+name: Build & Release
+
+# Every push to the default branch builds the mod and publishes it as the newest GitHub release.
+# The website reads the latest release through the GitHub API, so it is always up to date.
+on:
+  push:
+    paths-ignore:
+      - 'site/**'
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Read mod version
+        id: version
+        run: |
+          base=$(grep '^mod_version=' gradle.properties | cut -d= -f2)
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          echo "full=$base+build.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+          echo "tag=v$base-build.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: ./gradlew build -Pmod_version=${{ steps.version.outputs.full }} --no-daemon
+
+      - name: Collect jar
+        id: jar
+        run: |
+          jar=$(ls build/libs/*.jar | grep -v -- '-sources' | head -n 1)
+          out="build/libs/kraken-${{ steps.version.outputs.base }}-build.${{ github.run_number }}.jar"
+          cp "$jar" "$out"
+          echo "path=$out" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kraken-${{ steps.version.outputs.full }}
+          path: ${{ steps.jar.outputs.path }}
+
+      - name: Publish release
+        # only the default branch publishes releases; other branches just build
+        if: github.ref_name == github.event.repository.default_branch
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Kraken ${{ steps.version.outputs.base }} (Build ${{ github.run_number }})
+          make_latest: true
+          files: ${{ steps.jar.outputs.path }}
+          body: |
+            **Kraken ${{ steps.version.outputs.base }}**, automatischer Build #${{ github.run_number }}
+
+            - Minecraft **26.3** · Fabric Loader **0.20+** · Fabric API · Java **25**
+            - Commit: ${{ github.sha }}
+
+            Die `.jar` in den `mods`-Ordner legen. Fabric API wird benötigt.
