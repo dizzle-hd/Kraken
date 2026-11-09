@@ -163,6 +163,56 @@ public final class Shapes {
         return this;
     }
 
+
+    /**
+     * Band around a rounded rectangle at distance [dIn, dOut] from its border (positive = outside),
+     * alpha multiplied by mulIn at dIn and mulOut at dOut. Used for rims and soft edges.
+     */
+    private void roundRectBand(float x1, float y1, float x2, float y2, float r, float dIn, float dOut, int color, float mulIn, float mulOut) {
+        int cIn = alpha(color, mulIn), cOut = alpha(color, mulOut);
+        float q = (float) (Math.PI / 2);
+        float k0 = Math.max(0, r + dIn), k1 = Math.max(0, r + dOut);
+        // straight edges
+        quad(x1 + r, y1 + r - k0, cIn, x2 - r, y1 + r - k0, cIn, x2 - r, y1 + r - k1, cOut, x1 + r, y1 + r - k1, cOut);
+        quad(x1 + r, y2 - r + k0, cIn, x2 - r, y2 - r + k0, cIn, x2 - r, y2 - r + k1, cOut, x1 + r, y2 - r + k1, cOut);
+        quad(x1 + r - k0, y1 + r, cIn, x1 + r - k0, y2 - r, cIn, x1 + r - k1, y2 - r, cOut, x1 + r - k1, y1 + r, cOut);
+        quad(x2 - r + k0, y1 + r, cIn, x2 - r + k0, y2 - r, cIn, x2 - r + k1, y2 - r, cOut, x2 - r + k1, y1 + r, cOut);
+        // corners
+        int saved = forcedSteps;
+        forcedSteps = stepsFor(q, r + 1f);
+        sector(x1 + r, y1 + r, k0, k1, 3 * q, 4 * q, 0, cIn, cOut);
+        sector(x2 - r, y1 + r, k0, k1, 0, q, 0, cIn, cOut);
+        sector(x2 - r, y2 - r, k0, k1, q, 2 * q, 0, cIn, cOut);
+        sector(x1 + r, y2 - r, k0, k1, 2 * q, 3 * q, 0, cIn, cOut);
+        forcedSteps = saved;
+    }
+
+    /** Anti-aliased rim (inside the border, width w) of a rounded rectangle. */
+    public Shapes roundRectRim(float x1, float y1, float x2, float y2, float r, float w, int color) {
+        r = Math.min(r, Math.min((x2 - x1) / 2f, (y2 - y1) / 2f));
+        w = Math.min(w, r);
+        roundRectBand(x1, y1, x2, y2, r, -w, 0, color, 1, 1);
+        roundRectBand(x1, y1, x2, y2, r, 0, aa, color, 1, 0);
+        if (r - w - aa >= 0) roundRectBand(x1, y1, x2, y2, r, -w - aa, -w, color, 0, 1);
+        return this;
+    }
+
+    /** Vertical gradient inside a rounded rectangle (glass shine); corners follow the rounding. */
+    public Shapes roundRectGradient(float x1, float y1, float x2, float y2, float r, int top, int bottom) {
+        r = Math.min(r, Math.min((x2 - x1) / 2f, (y2 - y1) / 2f));
+        float h = y2 - y1;
+        int midTop = lerp(top, bottom, r / h), midBottom = lerp(top, bottom, (h - r) / h);
+        gradient(x1 + r, y1, x2 - r, y1 + r, top, top, midTop, midTop);
+        gradient(x1, y1 + r, x2, y2 - r, midTop, midTop, midBottom, midBottom);
+        gradient(x1 + r, y2 - r, x2 - r, y2, midBottom, midBottom, bottom, bottom);
+        float q = (float) (Math.PI / 2);
+        sector(x1 + r, y1 + r, 0, r, 3 * q, 4 * q, 0, midTop, top);
+        sector(x2 - r, y1 + r, 0, r, 0, q, 0, midTop, top);
+        sector(x2 - r, y2 - r, 0, r, q, 2 * q, 0, midBottom, bottom);
+        sector(x1 + r, y2 - r, 0, r, 2 * q, 3 * q, 0, midBottom, bottom);
+        return this;
+    }
+
     public Shapes roundRectOutline(float x1, float y1, float x2, float y2, float r, float w, int color) {
         r = Math.min(r, Math.min((x2 - x1) / 2f, (y2 - y1) / 2f));
         rect(x1 + r, y1, x2 - r, y1 + w, color);
