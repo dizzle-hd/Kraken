@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.kraken.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "BlockMixin",
+    "BlockRenderManagerMixin",
+    "ClientPlayNetworkHandlerMixin",
+    "ClientPlayerEntityMixin",
+    "LightmapTextureManagerMixin",
+    "MinecraftClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "kraken",
+  "version": "${version}",
+  "name": "Kraken",
+  "description": "Kraken Client – radial wheel GUI, combat & SMP utilities.",
+  "authors": ["dizzle-hd"],
+  "license": "MIT",
+  "icon": "assets/kraken/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.kraken.Kraken"]
+  },
+  "mixins": ["kraken.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "breaks": {
+    "sodium": "*"
+  }
+}
