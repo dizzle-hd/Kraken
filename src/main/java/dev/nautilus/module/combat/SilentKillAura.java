@@ -26,6 +26,12 @@ public class SilentKillAura extends KillAuraBase {
     public SilentKillAura() {
         super("SilentKillAura", "Greift Ziele automatisch an – mit unsichtbarer Server-Rotation, deine Kamera bleibt ruhig.",
                 Items.IRON_SWORD, 3.1, 4.5, 360);
+        preset("Legit", LOW, "Volle Aufladung, langsame Drehung, nur nach vorn",
+                "Abklingzeit", 1.0, "Drehgeschwindigkeit", 25, "Toleranz", 6, "Reichweite", 3.0, "FOV", 120, "Durch Wände", false);
+        preset("Normal", MEDIUM, "Rundum, normale Reichweite",
+                "Abklingzeit", 0.95, "Drehgeschwindigkeit", 60, "Toleranz", 15, "Reichweite", 3.1, "FOV", 360, "Durch Wände", false);
+        preset("Rage", HIGH, "Schnelle Drehung, mehr Reichweite, durch Wände",
+                "Abklingzeit", 0.8, "Drehgeschwindigkeit", 180, "Toleranz", 45, "Reichweite", 4.0, "FOV", 360, "Durch Wände", true);
     }
 
     @Override

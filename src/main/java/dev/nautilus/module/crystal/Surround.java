@@ -47,6 +47,12 @@ public class Surround extends Module {
 
     public Surround() {
         super("Surround", "Umgibt deine Füße mit Obsidian, damit niemand Kristalle direkt neben dir platzieren kann.", Category.CRYSTAL, Items.OBSIDIAN);
+        preset("Legit", LOW, "Mit Blick, ruhige Kamera, ein Block nach dem anderen",
+                "Platzieren", "Mit Blick", "Dreh-Tempo", 540, "Glätte", 4, "Blöcke pro Tick", 1, "Zentrieren", true);
+        preset("Normal", MEDIUM, "Mit Blick, schnelle Kamera",
+                "Platzieren", "Mit Blick", "Dreh-Tempo", 900, "Glätte", 3, "Blöcke pro Tick", 2, "Zentrieren", true);
+        preset("Rage", HIGH, "Ohne hinzuschauen, alles auf einmal",
+                "Platzieren", "Direkt", "Blöcke pro Tick", 4, "Zentrieren", true);
     }
 
     @Override

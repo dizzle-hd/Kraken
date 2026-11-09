@@ -85,6 +85,12 @@ public class AutoCrystal extends Module {
     public AutoCrystal() {
         super("AutoCrystal", "Kristall halten + auf Obsidian schauen = sofort durchcrystallen. Modus Ziel: sucht Gegner und den besten Platz selbst.",
                 Category.CRYSTAL, Items.END_CRYSTAL);
+        preset("Legit", LOW, "Fadenkreuz, kleine Pausen, kein Sofort-Zerstören",
+                "Modus", "Fadenkreuz", "Platzier-Verzögerung", 2, "Zerstör-Verzögerung", 2, "Pro Tick", 1, "Sofort zerstören", false);
+        preset("Normal", MEDIUM, "Fadenkreuz, Kristall-Spam mit kurzer Pause",
+                "Modus", "Fadenkreuz", "Platzier-Verzögerung", 1, "Zerstör-Verzögerung", 0, "Pro Tick", 1, "Sofort zerstören", true);
+        preset("Rage", HIGH, "Sucht selbst Ziele, keine Pausen, mehrere pro Tick, durch Wände",
+                "Modus", "Ziel", "Platzier-Verzögerung", 0, "Zerstör-Verzögerung", 0, "Pro Tick", 2, "Sofort zerstören", true, "Durch Wände", true);
     }
 
     @Override

@@ -44,6 +44,12 @@ public class AutoTotem extends Module {
     public AutoTotem() {
         super("AutoTotem", "Legt automatisch ein Totem in die Zweithand – öffnet dazu das Inventar und drückt die Zweithand-Taste (F).",
                 Category.CRYSTAL, Items.TOTEM_OF_UNDYING);
+        preset("Legit", LOW, "Inventar öffnen, F drücken, mit menschlichen Pausen",
+                "Inventar öffnen", true, "Öffnen-Verzögerung", 2, "Schließen-Verzögerung", 2, "Zufall", 2, "Verzögerung", 2);
+        preset("Normal", MEDIUM, "Inventar öffnen, schnell",
+                "Inventar öffnen", true, "Öffnen-Verzögerung", 1, "Schließen-Verzögerung", 1, "Zufall", 1, "Verzögerung", 0);
+        preset("Rage", HIGH, "Unsichtbar ohne Inventar, sofort",
+                "Inventar öffnen", false, "Zufall", 0, "Verzögerung", 0);
     }
 
     @Override

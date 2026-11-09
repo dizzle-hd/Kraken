@@ -32,6 +32,12 @@ public class SilentAim extends Module {
 
     public SilentAim() {
         super("SilentAim", "Lenkt deine Klicks unsichtbar auf das nächste Ziel in deinem Sichtkegel.", Category.COMBAT, Items.BOW);
+        preset("Legit", LOW, "Nur knapp verfehlte Schläge, kleiner Kegel",
+                "FOV", 15, "Reichweite", 3.0, "Durch Wände", false, "Nur bei Fehlschlag", true);
+        preset("Normal", MEDIUM, "Mittlerer Kegel",
+                "FOV", 40, "Reichweite", 3.0, "Durch Wände", false, "Nur bei Fehlschlag", true);
+        preset("Rage", HIGH, "Großer Kegel, mehr Reichweite, durch Wände",
+                "FOV", 120, "Reichweite", 4.5, "Durch Wände", true, "Nur bei Fehlschlag", false);
     }
 
     /** @return true if the attack was handled (vanilla attack is cancelled). */

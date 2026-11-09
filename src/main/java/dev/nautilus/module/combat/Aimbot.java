@@ -30,6 +30,12 @@ public class Aimbot extends KillAuraBase {
     public Aimbot() {
         super("Aimbot", "Zieht dein Fadenkreuz weich auf das beste Ziel in deinem Sichtkegel – mit Vorhersage und Ziel-Lock.",
                 Items.SPYGLASS, 4.5, 8.0, 90);
+        preset("Legit", LOW, "Leichte Zielhilfe: kleiner Kegel, langsam, nur beim Klicken",
+                "Glätte", 14, "Max. Drehung", 120, "Nur beim Klicken", true, "FOV", 35, "Vorhersage", 0.5, "Durch Wände", false);
+        preset("Normal", MEDIUM, "Deutliche Zielhilfe, mittleres Tempo",
+                "Glätte", 6, "Max. Drehung", 360, "Nur beim Klicken", false, "FOV", 70, "Vorhersage", 1, "Durch Wände", false);
+        preset("Rage", HIGH, "Rastet sofort ein, auch durch Wände",
+                "Glätte", 2, "Max. Drehung", 1080, "Nur beim Klicken", false, "FOV", 180, "Vorhersage", 1.5, "Durch Wände", true);
     }
 
     @Override

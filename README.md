@@ -50,6 +50,10 @@ Beim ersten Betreten einer Welt öffnet sich die **Einrichtung**: Hinweise (Alph
 
 Alles wird in `config/nautilusclient.json` gespeichert (eine alte `config/kraken.json` wird beim ersten Start automatisch übernommen).
 
+## Presets
+
+Combat- und Crystal-Module haben auf der **letzten Einstellungsseite** im Rad fertige Presets (z. B. Legit / Normal / Rage) mit einer Ampel für das geschätzte Bann-Risiko: 🟢 niedrig · 🟡 mittel · 🔴 hoch. Klick lädt das Preset, das aktive ist markiert. Die Ampel ist eine grobe Einschätzung (Tempo, Regelmäßigkeit, Reichweite) – keine Garantie gegen Anti-Cheats.
+
 ## Module
 
 ### Combat

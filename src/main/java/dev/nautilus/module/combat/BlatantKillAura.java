@@ -32,6 +32,10 @@ public class BlatantKillAura extends KillAuraBase {
     public BlatantKillAura() {
         super("BlatantKillAura", "Aggressive Aura: hohe Reichweite, mehrere Ziele, durch Wände, Kamera gleitet zum Ziel.",
                 Items.NETHERITE_SWORD, 4.5, 6.0, 360);
+        preset("Gemäßigt", MEDIUM, "Ein Ziel, Abklingzeit, normale Reichweite, keine Wände",
+                "Rotation", "Kamera", "Glätte", 8, "Max. Drehung", 360, "Timing", "Abklingzeit", "Max. Ziele", 1, "Reichweite", 3.2, "Durch Wände", false);
+        preset("Blatant", HIGH, "Mehrere Ziele, hohe CPS, große Reichweite, durch Wände",
+                "Rotation", "Silent", "Timing", "CPS", "CPS", 16, "Max. Ziele", 5, "Reichweite", 6.0, "Durch Wände", true);
     }
 
     @Override

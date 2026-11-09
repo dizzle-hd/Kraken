@@ -100,7 +100,14 @@ public class RadialScreen extends Screen {
 
     /** One segment of the current level. */
     private record Entry(String label, ItemStack icon, String description, boolean active,
-                         Category category, Module module, Setting<?> setting, boolean moduleToggle) {}
+                         Category category, Module module, Setting<?> setting, boolean moduleToggle, Module.Preset preset) {
+        Entry(String label, ItemStack icon, String description, boolean active, Category category, Module module, Setting<?> setting, boolean moduleToggle) {
+            this(label, icon, description, active, category, module, setting, moduleToggle, null);
+        }
+    }
+
+    private static final int[] RISK_COLORS = {0xFF5BE38A, 0xFFFFC94A, 0xFFFF5A5A};
+    private static final String[] RISK_NAMES = {"niedrig", "mittel", "hoch"};
 
     public RadialScreen() {
         super(Component.literal("Nautilus Client"));
@@ -143,6 +150,11 @@ public class RadialScreen extends Screen {
                     list.add(new Entry(s.getName(), null, s.getDescription(), on, null, module, s, false));
                 }
                 list.add(new Entry(module.keybind.getName(), null, module.keybind.getDescription(), false, null, module, module.keybind, false));
+                // presets always come last, so they end up on the last settings page
+                for (Module.Preset p : module.getPresets()) {
+                    list.add(new Entry(p.name(), null, "Preset · Bann-Risiko " + RISK_NAMES[p.risk()] + " · " + p.note() + " (Klick = laden)",
+                            module.matches(p), null, module, null, false, p));
+                }
             }
         }
         return list;
@@ -699,6 +711,26 @@ public class RadialScreen extends Screen {
         float push = R * 0.035f * hoverAnim[i];
         float bx = cx + (float) Math.sin(mid) * (R * 0.71f + push);
         float by = cy - (float) Math.cos(mid) * (R * 0.71f + push);
+        if (e.preset() != null) {
+            // traffic light: red / yellow / green, only the preset's risk is lit
+            float lr = Math.max(1.8f, R * 0.022f), sp = lr * 2.6f;
+            float ly = by + R * 0.06f;
+            int[] order = {2, 1, 0};
+            for (int k = 0; k < 3; k++) {
+                int risk = order[k];
+                float lx = bx + (k - 1) * sp;
+                boolean lit = risk == e.preset().risk();
+                if (lit) s.circle(lx, ly, lr * 2.2f, Shapes.alpha(RISK_COLORS[risk], alpha * 0.25f), Shapes.alpha(RISK_COLORS[risk], 0f));
+                s.circle(lx, ly, lr, Shapes.alpha(lit ? RISK_COLORS[risk] : 0x40FFFFFF, alpha));
+            }
+            if (e.active()) {
+                // the current settings equal this preset
+                float pw = R * 0.2f, ph = R * 0.06f;
+                s.roundRectRim(bx - pw / 2f, ly - ph / 2f - lr * 0.4f, bx + pw / 2f, ly + ph / 2f + lr * 0.4f, ph / 2f, Math.max(0.8f, R * 0.006f),
+                        Shapes.alpha(RISK_COLORS[e.preset().risk()], alpha));
+            }
+            return;
+        }
         boolean toggle = e.moduleToggle() || e.setting() instanceof BoolSetting;
         if (toggle) {
             float on = activeAnim[i];
@@ -730,6 +762,13 @@ public class RadialScreen extends Screen {
         Fit fit = fitLabel(e.label(), bx, labelY, base * 0.9f, a0, a1, false);
         drawFit(ctx, fit, bx, labelY, color, false);
         String v = null;
+        if (e.preset() != null) {
+            v = e.active() ? "✓ aktiv" : "Risiko " + RISK_NAMES[e.preset().risk()];
+            float vy = by + R * 0.135f;
+            Fit vf = fitLabel(v, bx, vy, base * 0.8f, a0, a1, true);
+            drawFit(ctx, vf, bx, vy, Shapes.alpha(e.active() ? RISK_COLORS[e.preset().risk()] : 0xC0FFFFFF, alpha), false);
+            return;
+        }
         if (e.setting() instanceof NumberSetting num) v = num.display();
         else if (e.setting() instanceof ModeSetting mode) v = "‹ " + mode.get() + " ›";
         else if (e.setting() instanceof KeySetting key) v = key == listening ? "Taste drücken …" : key.display();
@@ -798,7 +837,12 @@ public class RadialScreen extends Screen {
                 } else e.module().toggle();
             }
             case SETTINGS -> {
-                if (e.moduleToggle()) module.toggle();
+                if (e.preset() != null) {
+                    module.applyPreset(e.preset());
+                    dev.nautilus.hud.Notifications.push(module.getName(), "Preset „" + e.preset().name() + "“ geladen", RISK_COLORS[e.preset().risk()]);
+                    dev.nautilus.config.ConfigManager.save();
+                }
+                else if (e.moduleToggle()) module.toggle();
                 else if (e.setting() instanceof BoolSetting b) b.toggle();
                 else if (e.setting() instanceof ModeSetting m) m.cycle(!right);
                 else if (e.setting() instanceof KeySetting k) {

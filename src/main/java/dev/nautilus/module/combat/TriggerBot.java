@@ -28,6 +28,12 @@ public class TriggerBot extends Module {
 
     public TriggerBot() {
         super("TriggerBot", "Schlägt automatisch zu, sobald dein Fadenkreuz auf einem Ziel liegt.", Category.COMBAT, Items.TRIPWIRE_HOOK);
+        preset("Legit", LOW, "Volle Aufladung, menschliche Pausen (2–6 Ticks)",
+                "Abklingzeit", 1.0, "Min. Verzögerung", 2, "Max. Verzögerung", 6, "Nur Krits", false);
+        preset("Normal", MEDIUM, "Fast volle Aufladung, kurze zufällige Pausen",
+                "Abklingzeit", 0.95, "Min. Verzögerung", 0, "Max. Verzögerung", 3, "Nur Krits", false);
+        preset("Schnell", HIGH, "Schlägt so früh und regelmäßig wie möglich",
+                "Abklingzeit", 0.8, "Min. Verzögerung", 0, "Max. Verzögerung", 0, "Nur Krits", false);
     }
 
     @Override

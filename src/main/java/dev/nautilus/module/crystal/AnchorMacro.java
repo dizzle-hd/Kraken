@@ -56,6 +56,12 @@ public class AnchorMacro extends Module {
     public AnchorMacro() {
         super("AnchorMacro", "Lädt und sprengt den anvisierten Respawn-Anker automatisch. Kombinierbar mit SafeAnchor.",
                 Category.CRYSTAL, Items.RESPAWN_ANCHOR);
+        preset("Legit", LOW, "Menschliches Tempo mit zufälligen Pausen",
+                "Verzögerung", 3, "Zufall", 2);
+        preset("Normal", MEDIUM, "Schnell mit etwas Zufall",
+                "Verzögerung", 1, "Zufall", 1);
+        preset("Rage", HIGH, "So schnell wie möglich",
+                "Verzögerung", 0, "Zufall", 0);
     }
 
     boolean busy() {
