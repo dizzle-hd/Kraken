@@ -18,22 +18,19 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew compileJava --no-daemon -q
       - name: Dump
+        shell: bash {0}
         run: |
-          JAR=$(find ~/.gradle .gradle build -name 'minecraft-*.jar' 2>/dev/null | grep -v sources | xargs ls -S | head -1)
+          JAR=$(ls ~/.gradle/caches/fabric-loom/minecraftMaven/net/minecraft/minecraft-merged-deobf/26.3/minecraft-merged-deobf-26.3.jar)
           echo "JAR=$JAR"
-          find ~/.gradle .gradle -name 'minecraft-*.jar' 2>/dev/null | grep -v sources | head
-          for c in net.minecraft.client.Camera net.minecraft.client.player.KeyboardInput net.minecraft.client.player.ClientInput \
-                   net.minecraft.client.MouseHandler net.minecraft.client.KeyMapping net.minecraft.client.renderer.GameRenderer; do
-            echo "===== $c"; javap -p -cp "$JAR" "$c" | grep -v 'lambda\$'
+          LIST=$(unzip -l "$JAR" | awk '{print $4}' | grep '\.class$' | grep -v '\$')
+          echo "===== classes matching camera/input/fov/freecam"; echo "$LIST" | grep -iE 'net/minecraft/client/.*(camera|input|fov|zoom|spyglass)' | head -60
+          jp() { echo "===== $1"; javap -p -cp "$JAR" "$1" 2>&1 | grep -v 'lambda\$' | head -${2:-120}; }
+          for p in $(echo "$LIST" | grep -iE '^net/minecraft/client/([a-z/]*/)?Camera\.class$|/KeyboardInput\.class$|/ClientInput\.class$|client/MouseHandler\.class$|client/KeyMapping\.class$|renderer/GameRenderer\.class$'); do
+            n=${p%.class}; jp "${n//\//.}" 200
           done
-          echo "===== Entity (turn/rot)"; javap -p -cp "$JAR" net.minecraft.world.entity.Entity | grep -iE 'turn|Rot\b|setYRot|setXRot|isSpectator|noPhysics'
-          echo "===== LocalPlayer (input/move/aiStep/isControlledCamera)"; javap -p -cp "$JAR" net.minecraft.client.player.LocalPlayer | grep -iE 'input|aiStep|move|camera|tick\b|serverAiStep'
-          echo "===== Options (fov/sens/smooth/camera/keys)"; javap -p -cp "$JAR" net.minecraft.client.Options | grep -iE 'fov|sensitiv|smooth|camera|key(Up|Down|Left|Right|Jump|Shift|Sprint|Attack|Use)'
-          echo "===== Minecraft (camera/entity)"; javap -p -cp "$JAR" net.minecraft.client.Minecraft | grep -iE 'camera|getCameraEntity|setCameraEntity|hitResult|pick'
-          echo "===== LevelRenderer (camera/entity)"; javap -p -cp "$JAR" net.minecraft.client.renderer.LevelRenderer | grep -iE 'camera|entit' | head -40
-          for c in $(unzip -l "$JAR" | awk '{print $4}' | grep -E '^net/minecraft/client/(Camera|renderer/(state/)?(CameraRenderState|LevelRenderState)|renderer/entity/state/AvatarRenderState).*\.class$' | grep -v '\$' ); do
-            n=${c%.class}; n=${n//\//.}; echo "===== $n"; javap -p -cp "$JAR" "$n" | grep -v 'lambda\$' | head -60
-          done
-          echo "===== classes with Fov in name"; unzip -l "$JAR" | awk '{print $4}' | grep -i fov
-          echo "===== ScrollWheel"; javap -p -cp "$JAR" net.minecraft.client.MouseHandler | grep -i scroll
-          echo "===== Inventory scroll"; javap -p -cp "$JAR" net.minecraft.world.entity.player.Inventory | grep -iE 'select|swap|scroll'
+          echo "===== Entity (turn/rot)"; javap -p -cp "$JAR" net.minecraft.world.entity.Entity | grep -iE 'turn|setYRot|setXRot|noPhysics|getViewYRot|getEyePosition'
+          echo "===== LocalPlayer"; javap -p -cp "$JAR" net.minecraft.client.player.LocalPlayer | grep -iE 'input|aiStep|move|camera|tick|serverAiStep|isControlledCamera'
+          echo "===== Options"; javap -p -cp "$JAR" net.minecraft.client.Options | grep -iE 'fov|sensitiv|smooth|camera|key(Up|Down|Left|Right|Jump|Shift|Sprint|Attack|Use|Togglep)'
+          echo "===== Minecraft"; javap -p -cp "$JAR" net.minecraft.client.Minecraft | grep -iE 'camera|hitResult|pick|options|player\b'
+          echo "===== Inventory"; javap -p -cp "$JAR" net.minecraft.world.entity.player.Inventory | grep -iE 'select|swap|scroll'
+          echo "===== Fabric mouse scroll"; javap -p -cp "$JAR" net.minecraft.client.MouseHandler | grep -iE 'scroll|turn|sens'
