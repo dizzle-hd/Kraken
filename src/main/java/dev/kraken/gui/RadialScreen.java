@@ -408,7 +408,6 @@ public class RadialScreen extends Screen {
         for (float[] arc : arcs) {
             float a0 = arc[0] * TAU + rot;
             float a1 = a0 + (arc[1] - arc[0]) * TAU * sweep;
-            c.glow(cx, cy, ringR, R * 0.035f, a0, a1, 0x55FF5A2A);
             c.arc(cx, cy, ringR, aw, a0, a1, ACCENT);
             // rounded arc caps
             c.circle(cx + (float) Math.sin(a0) * ringR, cy - (float) Math.cos(a0) * ringR, aw / 2f, ACCENT);
