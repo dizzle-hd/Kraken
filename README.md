@@ -6,17 +6,17 @@
 
 Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric API 0.165+) with a radial wheel GUI instead of a click GUI.
 
-| Kategorien | Modul-Rad | Einstellungen |
+| Rad | Combat | Einstellungen |
 |---|---|---|
-| ![Rad](docs/wheel.png) | ![Combat](docs/combat.png) | ![Einstellungen](docs/settings.png) |
+| ![Rad](docs/wheel.jpg) | ![Combat](docs/combat.jpg) | ![Einstellungen](docs/settings.jpg) |
 
-| HUD | HUD-Editor |
-|---|---|
-| ![HUD](docs/hud.png) | ![HUD-Editor](docs/hud-editor.png) |
+| HUD | HUD-Editor | Einrichtung |
+|---|---|---|
+| ![HUD](docs/hud.jpg) | ![HUD-Editor](docs/hud-editor.jpg) | ![Einrichtung](docs/onboarding.jpg) |
 
 | BaseFinder (ESP durch Wände) | XRay |
 |---|---|
-| ![BaseFinder](docs/basefinder.png) | ![XRay](docs/xray.png) |
+| ![BaseFinder](docs/basefinder.jpg) | ![XRay](docs/xray.jpg) |
 
 ## Download
 

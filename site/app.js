@@ -94,6 +94,20 @@
     observe(list.querySelectorAll(".reveal"));
   }
 
+  // screenshot categories (with / without liquid glass)
+  document.querySelectorAll(".tab").forEach((tab) =>
+    tab.addEventListener("click", () => {
+      const set = tab.dataset.set;
+      document.querySelectorAll(".tab").forEach((t) => {
+        const on = t === tab;
+        t.classList.toggle("active", on);
+        t.setAttribute("aria-selected", String(on));
+      });
+      document.querySelectorAll(".gallery, .tab-note").forEach((el) => (el.hidden = el.dataset.set !== set));
+      document.querySelectorAll(`.gallery[data-set="${set}"] .reveal`).forEach((n) => n.classList.add("in"));
+    })
+  );
+
   // screenshots lightbox
   const box = document.getElementById("lightbox");
   document.querySelectorAll(".shot").forEach((b) =>

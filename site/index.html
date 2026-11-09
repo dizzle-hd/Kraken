@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <meta property="og:title" content="Nautilus Client">
   <meta property="og:description" content="Fabric client for Minecraft 26.3 with a radial menu instead of a click GUI.">
-  <meta property="og:image" content="assets/shots/wheel.jpg">
+  <meta property="og:image" content="assets/shots/glass/wheel.jpg">
   <link rel="stylesheet" href="style.css?v=__BUILD__">
 </head>
 <body>
@@ -79,7 +79,7 @@
       </div>
 
       <figure class="hero-shot glass">
-        <img src="assets/shots/wheel.jpg" alt="The Nautilus wheel in game" loading="eager">
+        <img src="assets/shots/glass/wheel.jpg" alt="The Nautilus wheel in game" loading="eager">
       </figure>
     </section>
 
@@ -122,13 +122,33 @@
     <!-- ============================== SCREENSHOTS ============================== -->
     <section id="screenshots" class="section">
       <h2>Screenshots</h2>
-      <div class="gallery">
-        <button class="shot glass" data-src="assets/shots/combat.jpg"><img src="assets/shots/combat.jpg" alt="Combat modules in the wheel" loading="lazy"><span>Combat wheel</span></button>
-        <button class="shot glass" data-src="assets/shots/settings.jpg"><img src="assets/shots/settings.jpg" alt="Settings in the wheel" loading="lazy"><span>Settings in the wheel</span></button>
-        <button class="shot glass" data-src="assets/shots/hud-editor.jpg"><img src="assets/shots/hud-editor.jpg" alt="HUD editor" loading="lazy"><span>HUD editor</span></button>
-        <button class="shot glass" data-src="assets/shots/basefinder.jpg"><img src="assets/shots/basefinder.jpg" alt="BaseFinder marking a base" loading="lazy"><span>BaseFinder</span></button>
-        <button class="shot glass" data-src="assets/shots/xray.jpg"><img src="assets/shots/xray.jpg" alt="XRay" loading="lazy"><span>XRay</span></button>
-        <button class="shot glass" data-src="assets/shots/hud.jpg"><img src="assets/shots/hud.jpg" alt="HUD" loading="lazy"><span>HUD</span></button>
+      <div class="tabs" role="tablist">
+        <button class="tab active" role="tab" data-set="glass" aria-selected="true">With Liquid Glass</button>
+        <button class="tab" role="tab" data-set="noglass" aria-selected="false">Without Liquid Glass</button>
+      </div>
+      <p class="note top tab-note" data-set="glass">Real glass blur and refraction behind the wheel and the HUD.</p>
+      <p class="note top tab-note" data-set="noglass" hidden>Simple glass – lighter and noticeably better FPS on weaker PCs. Switch it in the setup or under Client → HUD.</p>
+      <div class="gallery" data-set="glass">
+        <button class="shot glass" data-src="assets/shots/glass/wheel.jpg"><img src="assets/shots/glass/wheel.jpg" alt="The wheel" loading="lazy"><span>The wheel</span></button>
+        <button class="shot glass" data-src="assets/shots/glass/combat.jpg"><img src="assets/shots/glass/combat.jpg" alt="Combat modules" loading="lazy"><span>Combat modules</span></button>
+        <button class="shot glass" data-src="assets/shots/glass/basefinder.jpg"><img src="assets/shots/glass/basefinder.jpg" alt="Settings in the wheel" loading="lazy"><span>Settings in the wheel</span></button>
+        <button class="shot glass" data-src="assets/shots/glass/basefinder-esp.jpg"><img src="assets/shots/glass/basefinder-esp.jpg" alt="BaseFinder (ESP through walls)" loading="lazy"><span>BaseFinder (ESP through walls)</span></button>
+        <button class="shot glass" data-src="assets/shots/glass/xray.jpg"><img src="assets/shots/glass/xray.jpg" alt="XRay" loading="lazy"><span>XRay</span></button>
+        <button class="shot glass" data-src="assets/shots/glass/hud-all.jpg"><img src="assets/shots/glass/hud-all.jpg" alt="HUD" loading="lazy"><span>HUD</span></button>
+        <button class="shot glass" data-src="assets/shots/glass/hud-editor.jpg"><img src="assets/shots/glass/hud-editor.jpg" alt="HUD editor" loading="lazy"><span>HUD editor</span></button>
+        <button class="shot glass" data-src="assets/shots/glass/onboarding-1.jpg"><img src="assets/shots/glass/onboarding-1.jpg" alt="First-start setup" loading="lazy"><span>First-start setup</span></button>
+        <button class="shot glass" data-src="assets/shots/glass/onboarding-2.jpg"><img src="assets/shots/glass/onboarding-2.jpg" alt="Setup: settings" loading="lazy"><span>Setup: settings</span></button>
+      </div>
+      <div class="gallery" data-set="noglass" hidden>
+        <button class="shot glass" data-src="assets/shots/noglass/wheel.jpg"><img src="assets/shots/noglass/wheel.jpg" alt="The wheel" loading="lazy"><span>The wheel</span></button>
+        <button class="shot glass" data-src="assets/shots/noglass/combat.jpg"><img src="assets/shots/noglass/combat.jpg" alt="Combat modules" loading="lazy"><span>Combat modules</span></button>
+        <button class="shot glass" data-src="assets/shots/noglass/basefinder.jpg"><img src="assets/shots/noglass/basefinder.jpg" alt="Settings in the wheel" loading="lazy"><span>Settings in the wheel</span></button>
+        <button class="shot glass" data-src="assets/shots/noglass/basefinder-esp.jpg"><img src="assets/shots/noglass/basefinder-esp.jpg" alt="BaseFinder (ESP through walls)" loading="lazy"><span>BaseFinder (ESP through walls)</span></button>
+        <button class="shot glass" data-src="assets/shots/noglass/xray.jpg"><img src="assets/shots/noglass/xray.jpg" alt="XRay" loading="lazy"><span>XRay</span></button>
+        <button class="shot glass" data-src="assets/shots/noglass/hud-all.jpg"><img src="assets/shots/noglass/hud-all.jpg" alt="HUD" loading="lazy"><span>HUD</span></button>
+        <button class="shot glass" data-src="assets/shots/noglass/hud-editor.jpg"><img src="assets/shots/noglass/hud-editor.jpg" alt="HUD editor" loading="lazy"><span>HUD editor</span></button>
+        <button class="shot glass" data-src="assets/shots/noglass/onboarding-1.jpg"><img src="assets/shots/noglass/onboarding-1.jpg" alt="First-start setup" loading="lazy"><span>First-start setup</span></button>
+        <button class="shot glass" data-src="assets/shots/noglass/onboarding-2.jpg"><img src="assets/shots/noglass/onboarding-2.jpg" alt="Setup: settings" loading="lazy"><span>Setup: settings</span></button>
       </div>
     </section>
 

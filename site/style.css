@@ -266,3 +266,11 @@ footer .small { font-size: .82rem; opacity: .8; }
 .chips .chip-warn { border-color: rgba(255, 122, 90, .6); color: #ffd0c2; background: rgba(255, 90, 60, .14); }
 
 footer .copyright { color: var(--text); font-weight: 700; }
+
+/* screenshot categories */
+.tabs { display: inline-flex; gap: 6px; padding: 5px; margin: 0 0 18px; border-radius: 999px; background: rgba(255,255,255,.07); border: 1px solid var(--rim); }
+.tab { font: inherit; font-weight: 800; color: var(--text-dim); background: transparent; border: 0; padding: 8px 16px; border-radius: 999px; cursor: pointer; transition: background .2s ease, color .2s ease; }
+.tab:hover { color: var(--text); }
+.tab.active { background: var(--accent); color: #fff; box-shadow: 0 6px 16px rgba(255,90,42,.35); }
+.gallery[hidden], .tab-note[hidden] { display: none; }
+@media (max-width: 520px) { .tabs { display: flex; } .tab { flex: 1; padding: 8px 10px; font-size: .9rem; } }
