@@ -233,3 +233,28 @@ footer .small { font-size: .82rem; opacity: .8; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------------------------------- alpha ---------------------------------- */
+.badge-alpha {
+  display: inline-block; vertical-align: middle;
+  padding: .12em .55em; border-radius: 999px;
+  font-size: .32em; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+  color: #2a0e08; background: linear-gradient(180deg, #ffd27a, #ffb347);
+  box-shadow: 0 6px 18px rgba(255, 179, 71, .35), inset 0 1px 0 rgba(255,255,255,.5);
+  transform: translateY(-.35em);
+}
+.badge-alpha.small { font-size: .62rem; transform: none; margin-left: 2px; padding: .2em .6em; }
+.alpha-note {
+  display: flex; gap: 12px; align-items: flex-start;
+  max-width: 520px; margin: 0 0 14px; padding: 14px 16px;
+  border-radius: 16px; font-size: .95rem; color: #ffe9c7;
+  background: linear-gradient(180deg, rgba(255, 179, 71, .22), rgba(255, 179, 71, .12));
+  border: 1px solid rgba(255, 196, 110, .55);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+.alpha-note svg { flex: 0 0 auto; width: 22px; height: 22px; margin-top: 2px; fill: none; stroke: #ffc46e; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.alpha-note strong { color: #fff3dc; }
+.alpha-note a { color: #ffd27a; text-decoration: underline; }
+.release .alpha { padding: 3px 10px; border-radius: 999px; background: rgba(255, 179, 71, .2); border: 1px solid rgba(255, 196, 110, .55); color: #ffd27a; font-size: .78rem; font-weight: 800; }
+.note.top { margin: -12px 0 18px; }
+@media (max-width: 1000px) { .alpha-note { margin-left: auto; margin-right: auto; text-align: left; } }

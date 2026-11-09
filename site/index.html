@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kraken Client</title>
-  <meta name="description" content="Kraken – Fabric Client für Minecraft 26.3 mit Radial-Menü, Combat- und SMP-Modulen, HUD-Editor. Immer die neueste Version herunterladen.">
+  <title>Kraken Client (Alpha)</title>
+  <meta name="description" content="Kraken (Alpha, in Entwicklung) – Fabric Client für Minecraft 26.3 mit Radial-Menü, Combat- und SMP-Modulen, HUD-Editor. Immer die neueste Version herunterladen.">
   <meta name="theme-color" content="#2a0e08">
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <meta property="og:title" content="Kraken Client">
@@ -16,7 +16,7 @@
   <div class="bg" aria-hidden="true"></div>
 
   <header class="nav">
-    <a class="brand" href="#top"><img src="assets/kraken.png" alt="" width="30" height="30"><span>Kraken</span></a>
+    <a class="brand" href="#top"><img src="assets/kraken.png" alt="" width="30" height="30"><span>Kraken</span><span class="badge-alpha small">Alpha</span></a>
     <nav>
       <a href="#features">Features</a>
       <a href="#screenshots">Screenshots</a>
@@ -34,9 +34,16 @@
           <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
           <img class="logo" src="assets/kraken.png" alt="Kraken Logo" width="150" height="150">
         </div>
-        <h1>Kraken</h1>
+        <h1>Kraken <span class="badge-alpha">Alpha</span></h1>
         <p class="tagline">Fabric-Client für <strong>Minecraft 26.3</strong> – mit einem Radial-Menü statt Click-GUI,
           echten 3D-Icons, Glas-Design und frei anordnbarem HUD.</p>
+
+        <div class="alpha-note" role="note">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg>
+          <div><strong>Alpha – noch in Entwicklung.</strong> Funktionen können fehlen, sich ändern oder Fehler haben,
+            und nicht alle Module sind schon ausgiebig getestet. Bitte zuerst im Einzelspieler ausprobieren und
+            Fehler gerne auf <a class="repo-issues" href="#" target="_blank" rel="noopener">GitHub melden</a>.</div>
+        </div>
 
         <div class="download glass" id="download">
           <a class="btn-download is-loading" id="dl-button" href="#">
@@ -124,6 +131,7 @@
     <!-- ============================== CHANGELOG ============================== -->
     <section id="changelog" class="section">
       <h2>Versionen</h2>
+      <p class="note top">Alle Versionen sind Alpha-Builds aus der laufenden Entwicklung – jeder Push erzeugt automatisch einen neuen Build.</p>
       <div class="releases" id="releases">
         <div class="release glass skeleton"></div>
         <div class="release glass skeleton"></div>
@@ -133,6 +141,7 @@
   </main>
 
   <footer>
+    <p><span class="badge-alpha small">Alpha</span> Kraken befindet sich in aktiver Entwicklung.</p>
     <p>Kraken ist ein Fan-Projekt und steht in keiner Verbindung zu Mojang oder Microsoft.
       Nutzung auf eigene Verantwortung – beachte die Regeln der Server, auf denen du spielst.</p>
     <p class="small">Schrift: Nunito (SIL Open Font License) · <a class="repo-link" href="#" target="_blank" rel="noopener">Quellcode auf GitHub</a></p>

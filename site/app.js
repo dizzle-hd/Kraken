@@ -12,6 +12,7 @@
   const api = `https://api.github.com/repos/${owner}/${repo}`;
 
   document.querySelectorAll(".repo-link").forEach((a) => (a.href = repoUrl));
+  document.querySelectorAll(".repo-issues").forEach((a) => (a.href = `${repoUrl}/issues`));
   const allLink = document.getElementById("dl-all");
   allLink.href = `${repoUrl}/releases`;
 
@@ -32,6 +33,10 @@
   const size = (b) => (b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB");
   const jarOf = (release) =>
     (release.assets || []).find((a) => a.name.endsWith(".jar") && !a.name.includes("sources"));
+  const buildOf = (r) => {
+    const m = /build[.\s-]*(\d+)/i.exec(r.name || r.tag_name || "");
+    return m ? `Build ${m[1]}` : (r.name || r.tag_name);
+  };
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   function fallback(message) {
@@ -55,7 +60,7 @@
       btn.classList.remove("is-loading");
       btn.href = jar.browser_download_url;
       btn.removeAttribute("target");
-      label.textContent = `Download ${latest.name || latest.tag_name}`;
+      label.textContent = `Alpha herunterladen · ${buildOf(latest)}`;
       meta.textContent = `${jar.name} · ${size(jar.size)} · ${ago(latest.published_at)}`;
     } catch (e) {
       renderList([], null);
@@ -74,6 +79,7 @@
         return `<div class="release glass reveal">
           <span class="name">${esc(r.name || r.tag_name)}</span>
           ${r === latest ? '<span class="badge">Neueste</span>' : ""}
+          <span class="alpha">Alpha</span>
           <span class="when">${esc(ago(r.published_at))}</span>
           ${jar ? `<a class="get" href="${esc(jar.browser_download_url)}">${esc(jar.name)} ↓</a>`
                 : `<a class="get" href="${esc(r.html_url)}" target="_blank" rel="noopener">Ansehen →</a>`}

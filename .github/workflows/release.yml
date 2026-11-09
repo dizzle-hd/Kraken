@@ -61,11 +61,13 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: Kraken ${{ steps.version.outputs.base }} (Build ${{ github.run_number }})
+          name: Kraken ${{ steps.version.outputs.base }} Alpha (Build ${{ github.run_number }})
           make_latest: true
           files: ${{ steps.jar.outputs.path }}
           body: |
-            **Kraken ${{ steps.version.outputs.base }}**, automatischer Build #${{ github.run_number }}
+            > ⚠️ **Alpha – noch in Entwicklung.** Funktionen können fehlen, sich ändern oder Fehler haben. Bitte zuerst im Einzelspieler testen.
+
+            **Kraken ${{ steps.version.outputs.base }} Alpha**, automatischer Build #${{ github.run_number }}
 
             - Minecraft **26.3** · Fabric Loader **0.20+** · Fabric API · Java **25**
             - Commit: ${{ github.sha }}
