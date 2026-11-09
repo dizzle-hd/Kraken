@@ -200,6 +200,29 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             System.out.println("[KrakenTest] Aimbot crosshair on the moving target in " + onTarget + "/30 ticks");
             ctx.runOnClient(c -> ModuleManager.get().get(dev.kraken.module.combat.Aimbot.class).setEnabled(false));
 
+            // --- Freecam: the camera flies away, the player stays ---
+            double[] fc = ctx.computeOnClient(c -> {
+                ModuleManager.get().get(dev.kraken.module.client.Freecam.class).setEnabled(true);
+                return new double[]{c.player.getX(), c.player.getZ()};
+            });
+            ctx.getInput().holdKey(InputConstants.KEY_W);
+            ctx.waitTicks(20);
+            ctx.getInput().releaseKey(InputConstants.KEY_W);
+            ctx.takeScreenshot("08b-freecam");
+            System.out.println("[KrakenTest] Freecam: " + ctx.computeOnClient(c -> String.format(java.util.Locale.ROOT,
+                    "player moved %.2f, camera is %.2f away from the player",
+                    Math.hypot(c.player.getX() - fc[0], c.player.getZ() - fc[1]),
+                    c.gameRenderer.mainCamera().position().distanceTo(c.player.getEyePosition()))));
+            ctx.runOnClient(c -> ModuleManager.get().get(dev.kraken.module.client.Freecam.class).setEnabled(false));
+
+            // --- Zoom: hold C ---
+            ctx.getInput().holdKey(InputConstants.KEY_C);
+            ctx.waitTicks(10);
+            ctx.takeScreenshot("08c-zoom");
+            System.out.println("[KrakenTest] Zoom fov while holding C: " + ctx.computeOnClient(c -> c.gameRenderer.mainCamera().getFov()));
+            ctx.getInput().releaseKey(InputConstants.KEY_C);
+            ctx.waitTicks(5);
+
             // --- HUD: every element on ---
             ctx.runOnClient(c -> {
                 for (var e : dev.kraken.hud.HudManager.get().elements()) e.enabled = true;

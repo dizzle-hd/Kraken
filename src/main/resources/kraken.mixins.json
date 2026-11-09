@@ -6,8 +6,11 @@
   "client": [
     "BlockMixin",
     "BlockStateBaseMixin",
+    "CameraMixin",
+    "EntityMixin",
     "ClientPacketListenerMixin",
     "FluidRendererMixin",
+    "KeyboardInputMixin",
     "GuiRendererMixin",
     "LightCoordsUtilMixin",
     "LightmapRenderStateExtractorMixin",

@@ -1,8 +1,10 @@
 package dev.kraken.module;
 
+import dev.kraken.module.client.Freecam;
 import dev.kraken.module.client.Hud;
 import dev.kraken.module.client.HudEditor;
 import dev.kraken.module.client.Notifications;
+import dev.kraken.module.client.Zoom;
 import dev.kraken.module.combat.Aimbot;
 import dev.kraken.module.combat.BlatantKillAura;
 import dev.kraken.module.combat.SilentAim;
@@ -41,6 +43,8 @@ public final class ModuleManager {
         register(new Hud());
         register(new Notifications());
         register(new HudEditor());
+        register(new Zoom());
+        register(new Freecam());
     }
 
     private void register(Module module) {
