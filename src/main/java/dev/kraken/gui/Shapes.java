@@ -135,6 +135,41 @@ public final class Shapes {
         return this;
     }
 
+
+    /**
+     * Tapered, anti-aliased stroke through the given points (x, y, width triples) with a round tip.
+     */
+    public Shapes stroke(float[] pts, int color) {
+        int n = pts.length / 3;
+        if (n < 2) return this;
+        int clear = color & 0x00FFFFFF;
+        float[] nx = new float[n], ny = new float[n];
+        for (int i = 0; i < n; i++) {
+            int a = Math.max(0, i - 1), b = Math.min(n - 1, i + 1);
+            float dx = pts[b * 3] - pts[a * 3], dy = pts[b * 3 + 1] - pts[a * 3 + 1];
+            float len = (float) Math.sqrt(dx * dx + dy * dy);
+            if (len < 1e-5f) len = 1;
+            nx[i] = -dy / len;
+            ny[i] = dx / len;
+        }
+        for (int i = 0; i < n - 1; i++) {
+            int j = i + 1;
+            float xi = pts[i * 3], yi = pts[i * 3 + 1], hi = pts[i * 3 + 2] / 2f;
+            float xj = pts[j * 3], yj = pts[j * 3 + 1], hj = pts[j * 3 + 2] / 2f;
+            // body
+            quad(xi + nx[i] * hi, yi + ny[i] * hi, color, xj + nx[j] * hj, yj + ny[j] * hj, color,
+                    xj - nx[j] * hj, yj - ny[j] * hj, color, xi - nx[i] * hi, yi - ny[i] * hi, color);
+            // soft edges on both sides
+            for (int sgn = -1; sgn <= 1; sgn += 2) {
+                float ai = hi * sgn, aj = hj * sgn, bi = (hi + aa) * sgn, bj = (hj + aa) * sgn;
+                quad(xi + nx[i] * ai, yi + ny[i] * ai, color, xj + nx[j] * aj, yj + ny[j] * aj, color,
+                        xj + nx[j] * bj, yj + ny[j] * bj, clear, xi + nx[i] * bi, yi + ny[i] * bi, clear);
+            }
+        }
+        circle(pts[(n - 1) * 3], pts[(n - 1) * 3 + 1], pts[(n - 1) * 3 + 2] / 2f, color);
+        return this;
+    }
+
     public Shapes line(float x1, float y1, float x2, float y2, float width, int color) {
         float dx = x2 - x1, dy = y2 - y1;
         float len = (float) Math.sqrt(dx * dx + dy * dy);

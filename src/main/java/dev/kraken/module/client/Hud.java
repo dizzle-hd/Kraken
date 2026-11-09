@@ -1,5 +1,6 @@
 package dev.kraken.module.client;
 
+import dev.kraken.gui.KrakenLogo;
 import dev.kraken.gui.Shapes;
 import dev.kraken.gui.UiText;
 import dev.kraken.module.Category;
@@ -20,13 +21,16 @@ import java.util.Map;
  * light rim, the clean Nunito font and orange accents. Modules slide in and out when toggled.
  */
 public class Hud extends Module {
-    private static final int GLASS_TOP = 0xAE4E1E10;
-    private static final int GLASS_BOTTOM = 0xC42C0F08;
-    private static final int RIM = 0x30FFFFFF;
-    private static final int SHINE = 0x16FFFFFF;
+    // transparent glass like the wheel segments: a light frosted veil, a faint warm tint for contrast,
+    // a bright rim and a shine on the upper half
+    private static final int TINT = 0x2E2A0E06;
+    private static final int GLASS_TOP = 0x2EFFE6DC;
+    private static final int GLASS_BOTTOM = 0x14FFE6DC;
+    private static final int RIM = 0x4DFFFFFF;
+    private static final int SHINE = 0x1EFFFFFF;
     private static final int ACCENT = 0xFFFF5A2A;
     private static final int TEXT = 0xFFF6ECE8;
-    private static final int TEXT_DIM = 0xB4F0D8D0;
+    private static final int TEXT_DIM = 0xD8F0D8D0;
 
     private final BoolSetting watermark = add(new BoolSetting("Wasserzeichen", "\"Kraken\" oben links anzeigen", true));
     private final BoolSetting moduleList = add(new BoolSetting("Modulliste", "Aktive Module oben rechts anzeigen", true));
@@ -43,6 +47,7 @@ public class Hud extends Module {
     /** A glass pill: vertical gradient body, shine on the upper half, thin light rim. */
     private static void pill(Shapes s, float x1, float y1, float x2, float y2) {
         float r = (y2 - y1) / 2f;
+        s.roundRect(x1, y1, x2, y2, r, TINT);
         s.roundRectGradient(x1, y1, x2, y2, r, GLASS_TOP, GLASS_BOTTOM);
         s.roundRectGradient(x1 + 1f, y1 + 1f, x2 - 1f, y1 + (y2 - y1) * 0.5f, r * 0.8f, SHINE, 0x00FFFFFF);
         s.roundRectRim(x1, y1, x2, y2, r, 0.75f, RIM);
@@ -57,21 +62,17 @@ public class Hud extends Module {
         Font font = mc.font;
         float margin = 5f;
 
-        // ---------------- watermark ----------------
+        // ---------------- watermark: kraken logo + name ----------------
         if (watermark.isOn()) {
-            float h = 17f, x = margin, y = margin;
+            float h = 20f, x = margin, y = margin;
             float tw = UiText.width(font, "Kraken", true);
-            float w = 8f + 9f + 5f + tw + 9f;
+            float logo = 15f;
+            float w = 7f + logo + 5f + tw + 10f;
             Shapes s = new Shapes();
             pill(s, x, y, x + w, y + h);
-            // little logo: orange ring segment around a dot, like the wheel centre
-            float lx = x + 8f + 4.5f, ly = y + h / 2f;
-            float t = (now % 6000L) / 6000f * (float) (Math.PI * 2);
-            s.arc(lx, ly, 4.2f, 1.3f, t, t + 1.9f, ACCENT);
-            s.arc(lx, ly, 4.2f, 1.3f, t + 2.6f, t + 4.4f, ACCENT);
-            s.circle(lx, ly, 1.6f, 0xFFFFFFFF);
+            KrakenLogo.draw(s, x + 7f + logo / 2f, y + h / 2f, logo, (now % 600000L) / 1000f, ACCENT, 0xFFFFFFFF, 0xFF2A0E08);
             s.submit(ctx);
-            UiText.left(ctx, font, "Kraken", x + 8f + 9f + 5f, ly + 0.5f, 1f, TEXT, true);
+            UiText.left(ctx, font, "Kraken", x + 7f + logo + 5f, y + h / 2f + 0.5f, 1f, TEXT, true, true);
         }
         if (!moduleList.isOn()) return;
 
@@ -107,10 +108,10 @@ public class Hud extends Module {
             float nx = x1 + 13f;
             float ty = y1 + h / 2f + 0.5f;
             int nameColor = Shapes.alpha(TEXT, e), infoColor = Shapes.alpha(TEXT_DIM, e);
-            texts.add(() -> UiText.left(ctx, font, name, nx, ty, 0.9f, nameColor, false));
+            texts.add(() -> UiText.left(ctx, font, name, nx, ty, 0.9f, nameColor, false, true));
             if (info != null) {
                 float ix = nx + UiText.width(font, name, false) * 0.9f + 4f;
-                texts.add(() -> UiText.left(ctx, font, info, ix, ty, 0.9f, infoColor, false));
+                texts.add(() -> UiText.left(ctx, font, info, ix, ty, 0.9f, infoColor, false, true));
             }
             y += (h + gap) * e;
         }

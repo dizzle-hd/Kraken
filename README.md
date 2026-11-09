@@ -54,7 +54,7 @@ Alles wird in `config/kraken.json` gespeichert.
   - Chat-Meldungen und Tracer.
 
 ### Client
-- **HUD** – Wasserzeichen + Liste aktiver Module als abgerundete Glas-Pillen im Stil des Rads (gleitet beim An-/Ausschalten herein/heraus).
+- **HUD** – Kraken-Logo (animierte Krake) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
 - **Notifications** – Chat-Meldung beim An-/Ausschalten.
 
 ## Bauen

@@ -24,10 +24,28 @@ public final class UiText {
 
     /** Draws text with its left edge at x and vertically centred on y. */
     public static void left(GuiGraphicsExtractor ctx, Font font, String text, float x, float y, float scale, int color, boolean bold) {
+        left(ctx, font, text, x, y, scale, color, bold, false);
+    }
+
+    public static void left(GuiGraphicsExtractor ctx, Font font, String text, float x, float y, float scale, int color, boolean bold, boolean shadow) {
+        Component c = styled(text, bold);
+        if (shadow) {
+            // soft shadow: a few faint, slightly offset copies instead of the hard vanilla shadow
+            int a = (color >>> 24) & 0xFF;
+            int sc = ((int) (a * 0.22f) << 24);
+            float[][] offs = {{0.35f, 0.5f}, {0.6f, 0.75f}, {0.1f, 0.35f}};
+            for (float[] o : offs) {
+                ctx.pose().pushMatrix();
+                ctx.pose().translate(x + o[0], y + o[1]);
+                ctx.pose().scale(scale, scale);
+                ctx.text(font, c, 0, -4, sc, false);
+                ctx.pose().popMatrix();
+            }
+        }
         ctx.pose().pushMatrix();
         ctx.pose().translate(x, y);
         ctx.pose().scale(scale, scale);
-        ctx.text(font, styled(text, bold), 0, -4, color, false);
+        ctx.text(font, c, 0, -4, color, false);
         ctx.pose().popMatrix();
     }
 }
