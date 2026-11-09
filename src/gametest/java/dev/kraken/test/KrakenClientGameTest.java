@@ -21,6 +21,17 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             ctx.runOnClient(c -> ModuleManager.get().get(Hud.class).loadEnabled(true));
 
             // open the wheel with the keybind
+            // regression (crash in build 5): frames at the very start of the open animation and during
+            // the close animation, where the centre has size 0
+            ctx.runOnClient(c -> {
+                // render frames by hand at t = 0 of the open animation (deterministic, independent of FPS)
+                var screen = new dev.kraken.gui.RadialScreen();
+                screen.init(c.getWindow().getGuiScaledWidth(), c.getWindow().getGuiScaledHeight());
+                for (int i = 0; i < 3; i++) {
+                    var g = new net.minecraft.client.gui.GuiGraphicsExtractor(c, new net.minecraft.client.renderer.state.gui.GuiRenderState(), 0, 0);
+                    screen.extractRenderState(g, 0, 0, 0f);
+                }
+            });
             ctx.getInput().pressKey(InputConstants.KEY_RSHIFT);
             ctx.waitForScreen(RadialScreen.class);
             ctx.waitTicks(20);

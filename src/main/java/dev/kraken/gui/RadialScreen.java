@@ -446,7 +446,8 @@ public class RadialScreen extends Screen {
         }
         float cSize = R * 0.34f * center;
         boolean drawBust = false;
-        if (level == Level.CATEGORIES && minecraft.player != null && cSize > 0.5f) {
+        if (level == Level.CATEGORIES) {
+            if (minecraft.player != null && cSize > 0.5f) {
             // the player looks at the mouse cursor (head turns more than the body)
             float hx = cx, hy = cy - R * 0.12f;
             float dx = mouseX - hx, dy = mouseY - hy;
@@ -460,9 +461,14 @@ public class RadialScreen extends Screen {
             headYaw += (targetYaw - headYaw) * follow;
             headPitch += (targetPitch - headPitch) * follow;
             drawBust = true;
+            }
         } else {
-            ItemStack icon = level == Level.MODULES ? category.getIcon() : module.getIcon();
-            if (cSize > 0.5f) models.add(new WheelModelsRenderState.Model(icon, cx, cy - R * 0.085f, cSize * 0.8f, time * 45f, 12f));
+            // never assume the other level's state: during animations the sizes can be 0 and the
+            // category/module of a level is only set while that level is shown
+            ItemStack icon = level == Level.MODULES
+                    ? (category != null ? category.getIcon() : null)
+                    : (module != null ? module.getIcon() : null);
+            if (icon != null && cSize > 0.5f) models.add(new WheelModelsRenderState.Model(icon, cx, cy - R * 0.085f, cSize * 0.8f, time * 45f, 12f));
         }
 
         ctx.pose().popMatrix();
