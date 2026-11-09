@@ -121,7 +121,7 @@ public class OnboardingScreen extends Screen {
         float ph = switch (page) {
             case 0 -> 64f + warningsHeight(pw) + 34f;
             case 1 -> 64f + 4 * 30f + 34f;
-            default -> 64f + 5 * 14f + 40f;
+            default -> 64f + 7 * 14f + 40f;
         };
         ph = Math.min(ph, height - 16f);
         float py = height / 2f - ph / 2f;
@@ -287,6 +287,7 @@ public class OnboardingScreen extends Screen {
                 {NautilusClient.openWheel.getTranslatedKeyMessage().getString(), "Rad öffnen / schließen"},
                 {"Links-Klick", "Kategorie öffnen, Modul an/aus"},
                 {"Rechts-Klick", "Einstellungen eines Moduls"},
+                {"Presets (oben)", "In den Einstellungen: fertige Presets mit Ampel fürs Bann-Risiko"},
                 {"ESC / Mitte", "Zurück"},
                 {"Tippen im Rad", "Module suchen"},
                 {"Client → Einrichtung", "Diese Einrichtung erneut öffnen"},
