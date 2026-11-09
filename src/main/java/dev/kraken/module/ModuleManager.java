@@ -1,6 +1,7 @@
 package dev.kraken.module;
 
 import dev.kraken.module.client.Hud;
+import dev.kraken.module.client.HudEditor;
 import dev.kraken.module.client.Notifications;
 import dev.kraken.module.combat.BlatantKillAura;
 import dev.kraken.module.combat.SilentAim;
@@ -37,6 +38,7 @@ public final class ModuleManager {
         // Client
         register(new Hud());
         register(new Notifications());
+        register(new HudEditor());
     }
 
     private void register(Module module) {

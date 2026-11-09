@@ -213,6 +213,7 @@ public class RadialScreen extends Screen {
         ctx.pose().pushMatrix();
         ctx.pose().translate(x, y);
         ctx.pose().scale(scale, scale);
+        ctx.pose().translate(0, UiText.BASELINE_FIX);
         ctx.text(font, c, -w / 2, -4, color, false);
         ctx.pose().popMatrix();
     }

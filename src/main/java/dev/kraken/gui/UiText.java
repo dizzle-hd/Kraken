@@ -9,6 +9,11 @@ import net.minecraft.resources.Identifier;
 
 /** The clean Nunito font of Kraken, shared by the wheel and the HUD. */
 public final class UiText {
+    /**
+     * Fine vertical correction (font units) so the cap height of Nunito is centred on the given y.
+     * Measured in screenshots: without it the capitals sat ~0.55 units too low.
+     */
+    public static final float BASELINE_FIX = -0.55f;
     public static final FontDescription CLEAN = new FontDescription.Resource(Identifier.fromNamespaceAndPath(Kraken.MOD_ID, "clean"));
     public static final FontDescription CLEAN_BOLD = new FontDescription.Resource(Identifier.fromNamespaceAndPath(Kraken.MOD_ID, "clean_bold"));
 
@@ -38,6 +43,7 @@ public final class UiText {
                 ctx.pose().pushMatrix();
                 ctx.pose().translate(x + o[0], y + o[1]);
                 ctx.pose().scale(scale, scale);
+                ctx.pose().translate(0, BASELINE_FIX);
                 ctx.text(font, c, 0, -4, sc, false);
                 ctx.pose().popMatrix();
             }
@@ -45,6 +51,7 @@ public final class UiText {
         ctx.pose().pushMatrix();
         ctx.pose().translate(x, y);
         ctx.pose().scale(scale, scale);
+        ctx.pose().translate(0, BASELINE_FIX);
         ctx.text(font, c, 0, -4, color, false);
         ctx.pose().popMatrix();
     }

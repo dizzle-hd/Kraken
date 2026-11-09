@@ -36,6 +36,7 @@ public final class ConfigManager {
             modules.add(m.getName(), obj);
         }
         root.add("modules", modules);
+        root.add("hud", dev.kraken.hud.HudManager.get().toJson());
         try {
             Files.createDirectories(FILE.getParent());
             Files.writeString(FILE, GSON.toJson(root), StandardCharsets.UTF_8);
@@ -48,6 +49,7 @@ public final class ConfigManager {
         if (!Files.exists(FILE)) return;
         try {
             JsonObject root = JsonParser.parseString(Files.readString(FILE, StandardCharsets.UTF_8)).getAsJsonObject();
+            dev.kraken.hud.HudManager.get().fromJson(root.get("hud"));
             JsonObject modules = root.getAsJsonObject("modules");
             if (modules == null) return;
             for (Module m : ModuleManager.get().getModules()) {

@@ -1,31 +1,22 @@
 package dev.kraken.util;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
+import dev.kraken.hud.HudStyle;
+import dev.kraken.hud.Notifications;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
+/** Messages of the client – shown as HUD notifications instead of chat lines. */
 public final class ChatUtil {
     private ChatUtil() {}
 
-    private static MutableComponent prefix() {
-        return Component.literal("[").withStyle(ChatFormatting.DARK_GRAY)
-                .append(Component.literal("Kraken").withStyle(s -> s.withColor(0xFF5A2A)))
-                .append(Component.literal("] ").withStyle(ChatFormatting.DARK_GRAY));
-    }
-
     public static void info(Component message) {
-        Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return;
-        mc.gui.hud.getChat().addClientSystemMessage(prefix().append(message));
+        Notifications.push("Kraken", message.getString(), HudStyle.ACCENT);
     }
 
     public static void info(String message) {
-        info(Component.literal(message).withStyle(ChatFormatting.GRAY));
+        Notifications.push("Kraken", message, HudStyle.ACCENT);
     }
 
     public static void toggle(String module, boolean on) {
-        info(Component.literal(module + " ").withStyle(ChatFormatting.WHITE)
-                .append(on ? Component.literal("an").withStyle(ChatFormatting.GREEN) : Component.literal("aus").withStyle(ChatFormatting.RED)));
+        Notifications.push(module, on ? "aktiviert" : "deaktiviert", on ? HudStyle.GOOD : HudStyle.BAD, 2.2f);
     }
 }

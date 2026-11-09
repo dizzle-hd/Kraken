@@ -2,7 +2,11 @@ package dev.kraken;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.kraken.config.ConfigManager;
+import dev.kraken.gui.HudEditorScreen;
 import dev.kraken.gui.RadialScreen;
+import dev.kraken.hud.HudManager;
+import dev.kraken.hud.TpsTracker;
+import net.minecraft.client.Minecraft;
 import dev.kraken.gui.WheelModelsRenderer;
 import dev.kraken.module.Module;
 import dev.kraken.module.ModuleManager;
@@ -49,8 +53,12 @@ public class Kraken implements ClientModInitializer {
             while (openWheel.consumeClick()) {
                 if (client.gui.screen() == null) client.gui.setScreen(new RadialScreen());
             }
-            if (client.player == null || client.level == null) return;
+            if (client.player == null || client.level == null) {
+                TpsTracker.reset();
+                return;
+            }
             ModuleManager.get().onTick(client);
+            HudManager.get().tick();
         });
 
         LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
@@ -62,8 +70,11 @@ public class Kraken implements ClientModInitializer {
         });
 
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "hud"), (graphics, deltaTracker) -> {
+            Minecraft mc = Minecraft.getInstance();
             Hud hud = ModuleManager.get().get(Hud.class);
-            if (hud != null && hud.isEnabled()) hud.render(graphics);
+            if (hud == null || !hud.isEnabled() || mc.gui.hud.isHidden() || mc.getDebugOverlay().showDebugScreen()) return;
+            if (mc.gui.screen() instanceof HudEditorScreen) return; // the editor draws its own preview
+            HudManager.get().render(graphics, false, null);
         });
 
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ConfigManager.save());

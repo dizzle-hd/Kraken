@@ -91,7 +91,9 @@ public class KrakenClientGameTest implements FabricClientGameTest {
                 c.player.setXRot(55);
                 ModuleManager.get().get(XRay.class).setEnabled(true);
             });
-            ctx.waitTicks(40);
+            ctx.waitTicks(12);
+            ctx.takeScreenshot("07a-toasts");
+            ctx.waitTicks(28);
             sp.getConnection().waitForChunksRender();
             ctx.takeScreenshot("07-xray");
             ctx.runOnClient(c -> {
@@ -118,6 +120,39 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             System.out.println("[KrakenTest] SilentKillAura enabled=" + auraOn + " testZombie=" + zombies
                     + " cameraYaw " + startYaw + " -> " + endYaw);
             ctx.takeScreenshot("08-after-killaura");
+
+            // --- HUD: every element on ---
+            ctx.runOnClient(c -> {
+                for (var e : dev.kraken.hud.HudManager.get().elements()) e.enabled = true;
+            });
+            ctx.waitTicks(80); // let the toasts expire
+            ctx.takeScreenshot("09-hud-all");
+
+            // --- HUD editor: open it from the wheel (Client > HUD-Editor) and drag the coordinates ---
+            ctx.setScreen(dev.kraken.gui.HudEditorScreen::new);
+            ctx.waitTicks(10);
+            ctx.takeScreenshot("10-hud-editor");
+            float[] drag = ctx.computeOnClient(c -> {
+                var coords = dev.kraken.hud.HudManager.get().elements().stream().filter(e -> e.id().equals("coords")).findFirst().orElseThrow();
+                float sw = c.getWindow().getGuiScaledWidth(), sh = c.getWindow().getGuiScaledHeight();
+                float f = c.getWindow().getGuiScale();
+                float x = coords.x(sw, true) + 10, y = coords.y(sh, true) + 5;
+                return new float[]{x * f, y * f, (sw / 2f - 60) * f, (sh * 0.62f) * f};
+            });
+            ctx.getInput().setCursorPos(drag[0], drag[1]);
+            ctx.waitTicks(2);
+            ctx.getInput().holdMouse(InputConstants.MOUSE_BUTTON_LEFT);
+            for (int i = 1; i <= 10; i++) {
+                float t = i / 10f;
+                ctx.getInput().setCursorPos(drag[0] + (drag[2] - drag[0]) * t, drag[1] + (drag[3] - drag[1]) * t);
+                ctx.waitTick();
+            }
+            ctx.takeScreenshot("11-hud-editor-drag");
+            ctx.getInput().releaseMouse(InputConstants.MOUSE_BUTTON_LEFT);
+            ctx.waitTicks(3);
+            ctx.setScreen(() -> null);
+            ctx.waitTicks(5);
+            ctx.takeScreenshot("12-hud-after-edit");
         }
     }
 

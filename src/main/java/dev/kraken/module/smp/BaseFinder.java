@@ -4,12 +4,10 @@ import dev.kraken.module.Category;
 import dev.kraken.module.Module;
 import dev.kraken.setting.BoolSetting;
 import dev.kraken.setting.NumberSetting;
-import dev.kraken.util.ChatUtil;
+import dev.kraken.hud.Notifications;
 import dev.kraken.util.Render3D;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -103,7 +101,7 @@ public class BaseFinder extends Module {
             "Ab wie vielen ausgewachsenen Kelp-Spitzen ein Chunk markiert wird", 12, 3, 60, 1).visibleWhen(kelp::isOn));
     private final BoolSetting entities = add(new BoolSetting("Objekte",
             "Rahmen, Rüstungsständer, benannte & gezähmte Tiere, Kistenloren", true));
-    private final BoolSetting chat = add(new BoolSetting("Chat-Meldungen", "Funde im Chat melden", true));
+    private final BoolSetting chat = add(new BoolSetting("Meldungen", "Funde als HUD-Benachrichtigung melden", true));
     private final BoolSetting tracers = add(new BoolSetting("Tracer", "Linien von dir zu den Funden zeichnen", false));
     private final NumberSetting scanSpeed = add(new NumberSetting("Scan-Tempo", "Chunks pro Tick (höher = schneller, mehr Last)", 2, 1, 10, 1));
 
@@ -313,9 +311,7 @@ public class BaseFinder extends Module {
         if (!chat.isOn()) return;
         String key = hint.name() + ":" + cp.pack();
         if (!notified.add(key)) return;
-        ChatUtil.info(Component.literal(hint.label + ": ").withStyle(s -> s.withColor(hint.color & 0xFFFFFF))
-                .append(Component.literal(what + " ").withStyle(ChatFormatting.WHITE))
-                .append(Component.literal("@ " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.GRAY)));
+        Notifications.push(hint.label, what + " @ " + pos.getX() + " " + pos.getY() + " " + pos.getZ(), hint.color, 4f);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -373,9 +369,7 @@ public class BaseFinder extends Module {
         }
         BlockPos bp = BlockPos.containing(pos);
         if (chat.isOn() && notified.add("SOUND:" + bp.asLong())) {
-            ChatUtil.info(Component.literal(Hint.SOUND.label + ": ").withStyle(s -> s.withColor(Hint.SOUND.color & 0xFFFFFF))
-                    .append(Component.literal(name + " ").withStyle(ChatFormatting.WHITE))
-                    .append(Component.literal("@ " + bp.getX() + " " + bp.getY() + " " + bp.getZ()).withStyle(ChatFormatting.GRAY)));
+            Notifications.push(Hint.SOUND.label, name + " @ " + bp.getX() + " " + bp.getY() + " " + bp.getZ(), Hint.SOUND.color, 4f);
         }
     }
 

@@ -6,9 +6,9 @@ Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric A
 |---|---|---|
 | ![Rad](docs/wheel.png) | ![Combat](docs/combat.png) | ![Einstellungen](docs/settings.png) |
 
-| HUD |
-|---|
-| ![HUD](docs/hud.png) |
+| HUD | HUD-Editor |
+|---|---|
+| ![HUD](docs/hud.png) | ![HUD-Editor](docs/hud-editor.png) |
 
 | BaseFinder (ESP durch Wände) | XRay |
 |---|---|
@@ -54,6 +54,9 @@ Alles wird in `config/kraken.json` gespeichert.
   - Chat-Meldungen und Tracer.
 
 ### Client
+- **HUD-Editor** – Klick im Rad öffnet den Editor: Elemente ziehen (rasten an Rändern, Mitte und anderen Elementen ein), Rechts-Klick blendet aus, Chips im Panel blenden ein/aus, „Zurücksetzen“ stellt das Standard-Layout her.
+- **HUD-Elemente** – Logo, Modulliste, Koordinaten (inkl. Nether/Oberwelt), FPS, Ping, TPS, Geschwindigkeit, Richtung, Uhrzeit, Benachrichtigungen.
+- **Benachrichtigungen** – Modul an/aus und BaseFinder-Funde erscheinen als Glas-Toasts im HUD statt im Chat.
 - **HUD** – Kraken-Logo (animierte Krake) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
 - **Notifications** – Chat-Meldung beim An-/Ausschalten.
 
