@@ -33,7 +33,7 @@ public class XRay extends Module {
     private final BoolSetting bright = add(new BoolSetting("Fullbright", "Alles hell machen", true));
 
     public XRay() {
-        super("XRay", "Blendet alle Blöcke außer Erzen und Kisten aus. (Nicht kompatibel mit Sodium)", Category.SMP, Items.DIAMOND_ORE);
+        super("XRay", "Blendet alle Blöcke außer Erzen und Kisten aus. (Funktioniert nicht mit Sodium)", Category.SMP, Items.DIAMOND_ORE);
         instance = this;
         updateBlocks();
     }
@@ -73,8 +73,16 @@ public class XRay extends Module {
         if (mc.levelExtractor != null && mc.level != null) mc.execute(() -> mc.levelExtractor.allChanged());
     }
 
+    /** Sodium builds the chunk meshes itself, the XRay hooks have no effect there. */
+    public static final boolean SODIUM = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("sodium");
+
     @Override
     protected void onEnable() {
+        if (SODIUM) {
+            dev.kraken.hud.Notifications.push("XRay", "Funktioniert nicht mit Sodium", 0xFFFF5A5A, 4f);
+            setEnabled(false);
+            return;
+        }
         updateBlocks();
         active = true;
         reloadChunks();

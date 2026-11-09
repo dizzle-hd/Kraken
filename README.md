@@ -2,7 +2,7 @@
 
 > ⚠️ **Alpha – Kraken ist noch in Entwicklung.** Funktionen können fehlen, sich ändern oder Fehler haben.
 >
-> ⚠️ **Sodium wird momentan nicht unterstützt.** Bitte ohne Sodium (und ohne Iris) spielen.
+> ⚠️ **Sodium:** Kraken startet auch mit Sodium, XRay schaltet sich dann aber automatisch ab. Alles andere ist mit Sodium (und Iris) experimentell.
 
 Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric API 0.165+) with a radial wheel GUI instead of a click GUI.
 
@@ -57,7 +57,7 @@ Alles wird in `config/kraken.json` gespeichert.
 - **BlatantKillAura** – große Reichweite, mehrere Ziele, durch Wände, CPS-Modus, Kamera rastet ein (oder Silent).
 
 ### SMP
-- **XRay** – blendet alles außer ausgewählten Erzen/Kisten aus, optional Fullbright. *(Nicht kompatibel mit Sodium.)*
+- **XRay** – blendet alles außer ausgewählten Erzen/Kisten aus, optional Fullbright. *(Funktioniert nicht mit Sodium – schaltet sich dort automatisch ab.)*
 - **BaseFinder** – jeder Hinweis einzeln schaltbar:
   - **Amethyst-Grower**: Geoden mit hohem Anteil ausgewachsener Cluster → Chunk war lange geladen.
   - **Sound-Blöcke**: markiert durch Wände die Blöcke, an denen der Server Geräusche abspielt (Kolben, Türen, Truhen, Öfen, Amboss, Werfer …). Einzeln schaltbar: Bau-Geräusche, Redstone-Geräusche (Komparatoren, Fackeln, Stolperdraht, Sculk …), Mob-Geräusche und Schritte (z. B. ein Dorfbewohner, der herumläuft oder redet → der Block, auf dem er steht, leuchtet orange) sowie „Alle Geräusche“.
