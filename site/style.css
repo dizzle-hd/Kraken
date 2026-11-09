@@ -160,7 +160,7 @@ h3 { margin: 0 0 6px; font-size: 1.2rem; font-weight: 800; }
 }
 .icon svg { width: 26px; height: 26px; fill: none; stroke: var(--accent-2); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-.modules { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 18px; }
+.modules { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 18px; }
 .mod { padding: 18px 22px; }
 .mod h4 { margin: 0 0 8px; color: var(--accent-2); font-size: 1rem; text-transform: uppercase; letter-spacing: .08em; }
 .mod ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }

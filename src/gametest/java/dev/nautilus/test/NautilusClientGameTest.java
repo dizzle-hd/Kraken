@@ -322,10 +322,6 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(true));
         ctx.waitTicks(5);
         boolean totem = ctx.computeOnClient(c -> c.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING));
-        System.out.println("[NautilusTest] AutoTotem debug: " + ctx.computeOnClient(c -> "screen=" + c.gui.screen() + " creative=" + c.player.isCreative()
-                + " enabled=" + mm.get(dev.nautilus.module.crystal.AutoTotem.class).isEnabled() + " slot=" + dev.nautilus.util.InvUtil.inventory(net.minecraft.world.item.Items.TOTEM_OF_UNDYING)
-                + " offhand=" + c.player.getOffhandItem() + " carried=" + c.player.inventoryMenu.getCarried() + " containerId=" + c.player.inventoryMenu.containerId
-                + " open=" + c.player.containerMenu));
         System.out.println("[NautilusTest] AutoTotem: totem in off hand = " + totem);
 
         // AutoCrystal vs. a tanky zombie 3 blocks south

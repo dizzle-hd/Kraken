@@ -60,6 +60,13 @@ Alles wird in `config/nautilusclient.json` gespeichert (eine alte `config/kraken
 - **Aimbot** – zieht dein Fadenkreuz weich (pro Frame, Ease-Out + Max. Drehung) auf das beste Ziel im FOV. Zielt auf den Punkt mit der kleinsten Drehung (wählbar Kopf/Brust/Beine), hält bewegte Ziele vor (Vorhersage), bleibt beim aktuellen Ziel (Ziel-Lock), optional nur beim Klicken oder nur horizontal.
 - **BlatantKillAura** – große Reichweite, mehrere Ziele, durch Wände, CPS-Modus, Kamera rastet ein (oder Silent).
 
+### Crystal
+- **AutoCrystal** – platziert End-Kristalle auf Obsidian/Bedrock dort, wo sie dem Ziel am meisten schaden, und zerstört sie – auf Wunsch im selben Moment, in dem sie erscheinen (Kristall-Spam). Schaden wird wie in Vanilla berechnet (Abstand, Deckung, Rüstung, Schutz-Verzauberungen, Resistenz). Einstellbar: Ziele, Reichweiten, Verzögerungen, Kristalle pro Tick, Min. Schaden, Max. Eigenschaden, Anti-Selbstmord, Face-Place, Auto-Wechsel, Silent-Rotation, Nur eigene Kristalle, Anzeige.
+- **AnchorMacro** – lädt den anvisierten Respawn-Anker mit Glowstone und sprengt ihn mit einem anderen Item (Auslöser: neue Anker / immer / Makro-Taste; Ladungen, Verzögerung + Zufall, Spreng-Item, Max. Eigenschaden, Anti-Selbstmord, Zurückwechseln). Im Nether aus (dort setzen Anker den Spawn).
+- **SafeAnchor** – setzt vor der Explosion einen Schutzblock zwischen dich und den Anker (Glowstone/Obsidian/beliebig, zu dir oder zusätzlich oben). Alleine nutzbar oder kombiniert mit AnchorMacro.
+- **AutoTotem** – hält ein Totem in der Zweithand (immer oder unter einer Leben-Grenze, darüber Kristall/Goldapfel).
+- **Surround** – umgibt deine Füße mit Obsidian (Zentrieren, Stützblöcke, doppelte Höhe, aus beim Weggehen).
+
 ### SMP
 - **XRay** – blendet alles außer ausgewählten Erzen/Kisten aus, optional Fullbright. *(Funktioniert nicht mit Sodium – schaltet sich dort automatisch ab.)*
 - **BaseFinder** – jeder Hinweis einzeln schaltbar:
