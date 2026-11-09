@@ -359,6 +359,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
 
         // AutoCrystal, crosshair mode: hold a crystal, look at obsidian -> it crystals through on its own
         srv.runCommand("kill @e[type=!minecraft:player]");
+        sp.getServer().runOnServer(server -> server.getPlayerList().getPlayers().get(0).setHealth(20f)); // fresh for this test
         srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
         srv.runCommand("execute at @a run setblock ~ ~-1 ~3 minecraft:obsidian");
         ctx.waitTicks(3);
