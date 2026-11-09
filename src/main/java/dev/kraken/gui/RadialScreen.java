@@ -340,6 +340,7 @@ public class RadialScreen extends Screen {
         lastFrame = now;
         float time = (now - openedAt) / 1000f;
         layout();
+        Shapes.setPixelSize(1f / Math.max(1, minecraft.getWindow().getGuiScale()));
         hint = null;
 
         List<Entry> entries = entries();

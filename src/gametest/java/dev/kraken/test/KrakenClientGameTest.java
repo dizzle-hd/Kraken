@@ -14,6 +14,9 @@ public class KrakenClientGameTest implements FabricClientGameTest {
     @Override
     public void runTest(ClientGameTestContext ctx) {
         try (TestSingleplayerContext sp = ctx.worldBuilder().setUseConsistentSettings(false).create()) {
+            // test like on a normal Full-HD monitor
+            ctx.getInput().resizeWindow(1920, 1080);
+            ctx.waitTicks(5);
             sp.getConnection().waitForChunksRender();
             ctx.runOnClient(c -> ModuleManager.get().get(Hud.class).loadEnabled(true));
 

@@ -12,6 +12,13 @@ import org.joml.Matrix3x2f;
  * Angles are in radians, measured clockwise from 12 o'clock.
  */
 public final class Shapes {
+    private static final float TAU_F = (float) (Math.PI * 2);
+    /** When > 0 every sector uses exactly this many steps, so touching pieces share vertices (no cracks). */
+    private int forcedSteps;
+
+    private static int stepsFor(float angle, float radius) {
+        return Math.max(Math.max(2, (int) Math.ceil(angle / (Math.PI * 2 / 48))), (int) Math.ceil(angle * radius / 3f));
+    }
     private final FloatArrayList xy = new FloatArrayList();
     private final IntArrayList colors = new IntArrayList();
     private float minX = Float.MAX_VALUE, minY = Float.MAX_VALUE, maxX = -Float.MAX_VALUE, maxY = -Float.MAX_VALUE;
@@ -56,7 +63,7 @@ public final class Shapes {
         float gIn = rIn > 0.5f ? Math.min((gap / 2f) / rIn, (a1 - a0) / 2f) : 0f;
         float gOut = Math.min((gap / 2f) / rOut, (a1 - a0) / 2f);
         float in0 = a0 + gIn, in1 = a1 - gIn, out0 = a0 + gOut, out1 = a1 - gOut;
-        int steps = Math.max(Math.max(2, (int) Math.ceil((a1 - a0) / (Math.PI * 2 / 40))), (int) Math.ceil((a1 - a0) * rOut / 4f));
+        int steps = forcedSteps > 0 ? forcedSteps : stepsFor(a1 - a0, rOut);
         for (int i = 0; i < steps; i++) {
             float t0 = (float) i / steps, t1 = (float) (i + 1) / steps;
             float ai0 = in0 + (in1 - in0) * t0, ai1 = in0 + (in1 - in0) * t1;
@@ -82,20 +89,50 @@ public final class Shapes {
         return this;
     }
 
+    // ---- anti-aliasing ----------------------------------------------------------------------------
+
+    /** Width of the soft edge in GUI units – one physical pixel (set every frame from the GUI scale). */
+    private static float aa = 0.5f;
+
+    public static void setPixelSize(float guiUnitsPerPixel) {
+        aa = Math.max(0.05f, guiUnitsPerPixel) * 1.1f;
+    }
+
+    /** Radial fringe between r0 (colour c) and r1 (transparent) – fades a circular edge out. */
+    private void fringe(float cx, float cy, float rSolid, float rClear, float a0, float a1, int c) {
+        int clear = c & 0x00FFFFFF;
+        if (rClear > rSolid) sector(cx, cy, rSolid, rClear, a0, a1, 0, c, clear);
+        else if (rClear >= 0) sector(cx, cy, rClear, rSolid, a0, a1, 0, clear, c);
+    }
+
     public Shapes circle(float cx, float cy, float r, int color) {
-        return sector(cx, cy, 0, r, 0, (float) (Math.PI * 2), 0, color, color);
+        forcedSteps = stepsFor(TAU_F, r + aa);
+        sector(cx, cy, 0, r, 0, TAU_F, 0, color, color);
+        fringe(cx, cy, r, r + aa, 0, TAU_F, color);
+        forcedSteps = 0;
+        return this;
     }
 
     public Shapes circle(float cx, float cy, float r, int colCenter, int colEdge) {
-        return sector(cx, cy, 0, r, 0, (float) (Math.PI * 2), 0, colCenter, colEdge);
+        forcedSteps = stepsFor(TAU_F, r + aa);
+        sector(cx, cy, 0, r, 0, TAU_F, 0, colCenter, colEdge);
+        fringe(cx, cy, r, r + aa, 0, TAU_F, colEdge);
+        forcedSteps = 0;
+        return this;
     }
 
     public Shapes ring(float cx, float cy, float r, float width, int color) {
-        return sector(cx, cy, r - width / 2f, r + width / 2f, 0, (float) (Math.PI * 2), 0, color, color);
+        return arc(cx, cy, r, width, 0, TAU_F, color);
     }
 
     public Shapes arc(float cx, float cy, float r, float width, float a0, float a1, int color) {
-        return sector(cx, cy, r - width / 2f, r + width / 2f, a0, a1, 0, color, color);
+        float r0 = r - width / 2f, r1 = r + width / 2f;
+        forcedSteps = stepsFor(a1 - a0, r1 + aa);
+        sector(cx, cy, r0, r1, a0, a1, 0, color, color);
+        fringe(cx, cy, r1, r1 + aa, a0, a1, color);
+        fringe(cx, cy, r0, Math.max(0, r0 - aa), a0, a1, color);
+        forcedSteps = 0;
+        return this;
     }
 
     public Shapes line(float x1, float y1, float x2, float y2, float width, int color) {
@@ -112,10 +149,17 @@ public final class Shapes {
         rect(x1, y1 + r, x1 + r, y2 - r, color);
         rect(x2 - r, y1 + r, x2, y2 - r, color);
         float q = (float) (Math.PI / 2);
-        sector(x1 + r, y1 + r, 0, r, 3 * q, 4 * q, 0, color, color);
-        sector(x2 - r, y1 + r, 0, r, 0, q, 0, color, color);
-        sector(x2 - r, y2 - r, 0, r, q, 2 * q, 0, color, color);
-        sector(x1 + r, y2 - r, 0, r, 2 * q, 3 * q, 0, color, color);
+        int clear = color & 0x00FFFFFF;
+        float[][] corners = {{x1 + r, y1 + r, 3 * q}, {x2 - r, y1 + r, 0}, {x2 - r, y2 - r, q}, {x1 + r, y2 - r, 2 * q}};
+        for (float[] c : corners) {
+            sector(c[0], c[1], 0, r, c[2], c[2] + q, 0, color, color);
+            fringe(c[0], c[1], r, r + aa, c[2], c[2] + q, color);
+        }
+        // soft straight edges
+        quad(x1 + r, y1 - aa, clear, x1 + r, y1, color, x2 - r, y1, color, x2 - r, y1 - aa, clear);
+        quad(x1 + r, y2, color, x1 + r, y2 + aa, clear, x2 - r, y2 + aa, clear, x2 - r, y2, color);
+        quad(x1 - aa, y1 + r, clear, x1 - aa, y2 - r, clear, x1, y2 - r, color, x1, y1 + r, color);
+        quad(x2, y1 + r, color, x2, y2 - r, color, x2 + aa, y2 - r, clear, x2 + aa, y1 + r, clear);
         return this;
     }
 
@@ -140,74 +184,84 @@ public final class Shapes {
         return (float) Math.atan2(dx, -dy);
     }
 
-    /** Adds the wedge of radius r around (px,py) between the directions of angles t1 and t2 (shortest way). */
-    private void wedge(float px, float py, float rIn, float rOut, float t1, float t2, int color) {
+    /** Wedge with a radial colour gradient from c0 (at r0) to c1 (at r1). */
+    private void wedgeGrad(float px, float py, float r0, float r1, float t1, float t2, int c0, int c1) {
         float d = t2 - t1;
-        while (d > Math.PI) d -= (float) (Math.PI * 2);
-        while (d < -Math.PI) d += (float) (Math.PI * 2);
+        while (d > Math.PI) d -= TAU_F;
+        while (d < -Math.PI) d += TAU_F;
         float a = d >= 0 ? t1 : t1 + d, b = d >= 0 ? t1 + d : t1;
-        sector(px, py, rIn, rOut, a, b, 0, color, color);
+        sector(px, py, r0, r1, a, b, 0, c0, c1);
+    }
+
+    private static float clampCorner(float r, float rIn, float rOut) {
+        return Math.max(0.5f, Math.min(r, (rOut - rIn) / 2f - 0.5f));
+    }
+
+    /**
+     * The band of points whose distance to the border of a rounded sector lies in [dIn, dOut]
+     * (positive = outside). Colours: {@code colInner} near the inner radius, {@code colOuter} near the
+     * outer radius; alpha is multiplied by mulIn at dIn and mulOut at dOut. Used for rims and
+     * anti-aliased edges.
+     */
+    private void roundedBand(float cx, float cy, float rIn, float rOut, float a0, float a1, float gap, float r,
+                             float dIn, float dOut, int colInner, int colOuter, float mulIn, float mulOut) {
+        float off = gap / 2f + r;
+        float ri = rIn + r, ro = rOut - r;
+        float oa0 = a0 + off / ro, oa1 = a1 - off / ro;
+        float ia0 = a0 + off / ri, ia1 = a1 - off / ri;
+        int oIn = alpha(colOuter, mulIn), oOut = alpha(colOuter, mulOut);
+        int iIn = alpha(colInner, mulIn), iOut = alpha(colInner, mulOut);
+        float dA = Math.max(-r, dIn), dB = Math.max(-r, dOut);
+        sector(cx, cy, rOut + dA, rOut + dB, oa0, oa1, 0, oIn, oOut);
+        if (rIn - dB >= 0) sector(cx, cy, rIn - dB, rIn - dA, ia0, ia1, 0, iOut, iIn);
+        for (int side = 0; side < 2; side++) {
+            float a = side == 0 ? a0 : a1;
+            float tin = side == 0 ? ia0 : ia1, tout = side == 0 ? oa0 : oa1;
+            float pix = px(cx, ri, tin), piy = py(cy, ri, tin);
+            float pox = px(cx, ro, tout), poy = py(cy, ro, tout);
+            float nx = (float) Math.cos(a) * (side == 0 ? -1 : 1), ny = (float) Math.sin(a) * (side == 0 ? -1 : 1);
+            float k0 = r + dA, k1 = r + dB;
+            quad(pix + nx * k0, piy + ny * k0, iIn, pox + nx * k0, poy + ny * k0, oIn,
+                    pox + nx * k1, poy + ny * k1, oOut, pix + nx * k1, piy + ny * k1, iOut);
+            float tn = angleOf(nx, ny);
+            int saved = forcedSteps;
+            forcedSteps = stepsFor(TAU_F / 4f, r + 1f); // same for every band of this shape
+            wedgeGrad(pox, poy, k0, k1, tn, angleOf(pox - cx, poy - cy), oIn, oOut);
+            wedgeGrad(pix, piy, k0, k1, tn, angleOf(cx - pix, cy - piy), iIn, iOut);
+            forcedSteps = saved;
+        }
     }
 
     /**
      * Annular sector with rounded corners: the Minkowski sum of a shrunken sector with a disk of
-     * radius {@code r}. Built from non-overlapping pieces so translucent colours stay even.
+     * radius {@code r}. Built from non-overlapping pieces so translucent colours stay even, with a
+     * one-pixel anti-aliased edge.
      */
     public Shapes roundedSector(float cx, float cy, float rIn, float rOut, float a0, float a1, float gap, float r, int colIn, int colOut) {
-        r = Math.max(0.5f, Math.min(r, (rOut - rIn) / 2f - 0.5f));
+        r = clampCorner(r, rIn, rOut);
         float off = gap / 2f + r;
         float ri = rIn + r, ro = rOut - r;
-        float span = a1 - a0;
-        if (off / ri * 2 >= span) { // too thin for rounded corners
-            return sector(cx, cy, rIn, rOut, a0, a1, gap, colIn, colOut);
-        }
+        if (off / ri * 2 >= a1 - a0) return sector(cx, cy, rIn, rOut, a0, a1, gap, colIn, colOut);
         int cri = lerp(colIn, colOut, (ri - rIn) / (rOut - rIn));
         int cro = lerp(colIn, colOut, (ro - rIn) / (rOut - rIn));
-        // core
-        sector(cx, cy, ri, ro, a0, a1, off * 2, cri, cro);
-        // outer & inner bands
-        float oa0 = a0 + off / ro, oa1 = a1 - off / ro;
-        float ia0 = a0 + off / ri, ia1 = a1 - off / ri;
-        sector(cx, cy, ro, rOut, oa0, oa1, 0, cro, colOut);
-        sector(cx, cy, rIn, ri, ia0, ia1, 0, colIn, cri);
-        // side bands + corner wedges
-        for (int side = 0; side < 2; side++) {
-            float a = side == 0 ? a0 : a1;
-            float tin = side == 0 ? ia0 : ia1, tout = side == 0 ? oa0 : oa1;
-            float pix = px(cx, ri, tin), piy = py(cy, ri, tin);
-            float pox = px(cx, ro, tout), poy = py(cy, ro, tout);
-            // outward normal of this side (perpendicular to the radial line)
-            float nx = (float) Math.cos(a) * (side == 0 ? -1 : 1), ny = (float) Math.sin(a) * (side == 0 ? -1 : 1);
-            quad(pix, piy, cri, pox, poy, cro, pox + nx * r, poy + ny * r, cro, pix + nx * r, piy + ny * r, cri);
-            float tn = angleOf(nx, ny);
-            wedge(pox, poy, 0, r, tn, angleOf(pox - cx, poy - cy), cro);
-            wedge(pix, piy, 0, r, tn, angleOf(cx - pix, cy - piy), cri);
-        }
+        forcedSteps = stepsFor(a1 - a0, rOut + aa);
+        sector(cx, cy, ri, ro, a0, a1, off * 2, cri, cro);                  // core
+        roundedBand(cx, cy, rIn, rOut, a0, a1, gap, r, -r, 0, cri, cro, 1, 1); // rounded border zone
+        roundedBand(cx, cy, rIn, rOut, a0, a1, gap, r, 0, aa, colIn, colOut, 1, 0); // anti-aliasing
+        forcedSteps = 0;
         return this;
     }
 
-    /** Outline (rim) of {@link #roundedSector} with the same geometry. */
+    /** Rim of {@link #roundedSector} with the same geometry, anti-aliased on both sides. */
     public Shapes roundedSectorOutline(float cx, float cy, float rIn, float rOut, float a0, float a1, float gap, float r, float w, int color) {
-        r = Math.max(0.5f, Math.min(r, (rOut - rIn) / 2f - 0.5f));
+        r = clampCorner(r, rIn, rOut);
         float off = gap / 2f + r;
-        float ri = rIn + r, ro = rOut - r;
-        if (off / ri * 2 >= a1 - a0) return sectorOutline(cx, cy, rIn, rOut, a0, a1, gap, w, color);
-        float oa0 = a0 + off / ro, oa1 = a1 - off / ro;
-        float ia0 = a0 + off / ri, ia1 = a1 - off / ri;
-        sector(cx, cy, rOut - w, rOut, oa0, oa1, 0, color, color);
-        sector(cx, cy, rIn, rIn + w, ia0, ia1, 0, color, color);
-        for (int side = 0; side < 2; side++) {
-            float a = side == 0 ? a0 : a1;
-            float tin = side == 0 ? ia0 : ia1, tout = side == 0 ? oa0 : oa1;
-            float pix = px(cx, ri, tin), piy = py(cy, ri, tin);
-            float pox = px(cx, ro, tout), poy = py(cy, ro, tout);
-            float nx = (float) Math.cos(a) * (side == 0 ? -1 : 1), ny = (float) Math.sin(a) * (side == 0 ? -1 : 1);
-            quad(pix + nx * (r - w), piy + ny * (r - w), color, pox + nx * (r - w), poy + ny * (r - w), color,
-                    pox + nx * r, poy + ny * r, color, pix + nx * r, piy + ny * r, color);
-            float tn = angleOf(nx, ny);
-            wedge(pox, poy, r - w, r, tn, angleOf(pox - cx, poy - cy), color);
-            wedge(pix, piy, r - w, r, tn, angleOf(cx - pix, cy - piy), color);
-        }
+        if (off / (rIn + r) * 2 >= a1 - a0) return sectorOutline(cx, cy, rIn, rOut, a0, a1, gap, w, color);
+        forcedSteps = stepsFor(a1 - a0, rOut + aa);
+        roundedBand(cx, cy, rIn, rOut, a0, a1, gap, r, -w, 0, color, color, 1, 1);
+        roundedBand(cx, cy, rIn, rOut, a0, a1, gap, r, 0, aa, color, color, 1, 0);
+        roundedBand(cx, cy, rIn, rOut, a0, a1, gap, r, -w - aa, -w, color, color, 0, 1);
+        forcedSteps = 0;
         return this;
     }
 
