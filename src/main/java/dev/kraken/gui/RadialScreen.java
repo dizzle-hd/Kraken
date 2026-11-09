@@ -217,6 +217,20 @@ public class RadialScreen extends Screen {
         ctx.pose().popMatrix();
     }
 
+    /** Text centred in the disc; scaled down so it never crosses the disc border at its height. */
+    private void centerText(GuiGraphicsExtractor ctx, String str, float y, float desired, int color, boolean bold) {
+        float w = Math.max(1, textWidth(str, bold));
+        float limit = discR - Math.max(3f, R * 0.04f);
+        float s = desired;
+        for (int it = 0; it < 4; it++) {
+            float dy = Math.abs(y - cy) + 4.5f * s; // the text edge furthest from the centre
+            float half = (float) Math.sqrt(Math.max(0f, limit * limit - dy * dy));
+            s = Math.min(desired, 2f * half / w);
+        }
+        if (s < 0.3f) return;
+        text(ctx, str, cx, y, s, color, bold);
+    }
+
     private record Fit(String[] lines, float scale) {}
 
     /** Is the axis-aligned box completely inside the (padded) segment? */
@@ -480,29 +494,33 @@ public class RadialScreen extends Screen {
             if (i == hovered) hint = e.description();
         }
 
-        // ---------------- centre text ----------------
+        // ---------------- centre text (always fitted into the disc) ----------------
         int ca = Shapes.alpha(0xFFFFFFFF, Math.max(0f, Math.min(1f, center)));
+        int backColor = Shapes.lerp(Shapes.alpha(TEXT_DIM, center * 0.7f), Shapes.alpha(VALUE, center), centerHover);
         float nameScale = Math.max(0.85f, Math.min(1.8f, R / 100f));
-        float maxNameW = discR * 1.7f;
         switch (level) {
-            case CATEGORIES -> {
-                String name = minecraft.getUser().getName();
-                float s = Math.min(nameScale * 0.92f, maxNameW / Math.max(1, textWidth(name, false)));
-                text(ctx, name, cx, cy + R * 0.205f, s, ca, false);
-            }
+            case CATEGORIES -> centerText(ctx, minecraft.getUser().getName(), cy + R * 0.205f, nameScale * 0.92f, ca, false);
             case MODULES -> {
-                String name = category.getDisplayName();
-                float s = Math.min(nameScale, maxNameW / Math.max(1, textWidth(name, true)));
-                text(ctx, name, cx, cy + R * 0.175f, s, ca, true);
-                text(ctx, "‹ zurück", cx, cy + R * 0.285f, nameScale * 0.58f, Shapes.lerp(Shapes.alpha(TEXT_DIM, center * 0.7f), Shapes.alpha(VALUE, center), centerHover), false);
+                centerText(ctx, category.getDisplayName(), cy + R * 0.165f, nameScale, ca, true);
+                centerText(ctx, "‹ zurück", cy + R * 0.265f, nameScale * 0.62f, backColor, false);
             }
             case SETTINGS -> {
-                String name = module.getName();
-                float s = Math.min(nameScale * 0.85f, maxNameW / Math.max(1, textWidth(name, true)));
-                text(ctx, name, cx, cy + R * 0.165f, s, ca, true);
+                centerText(ctx, module.getName(), cy + R * 0.12f, nameScale * 0.85f, ca, true);
                 int pages = pageCount(allEntries().size());
-                String sub = pages > 1 ? "Seite " + (page + 1) + "/" + pages + "  ·  ‹ zurück" : "‹ zurück";
-                text(ctx, sub, cx, cy + R * 0.27f, nameScale * 0.58f, Shapes.lerp(Shapes.alpha(TEXT_DIM, center * 0.7f), Shapes.alpha(VALUE, center), centerHover), false);
+                float backY = cy + R * 0.235f;
+                if (pages > 1) {
+                    // page dots instead of "Seite x/y"
+                    Shapes dots = new Shapes();
+                    float dr = Math.max(1.6f, R * 0.017f), sp = R * 0.07f;
+                    float dx0 = cx - (pages - 1) * sp / 2f, dy = cy + R * 0.205f;
+                    for (int p = 0; p < pages; p++) {
+                        int col = p == page ? Shapes.alpha(ACCENT, center) : Shapes.alpha(0x8CFFFFFF, center);
+                        dots.circle(dx0 + p * sp, dy, p == page ? dr * 1.35f : dr, col);
+                    }
+                    dots.submit(ctx);
+                    backY = cy + R * 0.275f;
+                }
+                centerText(ctx, "‹ zurück", backY, nameScale * 0.62f, backColor, false);
             }
         }
         if (hovered == -2 && level != Level.CATEGORIES) hint = "Zurück";

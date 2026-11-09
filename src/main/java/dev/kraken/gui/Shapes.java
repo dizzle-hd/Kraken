@@ -56,7 +56,7 @@ public final class Shapes {
         float gIn = rIn > 0.5f ? Math.min((gap / 2f) / rIn, (a1 - a0) / 2f) : 0f;
         float gOut = Math.min((gap / 2f) / rOut, (a1 - a0) / 2f);
         float in0 = a0 + gIn, in1 = a1 - gIn, out0 = a0 + gOut, out1 = a1 - gOut;
-        int steps = Math.max(2, (int) Math.ceil((a1 - a0) * rOut / 4f));
+        int steps = Math.max(Math.max(2, (int) Math.ceil((a1 - a0) / (Math.PI * 2 / 40))), (int) Math.ceil((a1 - a0) * rOut / 4f));
         for (int i = 0; i < steps; i++) {
             float t0 = (float) i / steps, t1 = (float) (i + 1) / steps;
             float ai0 = in0 + (in1 - in0) * t0, ai1 = in0 + (in1 - in0) * t1;
