@@ -27,6 +27,11 @@ public final class UiText {
         return font.width(styled(text, bold));
     }
 
+    /** Draws text horizontally centred on x and vertically centred on y. */
+    public static void centered(GuiGraphicsExtractor ctx, Font font, String text, float x, float y, float scale, int color, boolean bold, boolean shadow) {
+        left(ctx, font, text, x - width(font, text, bold) * scale / 2f, y, scale, color, bold, shadow);
+    }
+
     /** Draws text with its left edge at x and vertically centred on y. */
     public static void left(GuiGraphicsExtractor ctx, Font font, String text, float x, float y, float scale, int color, boolean bold) {
         left(ctx, font, text, x, y, scale, color, bold, false);

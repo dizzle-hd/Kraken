@@ -40,6 +40,7 @@ import java.util.List;
 public class RadialScreen extends Screen {
     // ---- palette ---------------------------------------------------------------------------------
     private static final int ACCENT = 0xFFFF5A2A;
+    private static final int TINT = 0x382A0E06;
     private static final int GLASS_IN = 0x0CFFE2D6;
     private static final int GLASS_OUT = 0x17FFE2D6;
     private static final int GLASS_HOVER_IN = 0x1AFFE2D6;
@@ -208,14 +209,8 @@ public class RadialScreen extends Screen {
 
     /** Draws text centred horizontally and vertically around (x, y). */
     private void text(GuiGraphicsExtractor ctx, String text, float x, float y, float scale, int color, boolean bold) {
-        Component c = styled(text, bold);
-        int w = font.width(c);
-        ctx.pose().pushMatrix();
-        ctx.pose().translate(x, y);
-        ctx.pose().scale(scale, scale);
-        ctx.pose().translate(0, UiText.BASELINE_FIX);
-        ctx.text(font, c, -w / 2, -4, color, false);
-        ctx.pose().popMatrix();
+        // soft shadow keeps the labels readable over bright terrain now that there is no background
+        UiText.centered(ctx, font, text, x, y, scale, color, bold, true);
     }
 
     /** Text centred in the disc; scaled down so it never crosses the disc border at its height. */
@@ -309,21 +304,7 @@ public class RadialScreen extends Screen {
 
     @Override
     public void extractBackground(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        long now = System.currentTimeMillis();
-        float open = ease((now - openedAt) / 280f) * closeFactor(now);
-        if (minecraft.options.getMenuBackgroundBlurriness() >= 1.0f && open > 0.3f) ctx.blurBeforeThisStratum();
-        int a = (int) (0xD8 * open);
-        Shapes s = new Shapes();
-        float w = width, h = height, mx = w * 0.5f, my = h * 0.55f;
-        // warm orange-red like the reference: bright top-left / bottom-left, dark bottom-right
-        int tl = (a << 24) | 0xC9401A, tm = (a << 24) | 0xA8320F, tr = (a << 24) | 0x7A2410;
-        int ml = (a << 24) | 0x8A2A12, mm = (a << 24) | 0x5E1D0E, mr = (a << 24) | 0x3A130B;
-        int bl = (a << 24) | 0xB0341A, bm = (a << 24) | 0x4A170C, br = (a << 24) | 0x1E0A07;
-        s.gradient(0, 0, mx, my, tl, tm, ml, mm);
-        s.gradient(mx, 0, w, my, tm, tr, mm, mr);
-        s.gradient(0, my, mx, h, ml, mm, bl, bm);
-        s.gradient(mx, my, w, h, mm, mr, bm, br);
-        s.submit(ctx);
+        // no background: the wheel floats directly over the game (no orange tint, no blur)
     }
 
     @Override
@@ -386,6 +367,8 @@ public class RadialScreen extends Screen {
             int in = Shapes.lerp(Shapes.lerp(GLASS_IN, GLASS_HOVER_IN, h), GLASS_ON_IN, act);
             int out = Shapes.lerp(Shapes.lerp(GLASS_OUT, GLASS_HOVER_OUT, h), GLASS_ON_OUT, act);
             Shapes s = new Shapes();
+            // faint warm tint (same as the HUD pills) so the glass stays visible over bright terrain
+            s.roundedSector(cx, cy, rIn, rOut, a0, a1, gap, corner, Shapes.alpha(TINT, alpha), Shapes.alpha(TINT, alpha));
             s.roundedSector(cx, cy, rIn, rOut, a0, a1, gap, corner, Shapes.alpha(in, alpha), Shapes.alpha(out, alpha));
             // specular shine along the outer rim (frosted glass highlight)
             s.roundedSector(cx, cy, rOut - R * 0.09f, rOut - R * 0.012f, a0, a1, gap + R * 0.03f, R * 0.03f,
