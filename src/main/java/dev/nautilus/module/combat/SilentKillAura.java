@@ -41,6 +41,11 @@ public class SilentKillAura extends KillAuraBase {
 
     @Override
     public void onPreTick() {
+        act();
+        plan();
+    }
+
+    private void plan() {
         current = null;
         if (paused()) { targets.clear(); rotating = false; return; }
 
@@ -64,8 +69,8 @@ public class SilentKillAura extends KillAuraBase {
         RotationManager.request(yaw, pitch, 10);
     }
 
-    @Override
-    public void onTick() {
+    /** Attacks of this tick, sent before the movement packet (pre), aimed with the rotation sent last tick. */
+    private void act() {
         if (current == null || paused()) return;
         if (!current.isAlive()) return;
         if (mc.player.getAttackStrengthScale(0.5f) < cooldown.get()) return;

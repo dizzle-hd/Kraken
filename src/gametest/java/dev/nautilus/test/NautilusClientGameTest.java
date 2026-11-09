@@ -313,6 +313,35 @@ public class NautilusClientGameTest implements FabricClientGameTest {
     private static void crystalTests(ClientGameTestContext ctx, TestSingleplayerContext sp) {
         var mm = ModuleManager.get();
         var srv = sp.getServer();
+        // --- TriggerBot with the Legit preset: how often does it really hit? ---
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("item replace entity @a hotbar.4 with minecraft:iron_sword");
+        ctx.runOnClient(c -> { c.player.getInventory().setSelectedSlot(4); c.player.setYRot(0); c.player.setXRot(10); });
+        java.util.UUID tz = spawnZombie(sp, 0, 2, 1000f);
+        ctx.waitTicks(5);
+        ctx.runOnClient(c -> {
+            var tb = mm.get(dev.nautilus.module.combat.TriggerBot.class);
+            set(tb, "Monster", true);
+            tb.applyPreset(tb.getPresets().get(0)); // Legit
+            tb.setEnabled(true);
+        });
+        StringBuilder tlog = new StringBuilder();
+        int swings = 0;
+        float lastHp = 1000f;
+        for (int i = 0; i < 100; i++) {
+            ctx.waitTick();
+            String st = ctx.computeOnClient(c -> String.format(java.util.Locale.ROOT, "%.2f%s", c.player.getAttackStrengthScale(0f),
+                    c.hitResult instanceof net.minecraft.world.phys.EntityHitResult ? "" : "x"));
+            float hp = sp.getServer().computeOnServer(server -> {
+                var e = server.getPlayerList().getPlayers().get(0).level().getEntity(tz);
+                return e instanceof net.minecraft.world.entity.LivingEntity l ? l.getHealth() : -1f;
+            });
+            if (hp < lastHp - 0.01f) { swings++; tlog.append("HIT@").append(i).append('(').append(st).append(") "); }
+            lastHp = hp;
+        }
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.combat.TriggerBot.class).setEnabled(false));
+        System.out.println("[NautilusTest] TriggerBot Legit with iron sword, 100 ticks: " + swings + " hits: " + tlog);
+
         srv.runCommand("kill @e[type=!minecraft:player]");
         srv.runCommand("effect give @a minecraft:resistance 600 3 true"); // the player survives his own tests
         srv.runCommand("clear @a");

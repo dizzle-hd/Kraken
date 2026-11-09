@@ -150,11 +150,7 @@ public class RadialScreen extends Screen {
                     list.add(new Entry(s.getName(), null, s.getDescription(), on, null, module, s, false));
                 }
                 list.add(new Entry(module.keybind.getName(), null, module.keybind.getDescription(), false, null, module, module.keybind, false));
-                // presets always come last, so they end up on the last settings page
-                for (Module.Preset p : module.getPresets()) {
-                    list.add(new Entry(p.name(), null, "Preset · Bann-Risiko " + RISK_NAMES[p.risk()] + " · " + p.note() + " (Klick = laden)",
-                            module.matches(p), null, module, null, false, p));
-                }
+
             }
         }
         return list;
@@ -612,8 +608,74 @@ public class RadialScreen extends Screen {
     }
 
     /** Glass search bar above the wheel: magnifier, query (or placeholder) and a blinking caret. */
+    /** Clickable preset chips of the top strip (settings level): {x1, y1, x2, y2} per preset. */
+    private final List<float[]> presetChips = new ArrayList<>();
+
+    /**
+     * Settings level: the presets of the module as glass chips above the wheel, each with a small
+     * traffic light for the ban risk; the preset that matches the current settings is filled.
+     */
+    private void renderPresetBar(GuiGraphicsExtractor ctx, float close, int mouseX, int mouseY) {
+        presetChips.clear();
+        if (module == null || module.getPresets().isEmpty()) return;
+        List<Module.Preset> presets = module.getPresets();
+        float s = Math.max(0.85f, Math.min(1.1f, R / 140f));
+        float ph = 16f, gap = 5f, lr = 2.1f;
+        String title = "Presets";
+        float titleW = textWidth(title, true) * 0.8f * s + 10f;
+        float[] widths = new float[presets.size()];
+        float total = titleW;
+        for (int i = 0; i < presets.size(); i++) {
+            widths[i] = textWidth(presets.get(i).name(), true) * 0.85f * s + 3 * lr * 2.4f + 22f;
+            total += gap + widths[i];
+        }
+        float x = width / 2f - total / 2f, y1 = 3f, y2 = y1 + ph, my = (y1 + y2) / 2f;
+        float appear = ease((System.currentTimeMillis() - levelChangedAt) / 300f) * close;
+        ctx.nextStratum();
+        Shapes bar = new Shapes();
+        List<Runnable> labels = new ArrayList<>();
+        float tx = x;
+        labels.add(() -> leftText(ctx, title, tx, my, 0.8f * s, Shapes.alpha(0xB3FFFFFF, appear), true));
+        x += titleW + gap;
+        for (int i = 0; i < presets.size(); i++) {
+            Module.Preset p = presets.get(i);
+            float cx1 = x, cx2 = x + widths[i];
+            boolean active = module.matches(p);
+            boolean hot = mouseX >= cx1 && mouseX <= cx2 && mouseY >= y1 && mouseY <= y2;
+            int rc = RISK_COLORS[p.risk()];
+            if (LiquidGlass.enabled()) {
+                LiquidGlass.roundRect(ctx, cx1, y1, cx2, y2, ph / 2f, appear);
+                bar.roundRect(cx1, y1, cx2, y2, ph / 2f, Shapes.alpha(active ? (rc & 0xFFFFFF) | 0x55000000 : hot ? 0x40FFFFFF : 0x302A0E06, appear));
+            } else {
+                bar.roundRect(cx1, y1, cx2, y2, ph / 2f, Shapes.alpha(active ? (rc & 0xFFFFFF) | 0x99000000 : hot ? 0xC0402010 : 0xB02A0E06, appear));
+            }
+            bar.roundRectRim(cx1, y1, cx2, y2, ph / 2f, 0.8f, Shapes.alpha(active ? rc : hot ? 0x80FFFFFF : 0x40FFFFFF, appear));
+            // traffic light: red / yellow / green, the risk of this preset is lit
+            float lx = cx1 + 8f;
+            int[] order = {2, 1, 0};
+            for (int k = 0; k < 3; k++) {
+                int risk = order[k];
+                boolean lit = risk == p.risk();
+                float ccx = lx + k * lr * 2.4f;
+                if (lit) bar.circle(ccx, my, lr * 2f, Shapes.alpha(RISK_COLORS[risk], appear * 0.3f), Shapes.alpha(RISK_COLORS[risk], 0f));
+                bar.circle(ccx, my, lr, Shapes.alpha(lit ? RISK_COLORS[risk] : 0x40FFFFFF, appear));
+            }
+            float nx = lx + 3 * lr * 2.4f + 2f;
+            String name = (active ? "✓ " : "") + p.name();
+            labels.add(() -> leftText(ctx, name, nx, my, 0.85f * s, Shapes.alpha(0xFFFFFFFF, appear), true));
+            presetChips.add(new float[]{cx1, y1, cx2, y2});
+            if (hot) hint = p.name() + " · Bann-Risiko " + RISK_NAMES[p.risk()] + " · " + p.note();
+            x = cx2 + gap;
+        }
+        bar.submit(ctx);
+        for (Runnable r : labels) r.run();
+    }
+
     private void renderSearchBar(GuiGraphicsExtractor ctx, float close, int mouseX, int mouseY) {
-        if (level == Level.SETTINGS) return;
+        if (level == Level.SETTINGS) {
+            renderPresetBar(ctx, close, mouseX, mouseY);
+            return;
+        }
         boolean active = level == Level.SEARCH;
         float s = Math.max(0.85f, Math.min(1.15f, R / 140f));
         float ph = 16f, pw = Math.min(width - 20f, Math.max(170f, R * 1.25f));
@@ -811,6 +873,19 @@ public class RadialScreen extends Screen {
             if (button == InputConstants.MOUSE_BUTTON_RIGHT) listening.set(-1);
             listening = null;
             return true;
+        }
+        if (level == Level.SETTINGS && module != null) {
+            for (int i = 0; i < presetChips.size() && i < module.getPresets().size(); i++) {
+                float[] r = presetChips.get(i);
+                if (click.x() >= r[0] && click.x() <= r[2] && click.y() >= r[1] && click.y() <= r[3]) {
+                    Module.Preset p = module.getPresets().get(i);
+                    module.applyPreset(p);
+                    dev.nautilus.hud.Notifications.push(module.getName(), "Preset „" + p.name() + "“ geladen", RISK_COLORS[p.risk()]);
+                    dev.nautilus.config.ConfigManager.save();
+                    restartAnimations();
+                    return true;
+                }
+            }
         }
         List<Entry> entries = entries();
         int hit = hitTest(click.x(), click.y(), entries.size());

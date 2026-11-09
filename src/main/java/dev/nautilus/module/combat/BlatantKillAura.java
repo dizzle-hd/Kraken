@@ -45,6 +45,11 @@ public class BlatantKillAura extends KillAuraBase {
 
     @Override
     public void onPreTick() {
+        act();
+        plan();
+    }
+
+    private void plan() {
         if (paused()) { targets.clear(); return; }
         findTargets(throughWalls.isOn());
         if (targets.isEmpty()) return;
@@ -80,8 +85,8 @@ public class BlatantKillAura extends KillAuraBase {
         mc.player.turn(step[0] / 0.15, step[1] / 0.15);
     }
 
-    @Override
-    public void onTick() {
+    /** Attacks of this tick, sent before the movement packet (pre), aimed with the rotation sent last tick. */
+    private void act() {
         if (targets.isEmpty() || paused()) return;
 
         int swings;

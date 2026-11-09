@@ -82,8 +82,9 @@ public class AutoTotem extends Module {
         return slot;
     }
 
+    /** Pre-tick: interactions go out before the movement packet, like a real click (no "post" packets). */
     @Override
-    public void onTick() {
+    public void onPreTick() {
         if (mc.player == null || mc.gameMode == null || mc.player.isCreative() || mc.player.isSpectator()) return;
         if (wait > 0) { wait--; return; }
 
@@ -110,7 +111,7 @@ public class AutoTotem extends Module {
                     return;
                 }
                 step = Step.PRESS;
-                onTick();
+                onPreTick();
             }
             case PRESS -> {
                 int slot = findSlot(want);

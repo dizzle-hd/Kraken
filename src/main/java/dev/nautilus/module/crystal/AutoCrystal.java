@@ -112,6 +112,11 @@ public class AutoCrystal extends Module {
 
     @Override
     public void onPreTick() {
+        act();
+        plan();
+    }
+
+    private void plan() {
         plannedPlace = null;
         plannedBreak = null;
         target = null;
@@ -202,8 +207,8 @@ public class AutoCrystal extends Module {
     // Acting (after the movement packet with the rotation was sent)
     // =============================================================================================
 
-    @Override
-    public void onTick() {
+    /** Attacks of this tick, sent before the movement packet (pre), aimed with the rotation sent last tick. */
+    private void act() {
         if (placeWait > 0) placeWait--;
         if (breakWait > 0) breakWait--;
         if (crosshairMode()) {

@@ -88,8 +88,9 @@ public class SafeAnchor extends Module {
         return ok;
     }
 
+    /** Pre-tick: interactions go out before the movement packet, like a real click (no "post" packets). */
     @Override
-    public void onTick() {
+    public void onPreTick() {
         if (mc.player == null || mc.level == null || mc.gui.screen() != null) return;
         if (wait > 0) { wait--; return; }
         AnchorMacro macro = dev.nautilus.module.ModuleManager.get().get(AnchorMacro.class);

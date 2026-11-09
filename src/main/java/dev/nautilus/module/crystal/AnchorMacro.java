@@ -90,8 +90,9 @@ public class AnchorMacro extends Module {
         return mc.level.getBlockState(hit.getBlockPos()).is(Blocks.RESPAWN_ANCHOR) ? hit.getBlockPos() : null;
     }
 
+    /** Pre-tick: interactions go out before the movement packet, like a real click (no "post" packets). */
     @Override
-    public void onTick() {
+    public void onPreTick() {
         if (mc.player == null || mc.level == null || mc.gameMode == null) return;
         // in the Nether an anchor sets the spawn point instead of exploding
         if (mc.level.dimension() == Level.NETHER) { if (busy()) finish(); return; }

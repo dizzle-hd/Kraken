@@ -186,6 +186,11 @@ public class Surround extends Module {
      */
     @Override
     public void onPreTick() {
+        center();
+        place();
+    }
+
+    private void center() {
         if (centering <= 0 || mc.player == null || start == null) return;
         if (centered() || --centering <= 0 || mc.gui.screen() != null) {
             centering = 0;
@@ -216,8 +221,7 @@ public class Surround extends Module {
         tap = tapTicks.getInt() + 1;
     }
 
-    @Override
-    public void onTick() {
+    private void place() {
         if (mc.player == null || mc.level == null || mc.gameMode == null || mc.gui.screen() != null) return;
         BlockPos feet = mc.player.blockPosition();
         if (disableOnMove.isOn() && (start == null || !feet.equals(start) || mc.options.keyJump.isDown() && centering <= 0)) {
