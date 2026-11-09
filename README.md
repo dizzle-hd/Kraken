@@ -2,6 +2,14 @@
 
 Fabric client mod for **Minecraft 1.21.11** with a radial wheel GUI instead of a click GUI.
 
+| Kategorien | Modul-Rad | Einstellungen |
+|---|---|---|
+| ![Rad](docs/wheel.png) | ![Combat](docs/combat.png) | ![Einstellungen](docs/settings.png) |
+
+| BaseFinder (ESP durch Wände) | XRay |
+|---|---|
+| ![BaseFinder](docs/basefinder.png) | ![XRay](docs/xray.png) |
+
 ## Bedienung
 
 | Aktion | Taste |
@@ -45,6 +53,15 @@ Alles wird in `config/kraken.json` gespeichert.
 ./gradlew build
 ```
 Die Mod liegt danach in `build/libs/kraken-1.0.0.jar` (benötigt Fabric Loader + Fabric API).
+
+## Automatischer Ingame-Test
+
+```
+./gradlew runClientGameTest
+```
+Startet Minecraft, erstellt eine Welt, öffnet das Rad, schaltet Module, baut eine Test-„Basis“ für den
+BaseFinder, prüft XRay und lässt die SilentKillAura einen Zombie besiegen (Kamera darf sich dabei nicht drehen).
+Screenshots landen in `build/run/clientGameTest/screenshots`.
 
 ## Neues Modul hinzufügen
 

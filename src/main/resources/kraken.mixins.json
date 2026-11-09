@@ -4,12 +4,14 @@
   "package": "dev.kraken.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "AbstractBlockStateMixin",
     "BlockMixin",
     "BlockRenderManagerMixin",
     "ClientPlayNetworkHandlerMixin",
     "ClientPlayerEntityMixin",
     "LightmapTextureManagerMixin",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

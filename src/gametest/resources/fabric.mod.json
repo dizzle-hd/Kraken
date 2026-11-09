@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "kraken-gametest",
+  "version": "1.0.0",
+  "name": "Kraken GameTest",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["dev.kraken.test.KrakenClientGameTest"]
+  },
+  "depends": { "kraken": "*" }
+}

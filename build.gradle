@@ -30,3 +30,15 @@ java {
 }
 
 jar { from("LICENSE") { rename { "${it}_${project.base.archivesName.get()}" } } }
+
+// Automated in-game test: `./gradlew runClientGameTest` creates a world, opens the wheel,
+// toggles modules and stores screenshots in build/run/clientGameTest/screenshots.
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "kraken-gametest"
+        enableGameTests = false
+        enableClientGameTests = true
+        eula = true
+    }
+}

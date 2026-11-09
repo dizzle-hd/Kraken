@@ -38,7 +38,7 @@ public class RadialScreen extends Screen {
     private static final int CENTER_FILL = 0x66301008;
     private static final int TEXT = 0xFFF4E6E0;
     private static final int TEXT_DIM = 0xFFB89A90;
-    private static final int PANEL = 0xEE2A0F09;
+    private static final int PANEL = 0xFA2A0F09;
     private static final int PANEL_BORDER = 0x40FFB49C;
 
     private static final float GAP = 5f;
@@ -86,18 +86,20 @@ public class RadialScreen extends Screen {
 
     private void layout() {
         float panelW = panelWidth();
-        rOuter = Math.min(Math.min(height * 0.42f, width * 0.30f), 165f);
+        // leave room at the bottom for the hint line
+        float full = Math.min(Math.min((height - 34f) / 2f - 10f, width * 0.30f), 165f);
+        // with the settings card open the wheel shrinks if necessary so both fit side by side
+        float withPanel = Math.min(full, (width - panelW - 48f) / 2f);
+        rOuter = Math.max(60f, full + (withPanel - full) * panelAnim);
         rInner = rOuter * 0.50f;
-        rCenter = rInner - 11f;
+        rCenter = rInner - Math.max(8f, rOuter * 0.07f);
         float shift = panelAnim * (panelW + 24f) / 2f;
-        // only shift if there is room for both
-        if (width < rOuter * 2 + panelW + 60) shift = 0;
         cx = width / 2f - shift;
-        cy = height / 2f;
+        cy = (height - 26f) / 2f + 4f;
     }
 
     private float panelWidth() {
-        return Math.min(210f, width - 20f);
+        return Math.max(150f, Math.min(210f, width * 0.42f));
     }
 
     /** -1 = none, -2 = center, otherwise segment index. */
@@ -217,7 +219,7 @@ public class RadialScreen extends Screen {
         s.submit(ctx);
 
         // icons + labels
-        float iconScale = Math.max(1.2f, rOuter / 165f * 2.2f);
+        float iconScale = Math.max(1.3f, rOuter / 165f * 2.6f);
         float rIcon = (rInner + rOuter) / 2f;
         for (int i = 0; i < n; i++) {
             float h = i < hoverAnim.length ? hoverAnim[i] : 0f;
@@ -241,8 +243,7 @@ public class RadialScreen extends Screen {
             }
 
             // spinning item: a horizontal squash by cos(angle) looks exactly like a Y-axis rotation
-            float spin = (float) Math.cos(time * (1.1f + h * 1.6f) + i * 0.9f);
-            if (Math.abs(spin) < 0.06f) spin = Math.copySign(0.06f, spin);
+            float spin = Math.max(0.08f, Math.abs((float) Math.cos(time * (1.1f + h * 1.6f) + i * 0.9f)));
             float sc = iconScale * (1f + 0.12f * h);
             ctx.getMatrices().pushMatrix();
             ctx.getMatrices().translate(x, y - 6f * iconScale / 2.2f);
@@ -250,16 +251,27 @@ public class RadialScreen extends Screen {
             ctx.drawItem(icon, -8, -8);
             ctx.getMatrices().popMatrix();
 
-            // label (scaled down if it does not fit into the segment)
-            float maxW = Math.min(rOuter - rInner, 2f * rIcon * (float) Math.sin(step / 2f)) - 10f;
-            int tw = textRenderer.getWidth(label);
-            float ts = tw > maxW ? Math.max(0.55f, maxW / tw) : 1f;
-            ctx.getMatrices().pushMatrix();
-            ctx.getMatrices().translate(x, y + 9f * iconScale / 2.2f + 4f);
-            ctx.getMatrices().scale(ts, ts);
+            // label: CamelCase names are split onto two lines if they do not fit, then scaled down if needed
+            float maxW = Math.min(rOuter - rInner, 2f * rIcon * (float) Math.sin(step / 2f)) - 6f;
+            float base = Math.max(1f, Math.min(1.5f, rOuter / 115f));
+            String[] lines = {label};
+            if (textRenderer.getWidth(label) * base > maxW) {
+                String[] split = splitLabel(label);
+                if (split != null) lines = split;
+            }
+            int tw = 0;
+            for (String l : lines) tw = Math.max(tw, textRenderer.getWidth(l));
+            float ts = tw * base > maxW ? Math.max(0.6f, maxW / tw) : base;
             int color = on ? 0xFFFFB49C : Shapes.lerp(TEXT, 0xFFFFFFFF, h);
-            ctx.drawText(textRenderer, label, -tw / 2, 0, color, true);
-            ctx.getMatrices().popMatrix();
+            float ly = y + 9f * iconScale / 2.2f + 4f - (lines.length - 1) * 4f * ts;
+            for (String l : lines) {
+                ctx.getMatrices().pushMatrix();
+                ctx.getMatrices().translate(x, ly);
+                ctx.getMatrices().scale(ts, ts);
+                ctx.drawText(textRenderer, l, -textRenderer.getWidth(l) / 2, 0, color, true);
+                ctx.getMatrices().popMatrix();
+                ly += 9f * ts;
+            }
         }
 
         if (hovered >= 0) {
@@ -267,11 +279,22 @@ public class RadialScreen extends Screen {
                 hint = Category.values()[hovered].getDisplayName() + " – Klicken zum Öffnen";
             } else {
                 Module m = modules.get(hovered);
-                hint = m.getDescription() + "   §8[Links: an/aus · Rechts: Einstellungen]";
+                hint = m.getDescription();
             }
         } else if (hovered == -2 && category != null) {
             hint = "Zurück zur Übersicht";
         }
+    }
+
+    /** "BlatantKillAura" → {"Blatant", "KillAura"}; null if there is no good split point. */
+    private static String[] splitLabel(String label) {
+        int best = -1;
+        for (int i = 1; i < label.length(); i++) {
+            if (Character.isUpperCase(label.charAt(i)) && Character.isLowerCase(label.charAt(i - 1))) {
+                if (best < 0 || Math.abs(i - label.length() / 2) < Math.abs(best - label.length() / 2)) best = i;
+            }
+        }
+        return best < 0 ? null : new String[]{label.substring(0, best), label.substring(best)};
     }
 
     private boolean anyEnabled(Category c) {
@@ -308,8 +331,7 @@ public class RadialScreen extends Screen {
             float ts = rCenter > 50 ? 1.4f : 1.1f;
             drawCentered(ctx, name, cx, cy + headSize / 2f - 2f, ts, 0xFFFFFFFF);
         } else {
-            float spin = (float) Math.cos(time * 1.3f);
-            if (Math.abs(spin) < 0.06f) spin = Math.copySign(0.06f, spin);
+            float spin = Math.max(0.08f, Math.abs((float) Math.cos(time * 1.3f)));
             float sc = headSize / 16f * 0.9f;
             ctx.getMatrices().pushMatrix();
             ctx.getMatrices().translate(cx, cy - 8f);
@@ -334,13 +356,14 @@ public class RadialScreen extends Screen {
             hint = category == null ? "Kategorie wählen  §8·  ESC / " + Kraken.openWheel.getBoundKeyLocalizedText().getString() + " schließt"
                     : "Links-Klick: Modul an/aus  §8·  Rechts-Klick: Einstellungen  §8·  ESC: zurück";
         }
-        List<OrderedText> lines = textRenderer.wrapLines(Text.literal(hint), Math.min(width - 40, 420));
-        int y = height - 14 - (lines.size() - 1) * 10;
-        for (OrderedText line : lines) {
-            int w = textRenderer.getWidth(line);
-            ctx.drawText(textRenderer, line, width / 2 - w / 2, y, TEXT_DIM, false);
-            y += 10;
-        }
+        // single line, scaled down if it is too long
+        int w = textRenderer.getWidth(hint);
+        float scale = Math.min(1f, (width - 20f) / w);
+        ctx.getMatrices().pushMatrix();
+        ctx.getMatrices().translate(width / 2f, height - 13f);
+        ctx.getMatrices().scale(scale, scale);
+        ctx.drawText(textRenderer, hint, -w / 2, 0, TEXT_DIM, false);
+        ctx.getMatrices().popMatrix();
     }
 
     // ---- settings card ---------------------------------------------------------------------------
