@@ -360,7 +360,12 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         // AutoCrystal, crosshair mode: hold a crystal, look at obsidian -> it crystals through on its own
         srv.runCommand("kill @e[type=!minecraft:player]");
         sp.getServer().runOnServer(server -> server.getPlayerList().getPlayers().get(0).setHealth(20f)); // fresh for this test
-        srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
+        // a clean, flat platform away from the craters of the test above
+        srv.runCommand("execute at @a run tp @a ~-40 ~6 ~");
+        ctx.waitTicks(2);
+        srv.runCommand("execute at @a run fill ~-5 ~-7 ~-5 ~5 ~-7 ~5 minecraft:stone");
+        srv.runCommand("execute at @a run fill ~-5 ~-6 ~-5 ~5 ~3 ~5 minecraft:air");
+        ctx.waitTicks(40);
         srv.runCommand("execute at @a run setblock ~ ~-1 ~3 minecraft:obsidian");
         ctx.waitTicks(3);
         int crystals2 = count(ctx, net.minecraft.world.item.Items.END_CRYSTAL);
@@ -375,7 +380,22 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             set(ac, "Modus", "Fadenkreuz");
             ac.setEnabled(true);
         });
-        ctx.waitTicks(40);
+        StringBuilder xlog = new StringBuilder();
+        for (int i = 0; i < 40; i++) {
+            ctx.waitTick();
+            String st = ctx.computeOnClient(c -> {
+                var hr = c.hitResult;
+                String h = hr instanceof net.minecraft.world.phys.EntityHitResult eh ? "E:" + eh.getEntity().getType().toShortString()
+                        : hr instanceof net.minecraft.world.phys.BlockHitResult bh && bh.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK
+                        ? "B:" + c.level.getBlockState(bh.getBlockPos()).getBlock().getName().getString().replace(" ", "") + (dev.nautilus.util.WorldUtil.canPlaceCrystal(bh.getBlockPos()) ? "+" : "-")
+                        : "miss";
+                long crystals = c.level.getEntities((net.minecraft.world.entity.Entity) null, c.player.getBoundingBox().inflate(8),
+                        e -> e instanceof net.minecraft.world.entity.boss.enderdragon.EndCrystal).size();
+                return h + "/" + crystals + "/" + c.player.getMainHandItem().getCount();
+            });
+            if (i % 2 == 0) xlog.append(st).append(' ');
+        }
+        System.out.println("[NautilusTest] AutoCrystal crosshair per 2 ticks (hit/crystals nearby/crystals in hand): " + xlog);
         ctx.takeScreenshot("14b-autocrystal-crosshair");
         ctx.runOnClient(c -> { mm.get(dev.nautilus.module.crystal.AutoCrystal.class).setEnabled(false); c.player.getInventory().setSelectedSlot(5); });
         System.out.println("[NautilusTest] AutoCrystal crosshair: crystals used in 2 s = " + (crystals2 - count(ctx, net.minecraft.world.item.Items.END_CRYSTAL))
