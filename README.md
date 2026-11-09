@@ -58,7 +58,7 @@ Alles wird in `config/kraken.json` gespeichert.
 - **XRay** – blendet alles außer ausgewählten Erzen/Kisten aus, optional Fullbright. *(Nicht kompatibel mit Sodium.)*
 - **BaseFinder** – jeder Hinweis einzeln schaltbar:
   - **Amethyst-Grower**: Geoden mit hohem Anteil ausgewachsener Cluster → Chunk war lange geladen.
-  - **Sound-Blöcke**: Positionen, an denen der Server Geräusche abspielt (Kolben, Türen, Truhen, Öfen, Amboss, Werfer …), optional auch Abbau-/Platzier-Geräusche.
+  - **Sound-Blöcke**: markiert durch Wände die Blöcke, an denen der Server Geräusche abspielt (Kolben, Türen, Truhen, Öfen, Amboss, Werfer …). Einzeln schaltbar: Bau-Geräusche, Redstone-Geräusche (Komparatoren, Fackeln, Stolperdraht, Sculk …), Mob-Geräusche und Schritte (z. B. ein Dorfbewohner, der herumläuft oder redet → der Block, auf dem er steht, leuchtet orange) sowie „Alle Geräusche“.
   - **Lager**: Chunks mit vielen Truhen/Fässern/Öfen/Trichtern, jede Shulker-/Endertruhe.
   - **Spieler-Blöcke**: Leuchtfeuer, Zaubertisch, Amboss, Schilder, Beobachter, Komparatoren …
   - **Portale**: aktivierte Netherportale in Oberwelt/End.

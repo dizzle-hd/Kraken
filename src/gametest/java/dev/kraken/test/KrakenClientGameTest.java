@@ -89,12 +89,18 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             sp.getServer().runCommand("execute at @a run setblock ~-3 ~ ~2 minecraft:beacon");
             sp.getServer().runCommand("execute at @a run setblock ~ ~ ~6 minecraft:purple_shulker_box");
             sp.getServer().runCommand("execute at @a run summon minecraft:armor_stand ~-2 ~ ~-4");
+            // sound sources: a villager behind the chests and a comparator click
+            sp.getServer().runCommand("execute at @a run summon minecraft:villager ~6 ~ ~");
             ctx.runOnClient(c -> {
                 c.player.setYRot(0);
                 c.player.setXRot(20);
                 ModuleManager.get().get(BaseFinder.class).setEnabled(true);
             });
-            ctx.waitTicks(80);
+            ctx.waitTicks(20);
+            sp.getServer().runCommand("execute at @a run playsound minecraft:block.comparator.click block @a ~-4 ~ ~3");
+            sp.getServer().runCommand("execute as @e[type=minecraft:villager] at @s run playsound minecraft:entity.villager.ambient neutral @a ~ ~ ~");
+            ctx.waitTicks(60);
+            System.out.println("[KrakenTest] BaseFinder marks (incl. sounds): " + ctx.computeOnClient(c -> ModuleManager.get().get(BaseFinder.class).getInfo()));
             ctx.takeScreenshot("06-basefinder-esp");
 
             // --- XRay ---

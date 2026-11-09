@@ -62,6 +62,7 @@ public class BaseFinder extends Module {
         PLAYER_BLOCK("Spieler-Block", 0xFF5AC8FA),
         PORTAL("Aktives Portal", 0xFFB45AFF),
         SOUND("Geräusch", 0xFFFF5A5A),
+        MOB_SOUND("Mob-/Schritt-Geräusch", 0xFFFF9F43),
         ENTITY("Objekt", 0xFFFFE066);
 
         public final String label;
@@ -74,7 +75,7 @@ public class BaseFinder extends Module {
     }
 
     private record Mark(BlockPos pos, Hint hint) {}
-    private record SoundMark(Vec3 pos, String name, long time) {}
+    private record SoundMark(BlockPos pos, String name, Hint kind, long time) {}
 
     // --- sub modules (each can be turned on / off) --------------------------------------------
     private final BoolSetting amethyst = add(new BoolSetting("Amethyst-Grower",
@@ -85,6 +86,14 @@ public class BaseFinder extends Module {
             "Markiert Blöcke, an denen der Server Geräusche abspielt (Kolben, Türen, Truhen, Öfen, Amboss …)", true));
     private final BoolSetting buildSounds = add(new BoolSetting("Bau-Geräusche",
             "Auch Abbau-/Platzier-Geräusche anderer Spieler markieren", true).visibleWhen(sounds::isOn));
+    private final BoolSetting redstoneSounds = add(new BoolSetting("Redstone-Geräusche",
+            "Komparatoren, Fackeln, Stolperdraht, Sculk, Kupfer-Lampen, Werfer, Kolben …", true).visibleWhen(sounds::isOn));
+    private final BoolSetting mobSounds = add(new BoolSetting("Mob-Geräusche",
+            "Geräusche von Dorfbewohnern & anderen Mobs: der Block, auf dem sie stehen, wird markiert", true).visibleWhen(sounds::isOn));
+    private final BoolSetting stepSounds = add(new BoolSetting("Schritte",
+            "Schritt-Geräusche von Spielern und Mobs: markiert den Block unter ihnen", true).visibleWhen(sounds::isOn));
+    private final BoolSetting allSounds = add(new BoolSetting("Alle Geräusche",
+            "Jedes Geräusch vom Server markieren (außer Musik, Wetter, Umgebung)", false).visibleWhen(sounds::isOn));
     private final NumberSetting soundTime = add(new NumberSetting("Sound-Dauer",
             "Wie lange Sound-Markierungen sichtbar bleiben (Sekunden)", 60, 5, 600, 5).visibleWhen(sounds::isOn));
     private final BoolSetting storage = add(new BoolSetting("Lager",
@@ -129,6 +138,15 @@ public class BaseFinder extends Module {
             "jukebox", "respawn_anchor", "composter", "cartography_table", "loom", "stonecutter", "minecart",
             "comparator", "honey_block", "slime_block", "portal.trigger", "portal.travel", "copper_bulb", "chiseled_bookshelf",
             "decorated_pot", "vault", "item_frame", "armor_stand", "sign", "firework_rocket"};
+
+    /** Sounds of redstone contraptions. */
+    private static final String[] REDSTONE_SOUNDS = {
+            "redstone", "comparator", "repeater", "tripwire", "sculk", "copper_bulb", "dispenser", "dropper", "piston",
+            "lever", "button", "pressure_plate", "note_block", "crafter", "bell", "trial_spawner", "hopper", "rail",
+            "daylight_detector", "observer", "target", "lightning_rod", "tnt"};
+
+    /** Maximum number of sound marks kept at the same time (oldest are dropped). */
+    private static final int MAX_SOUND_MARKS = 600;
 
     public BaseFinder() {
         super("BaseFinder", "Sucht Hinweise auf Basen: Amethyst-Wachstum, Sound-Blöcke, Lager, Spieler-Blöcke und mehr.",
@@ -318,20 +336,68 @@ public class BaseFinder extends Module {
     // Sounds (called from the network mixin on the render thread)
     // ---------------------------------------------------------------------------------------------
 
+    /** A sound played at a position (ClientboundSoundPacket). */
     public void onSound(Identifier id, SoundSource category, double x, double y, double z) {
-        if (!sounds.isOn() || mc.player == null) return;
-        if (category == SoundSource.MUSIC || category == SoundSource.AMBIENT || category == SoundSource.WEATHER
-                || category == SoundSource.HOSTILE || category == SoundSource.NEUTRAL || category == SoundSource.VOICE) return;
+        handleSound(id, category, new Vec3(x, y, z), null);
+    }
+
+    /** A sound attached to an entity (ClientboundSoundEntityPacket): villager voices, mob steps … */
+    public void onEntitySound(Identifier id, SoundSource category, int entityId) {
+        if (mc.level == null) return;
+        Entity e = mc.level.getEntity(entityId);
+        if (e == null || e == mc.player) return;
+        handleSound(id, category, e.position(), e);
+    }
+
+    private void handleSound(Identifier id, SoundSource category, Vec3 pos, Entity source) {
+        if (!sounds.isOn() || mc.player == null || mc.level == null) return;
+        if (category == SoundSource.MUSIC || category == SoundSource.AMBIENT || category == SoundSource.WEATHER) return;
         String path = id.getPath();
-        boolean activity = false;
-        for (String s : ACTIVITY_SOUNDS) {
-            if (path.contains(s)) { activity = true; break; }
+
+        boolean step = path.endsWith(".step") || path.contains(".step.") || path.endsWith("_step");
+        boolean mob = source != null && !(source instanceof Player)
+                || category == SoundSource.NEUTRAL || category == SoundSource.HOSTILE || path.startsWith("entity.");
+        boolean activity = contains(path, ACTIVITY_SOUNDS)
+                || redstoneSounds.isOn() && contains(path, REDSTONE_SOUNDS)
+                || buildSounds.isOn() && path.startsWith("block.") && (path.endsWith(".place") || path.endsWith(".break") || path.endsWith(".hit"));
+
+        Hint kind;
+        if (activity && !step) kind = Hint.SOUND;
+        else if (step && stepSounds.isOn()) kind = Hint.MOB_SOUND;
+        else if (mob && mobSounds.isOn()) kind = Hint.MOB_SOUND;
+        else if (allSounds.isOn()) kind = step || mob ? Hint.MOB_SOUND : Hint.SOUND;
+        else return;
+
+        // steps and mob noises come from the feet of the entity: mark the block it stands on
+        BlockPos block = kind == Hint.MOB_SOUND ? groundBelow(pos) : soundBlock(pos);
+        addSound(block, pretty(path, source), kind);
+    }
+
+    private static boolean contains(String path, String[] keys) {
+        for (String k : keys) if (path.contains(k)) return true;
+        return false;
+    }
+
+    /** Block a block sound comes from: the block at the position, or the solid block right below. */
+    private BlockPos soundBlock(Vec3 pos) {
+        BlockPos bp = BlockPos.containing(pos);
+        if (mc.level.getBlockState(bp).isAir() && !mc.level.getBlockState(bp.below()).isAir()) return bp.below();
+        return bp;
+    }
+
+    /** The block an entity at {@code pos} (feet) stands on – searches up to 2 blocks down. */
+    private BlockPos groundBelow(Vec3 pos) {
+        BlockPos bp = BlockPos.containing(pos.x, pos.y - 0.2, pos.z);
+        for (int i = 0; i < 3; i++) {
+            if (!mc.level.getBlockState(bp).isAir()) return bp;
+            bp = bp.below();
         }
-        if (!activity && buildSounds.isOn() && path.startsWith("block.") && (path.endsWith(".place") || path.endsWith(".break"))) {
-            activity = true;
-        }
-        if (!activity) return;
-        addSound(new Vec3(x, y, z), path);
+        return BlockPos.containing(pos);
+    }
+
+    private static String pretty(String path, Entity source) {
+        String who = source != null ? source.getName().getString() + ": " : "";
+        return who + path;
     }
 
     public void onWorldEvent(int eventId, BlockPos pos) {
@@ -349,27 +415,28 @@ public class BaseFinder extends Module {
             case 1004 -> "Feuerwerk";
             default -> null;
         };
-        if (name != null) addSound(Vec3.atCenterOf(pos), name);
+        if (name != null) addSound(pos.immutable(), name, Hint.SOUND);
     }
 
-    private void addSound(Vec3 pos, String name) {
+    private void addSound(BlockPos pos, String name, Hint kind) {
         if (mc.player == null) return;
-        // ignore our own noise
-        if (mc.player.getEyePosition().distanceToSqr(pos) < 4 * 4) return;
         long now = System.currentTimeMillis();
         synchronized (soundMarks) {
             for (int i = 0; i < soundMarks.size(); i++) {
                 SoundMark s = soundMarks.get(i);
-                if (s.pos.distanceToSqr(pos) < 1.5 * 1.5) {
-                    soundMarks.set(i, new SoundMark(s.pos, name, now));
+                if (s.pos.equals(pos)) {
+                    // a block sound wins over a step / mob sound on the same block
+                    Hint k = s.kind == Hint.SOUND ? Hint.SOUND : kind;
+                    soundMarks.set(i, new SoundMark(pos, k == kind ? name : s.name, k, now));
                     return;
                 }
             }
-            soundMarks.add(new SoundMark(pos, name, now));
+            if (soundMarks.size() >= MAX_SOUND_MARKS) soundMarks.remove(0);
+            soundMarks.add(new SoundMark(pos, name, kind, now));
         }
-        BlockPos bp = BlockPos.containing(pos);
-        if (chat.isOn() && notified.add("SOUND:" + bp.asLong())) {
-            Notifications.push(Hint.SOUND.label, name + " @ " + bp.getX() + " " + bp.getY() + " " + bp.getZ(), Hint.SOUND.color, 4f);
+        // toasts only for real block activity (a walking villager would spam one per block)
+        if (kind == Hint.SOUND && chat.isOn() && notified.add("SOUND:" + pos.asLong())) {
+            Notifications.push(Hint.SOUND.label, name + " @ " + pos.getX() + " " + pos.getY() + " " + pos.getZ(), Hint.SOUND.color, 4f);
         }
     }
 
@@ -403,9 +470,12 @@ public class BaseFinder extends Module {
                 for (SoundMark s : soundMarks) {
                     float fade = (float) Math.max(0.15, 1.0 - (now - s.time) / maxAge);
                     int alpha = (int) (fade * 255) << 24;
-                    int color = (Hint.SOUND.color & 0xFFFFFF) | alpha;
-                    render.box(new AABB(BlockPos.containing(s.pos)), color);
-                    if (tracers.isOn()) render.tracer(s.pos, color);
+                    int color = (s.kind.color & 0xFFFFFF) | alpha;
+                    AABB box = new AABB(s.pos);
+                    render.box(box, color);
+                    // inner box makes the mark easier to spot through many blocks
+                    render.box(box.deflate(0.2), color);
+                    if (tracers.isOn()) render.tracer(box.getCenter(), color);
                 }
             }
         }

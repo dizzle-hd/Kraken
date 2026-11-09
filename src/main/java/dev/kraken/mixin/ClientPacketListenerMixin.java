@@ -5,6 +5,7 @@ import dev.kraken.module.smp.BaseFinder;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
+import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import dev.kraken.hud.TpsTracker;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,6 +20,14 @@ public abstract class ClientPacketListenerMixin {
         BaseFinder bf = ModuleManager.get().get(BaseFinder.class);
         if (bf != null && bf.isEnabled()) {
             bf.onSound(packet.getSound().value().location(), packet.getSource(), packet.getX(), packet.getY(), packet.getZ());
+        }
+    }
+
+    @Inject(method = "handleSoundEntityEvent", at = @At("TAIL"))
+    private void kraken$entitySound(ClientboundSoundEntityPacket packet, CallbackInfo ci) {
+        BaseFinder bf = ModuleManager.get().get(BaseFinder.class);
+        if (bf != null && bf.isEnabled()) {
+            bf.onEntitySound(packet.getSound().value().location(), packet.getSource(), packet.getId());
         }
     }
 
