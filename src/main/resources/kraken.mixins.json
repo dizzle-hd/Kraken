@@ -8,6 +8,7 @@
     "BlockStateBaseMixin",
     "ClientPacketListenerMixin",
     "FluidRendererMixin",
+    "GuiRendererMixin",
     "LightCoordsUtilMixin",
     "LightmapRenderStateExtractorMixin",
     "LocalPlayerMixin",

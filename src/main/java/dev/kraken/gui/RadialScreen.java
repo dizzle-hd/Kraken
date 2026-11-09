@@ -41,6 +41,8 @@ public class RadialScreen extends Screen {
     // ---- palette ---------------------------------------------------------------------------------
     private static final int ACCENT = 0xFFFF5A2A;
     private static final int TINT = 0x382A0E06;
+    /** Liquid glass proof of concept on the top segment of the main wheel. */
+    private static final boolean LIQUID_GLASS_POC = true;
     private static final int GLASS_IN = 0x0CFFE2D6;
     private static final int GLASS_OUT = 0x17FFE2D6;
     private static final int GLASS_HOVER_IN = 0x1AFFE2D6;
@@ -366,6 +368,12 @@ public class RadialScreen extends Screen {
             float act = activeAnim[i];
             int in = Shapes.lerp(Shapes.lerp(GLASS_IN, GLASS_HOVER_IN, h), GLASS_ON_IN, act);
             int out = Shapes.lerp(Shapes.lerp(GLASS_OUT, GLASS_HOVER_OUT, h), GLASS_ON_OUT, act);
+            if (LIQUID_GLASS_POC && level == Level.CATEGORIES && i == 0) {
+                // proof of concept: this one segment is real liquid glass (blur + refraction shader)
+                LiquidGlass.sector(ctx, cx, cy, rIn, rOut, a0, a1, gap, corner, alpha);
+                ctx.pose().popMatrix();
+                continue;
+            }
             Shapes s = new Shapes();
             // faint warm tint (same as the HUD pills) so the glass stays visible over bright terrain
             s.roundedSector(cx, cy, rIn, rOut, a0, a1, gap, corner, Shapes.alpha(TINT, alpha), Shapes.alpha(TINT, alpha));
