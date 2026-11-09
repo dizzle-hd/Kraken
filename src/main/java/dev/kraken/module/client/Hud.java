@@ -4,9 +4,9 @@ import dev.kraken.module.Category;
 import dev.kraken.module.Module;
 import dev.kraken.module.ModuleManager;
 import dev.kraken.setting.BoolSetting;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.Items;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,13 +22,13 @@ public class Hud extends Module {
         loadEnabled(true);
     }
 
-    public void render(DrawContext ctx) {
-        if (mc.options.hudHidden || mc.getDebugHud().shouldShowDebugHud()) return;
-        TextRenderer tr = mc.textRenderer;
+    public void render(GuiGraphicsExtractor ctx) {
+        if (mc.gui.hud.isHidden() || mc.getDebugOverlay().showDebugScreen()) return;
+        Font tr = mc.font;
         if (watermark.isOn()) {
-            ctx.fill(2, 2, 6 + tr.getWidth("Kraken") + 4, 15, 0x90200C08);
+            ctx.fill(2, 2, 6 + tr.width("Kraken") + 4, 15, 0x90200C08);
             ctx.fill(2, 2, 4, 15, 0xFFFF5A2A);
-            ctx.drawTextWithShadow(tr, "Kraken", 7, 5, 0xFFFFFFFF);
+            ctx.text(tr, "Kraken", 7, 5, 0xFFFFFFFF, true);
         }
         if (!moduleList.isOn()) return;
 
@@ -38,14 +38,14 @@ public class Hud extends Module {
             String info = m.getInfo();
             lines.add(info == null ? m.getName() : m.getName() + " §7" + info);
         }
-        lines.sort(Comparator.comparingInt((String l) -> tr.getWidth(l)).reversed());
+        lines.sort(Comparator.comparingInt((String l) -> tr.width(l)).reversed());
         int y = 2;
-        int sw = ctx.getScaledWindowWidth();
+        int sw = ctx.guiWidth();
         for (String line : lines) {
-            int w = tr.getWidth(line);
+            int w = tr.width(line);
             ctx.fill(sw - w - 6, y, sw, y + 11, 0x90200C08);
             ctx.fill(sw - 2, y, sw, y + 11, 0xFFFF5A2A);
-            ctx.drawTextWithShadow(tr, line, sw - w - 4, y + 2, 0xFFFFD2C2);
+            ctx.text(tr, line, sw - w - 4, y + 2, 0xFFFFD2C2, true);
             y += 11;
         }
     }

@@ -10,15 +10,15 @@ import dev.kraken.setting.KeySetting;
 import dev.kraken.setting.ModeSetting;
 import dev.kraken.setting.NumberSetting;
 import dev.kraken.setting.Setting;
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.PlayerSkinDrawer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import org.lwjgl.glfw.GLFW;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.PlayerFaceExtractor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStack;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,11 +68,11 @@ public class RadialScreen extends Screen {
     private record Row(Setting<?> setting, float x, float y, float w, float h, float trackX, float trackW) {}
 
     public RadialScreen() {
-        super(Text.literal("Kraken"));
+        super(Component.literal("Kraken"));
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 
@@ -131,7 +131,7 @@ public class RadialScreen extends Screen {
     // =============================================================================================
 
     @Override
-    public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
+    public void extractBackground(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
         float open = ease((System.currentTimeMillis() - openedAt) / 300f);
         int a = (int) (0xE6 * open);
         Shapes s = new Shapes();
@@ -147,8 +147,8 @@ public class RadialScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        super.render(ctx, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(ctx, mouseX, mouseY, delta);
 
         long now = System.currentTimeMillis();
         float dt = Math.min(0.1f, (now - lastFrame) / 1000f);
@@ -166,26 +166,26 @@ public class RadialScreen extends Screen {
         float swap = easeBack((now - viewChangedAt) / 320f);
         float scale = 0.82f + 0.18f * Math.min(open, swap);
 
-        ctx.getMatrices().pushMatrix();
-        ctx.getMatrices().translate(cx, cy);
-        ctx.getMatrices().scale(scale, scale);
-        ctx.getMatrices().translate(-cx, -cy);
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(cx, cy);
+        ctx.pose().scale(scale, scale);
+        ctx.pose().translate(-cx, -cy);
 
         int hovered = (dragging == null && !insidePanel(mouseX, mouseY)) ? hitTest(mouseX, mouseY) : -1;
         renderWheel(ctx, hovered, time, dt);
         renderCenter(ctx, hovered == -2, time);
 
-        ctx.getMatrices().popMatrix();
+        ctx.pose().popMatrix();
 
         if (panelAnim > 0.01f && settingsModule != null) {
-            ctx.createNewRootLayer();
+            ctx.nextStratum();
             renderPanel(ctx, mouseX, mouseY);
         }
 
         renderHint(ctx);
     }
 
-    private void renderWheel(DrawContext ctx, int hovered, float time, float dt) {
+    private void renderWheel(GuiGraphicsExtractor ctx, int hovered, float time, float dt) {
         int n = segmentCount();
         List<Module> modules = category == null ? List.of() : ModuleManager.get().getModules(category);
         if (n == 0) return;
@@ -245,31 +245,31 @@ public class RadialScreen extends Screen {
             // spinning item: a horizontal squash by cos(angle) looks exactly like a Y-axis rotation
             float spin = Math.max(0.08f, Math.abs((float) Math.cos(time * (1.1f + h * 1.6f) + i * 0.9f)));
             float sc = iconScale * (1f + 0.12f * h);
-            ctx.getMatrices().pushMatrix();
-            ctx.getMatrices().translate(x, y - 6f * iconScale / 2.2f);
-            ctx.getMatrices().scale(sc * spin, sc);
-            ctx.drawItem(icon, -8, -8);
-            ctx.getMatrices().popMatrix();
+            ctx.pose().pushMatrix();
+            ctx.pose().translate(x, y - 6f * iconScale / 2.2f);
+            ctx.pose().scale(sc * spin, sc);
+            ctx.item(icon, -8, -8);
+            ctx.pose().popMatrix();
 
             // label: CamelCase names are split onto two lines if they do not fit, then scaled down if needed
             float maxW = Math.min(rOuter - rInner, 2f * rIcon * (float) Math.sin(step / 2f)) - 6f;
             float base = Math.max(1f, Math.min(1.5f, rOuter / 115f));
             String[] lines = {label};
-            if (textRenderer.getWidth(label) * base > maxW) {
+            if (font.width(label) * base > maxW) {
                 String[] split = splitLabel(label);
                 if (split != null) lines = split;
             }
             int tw = 0;
-            for (String l : lines) tw = Math.max(tw, textRenderer.getWidth(l));
+            for (String l : lines) tw = Math.max(tw, font.width(l));
             float ts = tw * base > maxW ? Math.max(0.6f, maxW / tw) : base;
             int color = on ? 0xFFFFB49C : Shapes.lerp(TEXT, 0xFFFFFFFF, h);
             float ly = y + 9f * iconScale / 2.2f + 4f - (lines.length - 1) * 4f * ts;
             for (String l : lines) {
-                ctx.getMatrices().pushMatrix();
-                ctx.getMatrices().translate(x, ly);
-                ctx.getMatrices().scale(ts, ts);
-                ctx.drawText(textRenderer, l, -textRenderer.getWidth(l) / 2, 0, color, true);
-                ctx.getMatrices().popMatrix();
+                ctx.pose().pushMatrix();
+                ctx.pose().translate(x, ly);
+                ctx.pose().scale(ts, ts);
+                ctx.text(font, l, -font.width(l) / 2, 0, color, true);
+                ctx.pose().popMatrix();
                 ly += 9f * ts;
             }
         }
@@ -302,7 +302,7 @@ public class RadialScreen extends Screen {
         return false;
     }
 
-    private void renderCenter(DrawContext ctx, boolean hovered, float time) {
+    private void renderCenter(GuiGraphicsExtractor ctx, boolean hovered, float time) {
         Shapes s = new Shapes();
         // soft glow + disc
         s.circle(cx, cy, rCenter + 10f, 0x00000000, 0x00000000);
@@ -323,47 +323,47 @@ public class RadialScreen extends Screen {
         float headSize = Math.max(24f, rCenter * 0.95f);
         if (category == null) {
             // player head + name
-            if (client != null && client.player != null) {
+            if (minecraft != null && minecraft.player != null) {
                 int hs = Math.round(headSize);
-                PlayerSkinDrawer.draw(ctx, client.player.getSkin(), Math.round(cx - hs / 2f), Math.round(cy - hs / 2f - 7), hs);
+                PlayerFaceExtractor.extractRenderState(ctx, minecraft.player.getSkin(), Math.round(cx - hs / 2f), Math.round(cy - hs / 2f - 7), hs);
             }
-            String name = client != null ? client.getSession().getUsername() : "Kraken";
+            String name = minecraft != null ? minecraft.getUser().getName() : "Kraken";
             float ts = rCenter > 50 ? 1.4f : 1.1f;
             drawCentered(ctx, name, cx, cy + headSize / 2f - 2f, ts, 0xFFFFFFFF);
         } else {
             float spin = Math.max(0.08f, Math.abs((float) Math.cos(time * 1.3f)));
             float sc = headSize / 16f * 0.9f;
-            ctx.getMatrices().pushMatrix();
-            ctx.getMatrices().translate(cx, cy - 8f);
-            ctx.getMatrices().scale(sc * spin, sc);
-            ctx.drawItem(category.getIcon(), -8, -8);
-            ctx.getMatrices().popMatrix();
+            ctx.pose().pushMatrix();
+            ctx.pose().translate(cx, cy - 8f);
+            ctx.pose().scale(sc * spin, sc);
+            ctx.item(category.getIcon(), -8, -8);
+            ctx.pose().popMatrix();
             drawCentered(ctx, category.getDisplayName(), cx, cy + headSize / 2f - 4f, 1.3f, 0xFFFFFFFF);
             drawCentered(ctx, hovered ? "‹ Zurück" : "‹", cx, cy + headSize / 2f + 9f, 0.8f, hovered ? 0xFFFFB49C : TEXT_DIM);
         }
     }
 
-    private void drawCentered(DrawContext ctx, String text, float x, float y, float scale, int color) {
-        ctx.getMatrices().pushMatrix();
-        ctx.getMatrices().translate(x, y);
-        ctx.getMatrices().scale(scale, scale);
-        ctx.drawText(textRenderer, text, -textRenderer.getWidth(text) / 2, 0, color, true);
-        ctx.getMatrices().popMatrix();
+    private void drawCentered(GuiGraphicsExtractor ctx, String text, float x, float y, float scale, int color) {
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(x, y);
+        ctx.pose().scale(scale, scale);
+        ctx.text(font, text, -font.width(text) / 2, 0, color, true);
+        ctx.pose().popMatrix();
     }
 
-    private void renderHint(DrawContext ctx) {
+    private void renderHint(GuiGraphicsExtractor ctx) {
         if (hint == null) {
-            hint = category == null ? "Kategorie wählen  §8·  ESC / " + Kraken.openWheel.getBoundKeyLocalizedText().getString() + " schließt"
+            hint = category == null ? "Kategorie wählen  §8·  ESC / " + Kraken.openWheel.getTranslatedKeyMessage().getString() + " schließt"
                     : "Links-Klick: Modul an/aus  §8·  Rechts-Klick: Einstellungen  §8·  ESC: zurück";
         }
         // single line, scaled down if it is too long
-        int w = textRenderer.getWidth(hint);
+        int w = font.width(hint);
         float scale = Math.min(1f, (width - 20f) / w);
-        ctx.getMatrices().pushMatrix();
-        ctx.getMatrices().translate(width / 2f, height - 13f);
-        ctx.getMatrices().scale(scale, scale);
-        ctx.drawText(textRenderer, hint, -w / 2, 0, TEXT_DIM, false);
-        ctx.getMatrices().popMatrix();
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(width / 2f, height - 13f);
+        ctx.pose().scale(scale, scale);
+        ctx.text(font, hint, -w / 2, 0, TEXT_DIM, false);
+        ctx.pose().popMatrix();
     }
 
     // ---- settings card ---------------------------------------------------------------------------
@@ -384,14 +384,14 @@ public class RadialScreen extends Screen {
         return mx >= x && mx <= x + panelWidth() && my >= panelTop() && my <= panelBottom();
     }
 
-    private void renderPanel(DrawContext ctx, int mouseX, int mouseY) {
+    private void renderPanel(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
         Module m = settingsModule;
         float a = panelAnim;
         float x = panelX(), w = panelWidth();
         float top = panelTop();
 
         // content height
-        List<OrderedText> desc = textRenderer.wrapLines(Text.literal(m.getDescription()), (int) w - 20);
+        List<FormattedCharSequence> desc = font.split(Component.literal(m.getDescription()), (int) w - 20);
         float header = 34 + desc.size() * 10 + 8;
         List<Setting<?>> visible = new ArrayList<>();
         for (Setting<?> s : m.getSettings()) if (s.isVisible()) visible.add(s);
@@ -415,20 +415,20 @@ public class RadialScreen extends Screen {
         float yy = y + 10 - panelScroll;
 
         // header: icon, name, on/off pill
-        ctx.drawItem(m.getIcon(), (int) x + 10, (int) yy);
-        ctx.drawText(textRenderer, m.getName(), (int) x + 32, (int) yy + 4, 0xFFFFFFFF, true);
+        ctx.item(m.getIcon(), (int) x + 10, (int) yy);
+        ctx.text(font, m.getName(), (int) x + 32, (int) yy + 4, 0xFFFFFFFF, true);
         float pillW = 30, pillX = x + w - pillW - 10, pillY = yy + 3;
         Shapes hs = new Shapes();
         hs.roundRect(pillX, pillY, pillX + pillW, pillY + 11, 5.5f, m.isEnabled() ? ACCENT : 0x40FFFFFF);
         hs.submit(ctx);
         String pill = m.isEnabled() ? "AN" : "AUS";
-        ctx.drawText(textRenderer, pill, (int) (pillX + pillW / 2 - textRenderer.getWidth(pill) / 2f), (int) pillY + 2, 0xFFFFFFFF, false);
+        ctx.text(font, pill, (int) (pillX + pillW / 2 - font.width(pill) / 2f), (int) pillY + 2, 0xFFFFFFFF, false);
         rows.clear();
         rows.add(new Row(null, pillX, pillY, pillW, 11, 0, 0)); // null setting = module toggle
 
         yy += 22;
-        for (OrderedText line : desc) {
-            ctx.drawText(textRenderer, line, (int) x + 10, (int) yy, TEXT_DIM, false);
+        for (FormattedCharSequence line : desc) {
+            ctx.text(font, line, (int) x + 10, (int) yy, TEXT_DIM, false);
             yy += 10;
         }
         yy += 4;
@@ -449,7 +449,7 @@ public class RadialScreen extends Screen {
             }
             final float ry = yy;
             final String name = setting.getName();
-            texts.add(() -> ctx.drawText(textRenderer, name, (int) rx + 4, (int) ry + 5, TEXT, false));
+            texts.add(() -> ctx.text(font, name, (int) rx + 4, (int) ry + 5, TEXT, false));
 
             float trackX = 0, trackW = 0;
             if (setting instanceof BoolSetting b) {
@@ -459,7 +459,7 @@ public class RadialScreen extends Screen {
                 shapes.circle(knob, sy + 5, 3.5f, 0xFFFFFFFF);
             } else if (setting instanceof NumberSetting num) {
                 String val = num.display();
-                texts.add(() -> ctx.drawText(textRenderer, val, (int) (rx + rw - 4 - textRenderer.getWidth(val)), (int) ry + 5, 0xFFFFB49C, false));
+                texts.add(() -> ctx.text(font, val, (int) (rx + rw - 4 - font.width(val)), (int) ry + 5, 0xFFFFB49C, false));
                 trackX = rx + 4;
                 trackW = rw - 8;
                 float ty = yy + 18;
@@ -469,10 +469,10 @@ public class RadialScreen extends Screen {
                 shapes.circle(fx, ty + 1.5f, num == dragging ? 4.5f : 3.5f, 0xFFFFFFFF);
             } else if (setting instanceof ModeSetting mode) {
                 String val = "‹ " + mode.get() + " ›";
-                texts.add(() -> ctx.drawText(textRenderer, val, (int) (rx + rw - 4 - textRenderer.getWidth(val)), (int) ry + 5, 0xFFFFB49C, false));
+                texts.add(() -> ctx.text(font, val, (int) (rx + rw - 4 - font.width(val)), (int) ry + 5, 0xFFFFB49C, false));
             } else if (setting instanceof KeySetting key) {
                 String val = key == listening ? "[ … ]" : "[" + key.display() + "]";
-                texts.add(() -> ctx.drawText(textRenderer, val, (int) (rx + rw - 4 - textRenderer.getWidth(val)), (int) ry + 5,
+                texts.add(() -> ctx.text(font, val, (int) (rx + rw - 4 - font.width(val)), (int) ry + 5,
                         key == listening ? ACCENT : 0xFFFFB49C, false));
             }
             rows.add(new Row(setting, rx, yy, rw, rh, trackX, trackW));
@@ -506,12 +506,12 @@ public class RadialScreen extends Screen {
     // =============================================================================================
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
         double mx = click.x(), my = click.y();
         int button = click.button();
 
         if (listening != null) {
-            if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) listening.set(-1);
+            if (button == InputConstants.MOUSE_BUTTON_RIGHT) listening.set(-1);
             listening = null;
             return true;
         }
@@ -523,9 +523,9 @@ public class RadialScreen extends Screen {
                 Setting<?> s = row.setting;
                 if (s == null) settingsModule.toggle();
                 else if (s instanceof BoolSetting b) b.toggle();
-                else if (s instanceof ModeSetting mode) mode.cycle(button != GLFW.GLFW_MOUSE_BUTTON_RIGHT);
+                else if (s instanceof ModeSetting mode) mode.cycle(button != InputConstants.MOUSE_BUTTON_RIGHT);
                 else if (s instanceof KeySetting key) {
-                    if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT) key.set(-1); else listening = key;
+                    if (button == InputConstants.MOUSE_BUTTON_RIGHT) key.set(-1); else listening = key;
                 } else if (s instanceof NumberSetting num) {
                     dragging = num;
                     dragX = row.trackX;
@@ -547,7 +547,7 @@ public class RadialScreen extends Screen {
                 switchView(Category.values()[hit]);
             } else {
                 Module m = ModuleManager.get().getModules(category).get(hit);
-                if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT || button == GLFW.GLFW_MOUSE_BUTTON_MIDDLE) {
+                if (button == InputConstants.MOUSE_BUTTON_RIGHT || button == InputConstants.MOUSE_BUTTON_MIDDLE) {
                     openSettings(m == settingsModule ? null : m);
                 } else {
                     m.toggle();
@@ -563,7 +563,7 @@ public class RadialScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(Click click, double offsetX, double offsetY) {
+    public boolean mouseDragged(MouseButtonEvent click, double offsetX, double offsetY) {
         if (dragging != null) {
             dragging.setFraction((click.x() - dragX) / dragW);
             return true;
@@ -572,7 +572,7 @@ public class RadialScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(Click click) {
+    public boolean mouseReleased(MouseButtonEvent click) {
         dragging = null;
         return super.mouseReleased(click);
     }
@@ -587,12 +587,12 @@ public class RadialScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(KeyInput input) {
+    public boolean keyPressed(KeyEvent input) {
         int key = input.key();
         if (listening != null) {
-            if (key == GLFW.GLFW_KEY_ESCAPE) {
+            if (key == InputConstants.KEY_ESCAPE) {
                 // cancel
-            } else if (key == GLFW.GLFW_KEY_BACKSPACE || key == GLFW.GLFW_KEY_DELETE) {
+            } else if (key == InputConstants.KEY_BACKSPACE || key == InputConstants.KEY_DELETE) {
                 listening.set(-1);
             } else {
                 listening.set(key);
@@ -600,14 +600,14 @@ public class RadialScreen extends Screen {
             listening = null;
             return true;
         }
-        if (key == GLFW.GLFW_KEY_ESCAPE) {
+        if (key == InputConstants.KEY_ESCAPE) {
             if (settingsModule != null) openSettings(null);
             else if (category != null) switchView(null);
-            else close();
+            else onClose();
             return true;
         }
-        if (Kraken.openWheel.matchesKey(input)) {
-            close();
+        if (Kraken.openWheel.matches(input)) {
+            onClose();
             return true;
         }
         return super.keyPressed(input);

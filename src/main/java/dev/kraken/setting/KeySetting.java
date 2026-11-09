@@ -2,7 +2,7 @@ package dev.kraken.setting;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 /** GLFW key code, -1 = unbound. */
 public class KeySetting extends Setting<Integer> {
@@ -14,7 +14,7 @@ public class KeySetting extends Setting<Integer> {
 
     public String display() {
         if (!isBound()) return "-";
-        return InputUtil.Type.KEYSYM.createFromCode(value).getLocalizedText().getString();
+        return InputConstants.Type.KEYBOARD.getOrCreate(value).getDisplayName().getString();
     }
 
     @Override public JsonElement toJson() { return new JsonPrimitive(value); }

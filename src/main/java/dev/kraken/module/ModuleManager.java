@@ -8,8 +8,8 @@ import dev.kraken.module.combat.SilentKillAura;
 import dev.kraken.module.combat.TriggerBot;
 import dev.kraken.module.smp.BaseFinder;
 import dev.kraken.module.smp.XRay;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,20 +69,20 @@ public final class ModuleManager {
         for (Module m : modules) if (m.isEnabled()) m.onPreTick();
     }
 
-    public void onTick(MinecraftClient mc) {
+    public void onTick(Minecraft mc) {
         // module keybinds (only while no screen is open)
-        if (mc.currentScreen == null) {
+        if (mc.gui.screen() == null) {
             for (Module m : modules) {
                 if (!m.keybind.isBound()) continue;
                 int key = m.keybind.get();
-                boolean down = InputUtil.isKeyPressed(mc.getWindow(), key);
+                boolean down = InputConstants.isKeyDown(key);
                 boolean was = keyStates.getOrDefault(key, false);
                 if (down && !was) m.toggle();
             }
         }
         keyStates.clear();
         for (Module m : modules) {
-            if (m.keybind.isBound()) keyStates.put(m.keybind.get(), InputUtil.isKeyPressed(mc.getWindow(), m.keybind.get()));
+            if (m.keybind.isBound()) keyStates.put(m.keybind.get(), InputConstants.isKeyDown(m.keybind.get()));
         }
 
         for (Module m : modules) if (m.isEnabled()) m.onTick();

@@ -5,9 +5,9 @@ import dev.kraken.setting.NumberSetting;
 import dev.kraken.util.RotationManager;
 import dev.kraken.util.RotationUtil;
 import dev.kraken.util.TargetUtil;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Legit-looking aura: one target, waits for the full attack cooldown, rotates smoothly and only
@@ -48,7 +48,7 @@ public class SilentKillAura extends KillAuraBase {
             pitch = RotationManager.getServerPitch();
             rotating = true;
         }
-        Vec3d eyes = mc.player.getEyePos();
+        Vec3 eyes = mc.player.getEyePosition();
         float[] wanted = RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, current));
         float[] next = RotationUtil.limit(yaw, pitch, wanted, turnSpeed.getFloat());
         yaw = next[0];
@@ -60,8 +60,8 @@ public class SilentKillAura extends KillAuraBase {
     public void onTick() {
         if (current == null || paused()) return;
         if (!current.isAlive()) return;
-        if (mc.player.getAttackCooldownProgress(0.5f) < cooldown.get()) return;
-        Vec3d eyes = mc.player.getEyePos();
+        if (mc.player.getAttackStrengthScale(0.5f) < cooldown.get()) return;
+        Vec3 eyes = mc.player.getEyePosition();
         if (eyes.distanceTo(RotationUtil.closestPoint(eyes, current)) > range.get()) return;
         float[] wanted = RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, current));
         if (RotationUtil.angleDifference(RotationManager.getServerYaw(), RotationManager.getServerPitch(), wanted) > aimTolerance.get()) return;

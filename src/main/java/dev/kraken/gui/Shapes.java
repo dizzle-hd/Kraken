@@ -2,8 +2,8 @@ package dev.kraken.gui;
 
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.ScreenRect;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.joml.Matrix3x2f;
 
 /**
@@ -134,15 +134,15 @@ public final class Shapes {
     }
 
     /** Sends everything to the GUI renderer using the current matrix and scissor of {@code ctx}. */
-    public void submit(DrawContext ctx) {
+    public void submit(GuiGraphicsExtractor ctx) {
         if (colors.isEmpty()) return;
-        Matrix3x2f pose = new Matrix3x2f(ctx.getMatrices());
-        ScreenRect scissor = ctx.scissorStack.peekLast();
+        Matrix3x2f pose = new Matrix3x2f(ctx.pose());
+        ScreenRectangle scissor = ctx.scissorStack.peek();
         int bx = (int) Math.floor(minX), by = (int) Math.floor(minY);
-        ScreenRect bounds = new ScreenRect(bx, by, Math.max(1, (int) Math.ceil(maxX) - bx), Math.max(1, (int) Math.ceil(maxY) - by))
-                .transformEachVertex(pose);
+        ScreenRectangle bounds = new ScreenRectangle(bx, by, Math.max(1, (int) Math.ceil(maxX) - bx), Math.max(1, (int) Math.ceil(maxY) - by))
+                .transformMaxBounds(pose);
         if (scissor != null) bounds = scissor.intersection(bounds);
-        ctx.state.addSimpleElement(new ShapeRenderState(pose, xy.toFloatArray(), colors.toIntArray(), colors.size(), scissor, bounds));
+        ctx.guiRenderState.addGuiElement(new ShapeRenderState(pose, xy.toFloatArray(), colors.toIntArray(), colors.size(), scissor, bounds));
         xy.clear();
         colors.clear();
         minX = minY = Float.MAX_VALUE;

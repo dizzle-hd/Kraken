@@ -3,17 +3,17 @@ package dev.kraken.module;
 import dev.kraken.setting.KeySetting;
 import dev.kraken.setting.Setting;
 import dev.kraken.util.ChatUtil;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public abstract class Module {
-    protected static final MinecraftClient mc = MinecraftClient.getInstance();
+    protected static final Minecraft mc = Minecraft.getInstance();
 
     private final String name;
     private final String description;
@@ -75,7 +75,7 @@ public abstract class Module {
     public void onTick() {}
 
     /** World render pass. Use {@link dev.kraken.util.Render3D} for boxes / lines. */
-    public void onRender3D(WorldRenderContext context, dev.kraken.util.Render3D render) {}
+    public void onRender3D(LevelRenderContext context, dev.kraken.util.Render3D render) {}
 
     /** Extra text shown next to the module name in the HUD list. */
     public String getInfo() { return null; }

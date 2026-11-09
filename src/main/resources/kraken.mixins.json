@@ -2,16 +2,16 @@
   "required": true,
   "minVersion": "0.8",
   "package": "dev.kraken.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "client": [
-    "AbstractBlockStateMixin",
     "BlockMixin",
-    "BlockRenderManagerMixin",
-    "ClientPlayNetworkHandlerMixin",
-    "ClientPlayerEntityMixin",
-    "LightmapTextureManagerMixin",
-    "MinecraftClientMixin",
-    "WorldRendererMixin"
+    "BlockStateBaseMixin",
+    "ClientPacketListenerMixin",
+    "FluidRendererMixin",
+    "LightCoordsUtilMixin",
+    "LightmapRenderStateExtractorMixin",
+    "LocalPlayerMixin",
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,8 +1,8 @@
 package dev.kraken.module;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /** Segments of the main wheel. Order = clockwise starting at the top. */
 public enum Category {

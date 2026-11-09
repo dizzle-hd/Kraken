@@ -1,16 +1,16 @@
 package dev.kraken.util;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.mob.Monster;
-import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,26 +22,26 @@ public final class TargetUtil {
     public record Filter(boolean players, boolean hostiles, boolean passives, boolean invisibles, boolean teammates) {}
 
     public static boolean isValid(Entity e, Filter f) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         if (!(e instanceof LivingEntity living) || e == mc.player) return false;
-        if (!living.isAlive() || living.getHealth() <= 0 || e instanceof ArmorStandEntity) return false;
+        if (!living.isAlive() || living.getHealth() <= 0 || e instanceof ArmorStand) return false;
         if (e.isInvisible() && !f.invisibles()) return false;
-        if (e instanceof PlayerEntity p) {
+        if (e instanceof Player p) {
             if (!f.players() || p.isSpectator() || p.isCreative()) return false;
-            if (!f.teammates() && mc.player != null && mc.player.isTeammate(p)) return false;
+            if (!f.teammates() && mc.player != null && mc.player.isAlliedTo(p)) return false;
             return true;
         }
-        if (e instanceof TameableEntity t && t.isTamed() && mc.player != null && t.isOwner(mc.player)) return false;
-        if (e instanceof Monster) return f.hostiles();
-        if (e instanceof PassiveEntity) return f.passives();
+        if (e instanceof TamableAnimal t && t.isTame() && mc.player != null && t.isOwnedBy(mc.player)) return false;
+        if (e instanceof Enemy) return f.hostiles();
+        if (e instanceof AgeableMob) return f.passives();
         return f.hostiles();
     }
 
-    public static boolean canSee(Vec3d eyes, Vec3d point) {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.world == null || mc.player == null) return false;
-        return mc.world.raycast(new RaycastContext(eyes, point, RaycastContext.ShapeType.COLLIDER,
-                RaycastContext.FluidHandling.NONE, mc.player)).getType() == HitResult.Type.MISS;
+    public static boolean canSee(Vec3 eyes, Vec3 point) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null || mc.player == null) return false;
+        return mc.level.clip(new ClipContext(eyes, point, ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE, mc.player)).getType() == HitResult.Type.MISS;
     }
 
     /**
@@ -49,27 +49,27 @@ public final class TargetUtil {
      * FOV (degrees, 360 = everywhere), sorted by the given order.
      */
     public static List<LivingEntity> find(Filter filter, double range, float fov, boolean throughWalls, String sort) {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
         List<LivingEntity> list = new ArrayList<>();
-        if (mc.world == null || mc.player == null) return list;
-        Vec3d eyes = mc.player.getEyePos();
+        if (mc.level == null || mc.player == null) return list;
+        Vec3 eyes = mc.player.getEyePosition();
         double rangeSq = range * range;
-        for (Entity e : mc.world.getEntities()) {
+        for (Entity e : mc.level.entitiesForRendering()) {
             if (!isValid(e, filter)) continue;
-            Vec3d point = RotationUtil.closestPoint(eyes, e);
-            if (eyes.squaredDistanceTo(point) > rangeSq) continue;
+            Vec3 point = RotationUtil.closestPoint(eyes, e);
+            if (eyes.distanceToSqr(point) > rangeSq) continue;
             if (fov < 360f) {
                 float[] rot = RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, e));
-                if (RotationUtil.angleDifference(mc.player.getYaw(), mc.player.getPitch(), rot) > fov / 2f) continue;
+                if (RotationUtil.angleDifference(mc.player.getYRot(), mc.player.getXRot(), rot) > fov / 2f) continue;
             }
             if (!throughWalls && !canSee(eyes, point) && !canSee(eyes, e.getBoundingBox().getCenter())) continue;
             list.add((LivingEntity) e);
         }
         Comparator<LivingEntity> cmp = switch (sort) {
             case "Leben" -> Comparator.comparingDouble(LivingEntity::getHealth);
-            case "Winkel" -> Comparator.comparingDouble(e -> RotationUtil.angleDifference(mc.player.getYaw(), mc.player.getPitch(),
+            case "Winkel" -> Comparator.comparingDouble(e -> RotationUtil.angleDifference(mc.player.getYRot(), mc.player.getXRot(),
                     RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, e))));
-            default -> Comparator.comparingDouble(e -> eyes.squaredDistanceTo(RotationUtil.closestPoint(eyes, e)));
+            default -> Comparator.comparingDouble(e -> eyes.distanceToSqr(RotationUtil.closestPoint(eyes, e)));
         };
         list.sort(cmp);
         return list;

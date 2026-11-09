@@ -1,6 +1,6 @@
 package dev.kraken.util;
 
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.player.LocalPlayer;
 
 /**
  * Server-side ("silent") rotations. A module requests a rotation during the pre-tick; while the
@@ -33,24 +33,24 @@ public final class RotationManager {
     public static float getServerYaw() { return serverYaw; }
     public static float getServerPitch() { return serverPitch; }
 
-    /** Called from the mixin at the head of ClientPlayerEntity#sendMovementPackets. */
-    public static void preMotion(ClientPlayerEntity player) {
+    /** Called from the mixin at the head of LocalPlayer#sendPosition. */
+    public static void preMotion(LocalPlayer player) {
         if (requested) {
-            savedYaw = player.getYaw();
-            savedPitch = player.getPitch();
-            player.setYaw(targetYaw);
-            player.setPitch(targetPitch);
+            savedYaw = player.getYRot();
+            savedPitch = player.getXRot();
+            player.setYRot(targetYaw);
+            player.setXRot(targetPitch);
             swapped = true;
         }
     }
 
-    /** Called from the mixin at the tail of ClientPlayerEntity#sendMovementPackets. */
-    public static void postMotion(ClientPlayerEntity player) {
-        serverYaw = player.getYaw();
-        serverPitch = player.getPitch();
+    /** Called from the mixin at the tail of LocalPlayer#sendPosition. */
+    public static void postMotion(LocalPlayer player) {
+        serverYaw = player.getYRot();
+        serverPitch = player.getXRot();
         if (swapped) {
-            player.setYaw(savedYaw);
-            player.setPitch(savedPitch);
+            player.setYRot(savedYaw);
+            player.setXRot(savedPitch);
             swapped = false;
         }
         requested = false;

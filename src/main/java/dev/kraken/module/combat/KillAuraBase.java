@@ -1,14 +1,14 @@
 package dev.kraken.module.combat;
 
+import dev.kraken.util.AttackUtil;
 import dev.kraken.module.Category;
 import dev.kraken.module.Module;
 import dev.kraken.setting.BoolSetting;
 import dev.kraken.setting.ModeSetting;
 import dev.kraken.setting.NumberSetting;
 import dev.kraken.util.TargetUtil;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.util.Hand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,13 +38,12 @@ public abstract class KillAuraBase extends Module {
     }
 
     protected boolean paused() {
-        return mc.player == null || mc.interactionManager == null
-                || pauseOnUse.isOn() && mc.player.isUsingItem() || mc.player.isSpectator() || mc.player.isDead();
+        return mc.player == null || mc.gameMode == null
+                || pauseOnUse.isOn() && mc.player.isUsingItem() || mc.player.isSpectator() || mc.player.isDeadOrDying();
     }
 
     protected void attack(LivingEntity target) {
-        mc.interactionManager.attackEntity(mc.player, target);
-        mc.player.swingHand(Hand.MAIN_HAND);
+        AttackUtil.attack(target);
     }
 
     @Override

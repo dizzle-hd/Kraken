@@ -6,9 +6,9 @@ import dev.kraken.setting.NumberSetting;
 import dev.kraken.util.RotationManager;
 import dev.kraken.util.RotationUtil;
 import dev.kraken.util.TargetUtil;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -43,12 +43,12 @@ public class BlatantKillAura extends KillAuraBase {
         targets.addAll(TargetUtil.find(filter(), range.get(), fov.getFloat(), throughWalls.isOn(), sort.get()));
         if (targets.isEmpty()) return;
 
-        Vec3d eyes = mc.player.getEyePos();
+        Vec3 eyes = mc.player.getEyePosition();
         float[] rot = RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, targets.get(0)));
         switch (rotation.get()) {
             case "Kamera" -> {
-                mc.player.setYaw(rot[0]);
-                mc.player.setPitch(rot[1]);
+                mc.player.setYRot(rot[0]);
+                mc.player.setXRot(rot[1]);
             }
             case "Silent" -> RotationManager.request(rot[0], rot[1], 20);
             default -> {}
@@ -68,7 +68,7 @@ public class BlatantKillAura extends KillAuraBase {
             if (swings <= 0) return;
             swings = Math.min(swings, 2);
         } else {
-            if (mc.player.getAttackCooldownProgress(0.5f) < 1.0f) return;
+            if (mc.player.getAttackStrengthScale(0.5f) < 1.0f) return;
             swings = 1;
         }
 

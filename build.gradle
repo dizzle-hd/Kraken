@@ -1,5 +1,6 @@
 plugins {
-    id 'fabric-loom' version "${loom_version}"
+    // Minecraft 26.x ships unobfuscated – no mappings and no remapping needed.
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
 }
 
 version = project.mod_version
@@ -11,9 +12,8 @@ repositories {}
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
 processResources {
@@ -21,15 +21,13 @@ processResources {
     filesMatching("fabric.mod.json") { expand "version": project.version }
 }
 
-tasks.withType(JavaCompile).configureEach { it.options.release = 21 }
+tasks.withType(JavaCompile).configureEach { it.options.release = 25 }
 
 java {
     withSourcesJar()
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
-
-jar { from("LICENSE") { rename { "${it}_${project.base.archivesName.get()}" } } }
 
 // Automated in-game test: `./gradlew runClientGameTest` creates a world, opens the wheel,
 // toggles modules and stores screenshots in build/run/clientGameTest/screenshots.

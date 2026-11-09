@@ -1,6 +1,6 @@
 # Kraken
 
-Fabric client mod for **Minecraft 1.21.11** with a radial wheel GUI instead of a click GUI.
+Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric API 0.165+) with a radial wheel GUI instead of a click GUI.
 
 | Kategorien | Modul-Rad | Einstellungen |
 |---|---|---|
@@ -52,7 +52,9 @@ Alles wird in `config/kraken.json` gespeichert.
 ```
 ./gradlew build
 ```
-Die Mod liegt danach in `build/libs/kraken-1.0.0.jar` (benötigt Fabric Loader + Fabric API).
+Benötigt **JDK 25**. Die Mod liegt danach in `build/libs/kraken-2.0.0.jar` (benötigt Fabric Loader + Fabric API für 26.3).
+
+Minecraft 26.x ist nicht mehr obfuskiert – der Code nutzt direkt die offiziellen Mojang-Namen, ohne Yarn-Mappings.
 
 ## Automatischer Ingame-Test
 

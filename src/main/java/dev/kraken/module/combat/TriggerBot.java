@@ -1,14 +1,14 @@
 package dev.kraken.module.combat;
 
+import dev.kraken.util.AttackUtil;
 import dev.kraken.module.Category;
 import dev.kraken.module.Module;
 import dev.kraken.setting.BoolSetting;
 import dev.kraken.setting.NumberSetting;
 import dev.kraken.util.TargetUtil;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.Items;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.EntityHitResult;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -32,17 +32,16 @@ public class TriggerBot extends Module {
 
     @Override
     public void onTick() {
-        if (mc.player == null || mc.interactionManager == null) return;
+        if (mc.player == null || mc.gameMode == null) return;
         if (wait > 0) { wait--; return; }
-        if (!(mc.crosshairTarget instanceof EntityHitResult hit)) return;
+        if (!(mc.hitResult instanceof EntityHitResult hit)) return;
         Entity target = hit.getEntity();
         if (!TargetUtil.isValid(target, new TargetUtil.Filter(players.isOn(), hostiles.isOn(), passives.isOn(), invisibles.isOn(), false))) return;
         if (pauseOnUse.isOn() && mc.player.isUsingItem()) return;
-        if (mc.player.getAttackCooldownProgress(0.5f) < cooldown.get()) return;
-        if (onlyCrits.isOn() && !(mc.player.fallDistance > 0 && !mc.player.isOnGround() && !mc.player.isClimbing() && !mc.player.isTouchingWater())) return;
+        if (mc.player.getAttackStrengthScale(0.5f) < cooldown.get()) return;
+        if (onlyCrits.isOn() && !(mc.player.fallDistance > 0 && !mc.player.onGround() && !mc.player.onClimbable() && !mc.player.isInWater())) return;
 
-        mc.interactionManager.attackEntity(mc.player, target);
-        mc.player.swingHand(Hand.MAIN_HAND);
+        AttackUtil.attack(target);
 
         int lo = minDelay.getInt(), hi = Math.max(lo, maxDelay.getInt());
         wait = lo == hi ? lo : ThreadLocalRandom.current().nextInt(lo, hi + 1);

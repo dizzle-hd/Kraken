@@ -4,10 +4,10 @@ import dev.kraken.module.Category;
 import dev.kraken.module.Module;
 import dev.kraken.module.ModuleManager;
 import dev.kraken.setting.BoolSetting;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -59,10 +59,7 @@ public class XRay extends Module {
             set.add(Blocks.CHEST); set.add(Blocks.TRAPPED_CHEST); set.add(Blocks.BARREL); set.add(Blocks.ENDER_CHEST);
             set.add(Blocks.SPAWNER); set.add(Blocks.TRIAL_SPAWNER); set.add(Blocks.VAULT);
             set.add(Blocks.SHULKER_BOX);
-            for (Block b : new Block[]{Blocks.WHITE_SHULKER_BOX, Blocks.ORANGE_SHULKER_BOX, Blocks.MAGENTA_SHULKER_BOX, Blocks.LIGHT_BLUE_SHULKER_BOX,
-                    Blocks.YELLOW_SHULKER_BOX, Blocks.LIME_SHULKER_BOX, Blocks.PINK_SHULKER_BOX, Blocks.GRAY_SHULKER_BOX, Blocks.LIGHT_GRAY_SHULKER_BOX,
-                    Blocks.CYAN_SHULKER_BOX, Blocks.PURPLE_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX, Blocks.BROWN_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX,
-                    Blocks.RED_SHULKER_BOX, Blocks.BLACK_SHULKER_BOX}) set.add(b);
+            set.addAll(Blocks.DYED_SHULKER_BOX.asList());
         }
         visible = Set.copyOf(set);
     }
@@ -73,7 +70,7 @@ public class XRay extends Module {
     }
 
     private static void reloadChunks() {
-        if (mc.worldRenderer != null && mc.world != null) mc.execute(() -> mc.worldRenderer.reload());
+        if (mc.levelExtractor != null && mc.level != null) mc.execute(() -> mc.levelExtractor.allChanged());
     }
 
     @Override

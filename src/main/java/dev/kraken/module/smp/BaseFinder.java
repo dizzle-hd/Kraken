@@ -6,39 +6,39 @@ import dev.kraken.setting.BoolSetting;
 import dev.kraken.setting.NumberSetting;
 import dev.kraken.util.ChatUtil;
 import dev.kraken.util.Render3D;
-import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
-import net.minecraft.block.AmethystClusterBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BarrelBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.ChestBlockEntity;
-import net.minecraft.block.entity.EnderChestBlockEntity;
-import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.block.entity.ShulkerBoxBlockEntity;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.block.entity.AbstractFurnaceBlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.ArmorStandEntity;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.passive.TameableEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.vehicle.ChestMinecartEntity;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
-import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.WorldChunk;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderContext;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.minecart.MinecartChest;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AmethystClusterBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraft.world.level.block.entity.BarrelBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.EnderChestBlockEntity;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -76,7 +76,7 @@ public class BaseFinder extends Module {
     }
 
     private record Mark(BlockPos pos, Hint hint) {}
-    private record SoundMark(Vec3d pos, String name, long time) {}
+    private record SoundMark(Vec3 pos, String name, long time) {}
 
     // --- sub modules (each can be turned on / off) --------------------------------------------
     private final BoolSetting amethyst = add(new BoolSetting("Amethyst-Grower",
@@ -113,7 +113,7 @@ public class BaseFinder extends Module {
     private final Set<Long> queued = new HashSet<>();
     private final Set<String> notified = new HashSet<>();
     private final List<SoundMark> soundMarks = new ArrayList<>();
-    private World lastWorld;
+    private Level lastWorld;
     private int rescanTimer;
 
     private static final Set<Block> PLAYER_BLOCKS = Set.of(
@@ -170,23 +170,23 @@ public class BaseFinder extends Module {
 
     @Override
     public void onTick() {
-        if (mc.world == null || mc.player == null) return;
-        if (mc.world != lastWorld) {
+        if (mc.level == null || mc.player == null) return;
+        if (mc.level != lastWorld) {
             clear();
-            lastWorld = mc.world;
+            lastWorld = mc.level;
         }
 
         // re-queue every loaded chunk every 10 seconds (picks up new chunks and changes)
         if (--rescanTimer <= 0) {
             rescanTimer = 200;
-            int view = mc.options.getClampedViewDistance();
-            ChunkPos center = mc.player.getChunkPos();
+            int view = mc.options.getEffectiveRenderDistance();
+            ChunkPos center = mc.player.chunkPosition();
             Set<Long> loaded = new HashSet<>();
             for (int dx = -view; dx <= view; dx++) {
                 for (int dz = -view; dz <= view; dz++) {
-                    int cx = center.x + dx, cz = center.z + dz;
-                    if (mc.world.getChunkManager().getChunk(cx, cz, ChunkStatus.FULL, false) == null) continue;
-                    long key = ChunkPos.toLong(cx, cz);
+                    int cx = center.x() + dx, cz = center.z() + dz;
+                    if (mc.level.getChunkSource().getChunk(cx, cz, ChunkStatus.FULL, false) == null) continue;
+                    long key = ChunkPos.pack(cx, cz);
                     loaded.add(key);
                     if (queued.add(key)) queue.add(key);
                 }
@@ -198,7 +198,7 @@ public class BaseFinder extends Module {
         while (budget-- > 0 && !queue.isEmpty()) {
             long key = queue.poll();
             queued.remove(key);
-            WorldChunk chunk = mc.world.getChunkManager().getChunk(ChunkPos.getPackedX(key), ChunkPos.getPackedZ(key), ChunkStatus.FULL, false);
+            LevelChunk chunk = mc.level.getChunkSource().getChunk(ChunkPos.getX(key), ChunkPos.getZ(key), ChunkStatus.FULL, false);
             if (chunk == null) { results.remove(key); continue; }
             List<Mark> marks = scan(chunk);
             if (marks.isEmpty()) results.remove(key); else results.put(key, marks);
@@ -209,10 +209,10 @@ public class BaseFinder extends Module {
         synchronized (soundMarks) { soundMarks.removeIf(s -> now - s.time > maxAge); }
     }
 
-    private List<Mark> scan(WorldChunk chunk) {
+    private List<Mark> scan(LevelChunk chunk) {
         List<Mark> marks = new ArrayList<>();
         ChunkPos cp = chunk.getPos();
-        boolean overworldOrEnd = mc.world.getRegistryKey() != World.NETHER;
+        boolean overworldOrEnd = mc.level.dimension() != Level.NETHER;
 
         // ---- block entities (fast) ----
         if (storage.isOn()) {
@@ -220,10 +220,10 @@ public class BaseFinder extends Module {
             for (BlockEntity be : chunk.getBlockEntities().values()) {
                 if (be instanceof ShulkerBoxBlockEntity || be instanceof EnderChestBlockEntity) {
                     // never natural → always mark
-                    marks.add(new Mark(be.getPos(), Hint.STORAGE));
+                    marks.add(new Mark(be.getBlockPos(), Hint.STORAGE));
                 } else if (be instanceof ChestBlockEntity || be instanceof BarrelBlockEntity
                         || be instanceof HopperBlockEntity || be instanceof AbstractFurnaceBlockEntity) {
-                    storageBlocks.add(be.getPos());
+                    storageBlocks.add(be.getBlockPos());
                 }
             }
             if (storageBlocks.size() >= storageMin.getInt()) {
@@ -236,8 +236,8 @@ public class BaseFinder extends Module {
         if (playerBlocks.isOn()) {
             for (BlockEntity be : chunk.getBlockEntities().values()) {
                 if (be instanceof SignBlockEntity) {
-                    marks.add(new Mark(be.getPos(), Hint.PLAYER_BLOCK));
-                    notify(cp, Hint.PLAYER_BLOCK, "Schild", be.getPos());
+                    marks.add(new Mark(be.getBlockPos(), Hint.PLAYER_BLOCK));
+                    notify(cp, Hint.PLAYER_BLOCK, "Schild", be.getBlockPos());
                 }
             }
         }
@@ -248,13 +248,13 @@ public class BaseFinder extends Module {
             int buds = 0, clusters = 0, kelpTops = 0;
             List<BlockPos> clusterPos = new ArrayList<>();
             List<BlockPos> kelpPos = new ArrayList<>();
-            ChunkSection[] sections = chunk.getSectionArray();
-            int bottom = chunk.getBottomSectionCoord();
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
+            LevelChunkSection[] sections = chunk.getSections();
+            int bottom = chunk.getMinSectionY();
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
             for (int i = 0; i < sections.length; i++) {
-                ChunkSection section = sections[i];
-                if (section == null || section.isEmpty()) continue;
-                boolean any = section.hasAny(s -> {
+                LevelChunkSection section = sections[i];
+                if (section == null || section.hasOnlyAir()) continue;
+                boolean any = section.maybeHas(s -> {
                     Block b = s.getBlock();
                     return (wantAmethyst && b instanceof AmethystClusterBlock)
                             || (wantKelp && b == Blocks.KELP)
@@ -269,27 +269,27 @@ public class BaseFinder extends Module {
                             BlockState state = section.getBlockState(x, y, z);
                             Block b = state.getBlock();
                             if (b == Blocks.AIR || b == Blocks.STONE || b == Blocks.DEEPSLATE || b == Blocks.WATER) continue;
-                            mutable.set(cp.getStartX() + x, baseY + y, cp.getStartZ() + z);
+                            mutable.set(cp.getMinBlockX() + x, baseY + y, cp.getMinBlockZ() + z);
                             if (wantAmethyst && b instanceof AmethystClusterBlock) {
                                 if (b == Blocks.AMETHYST_CLUSTER) {
                                     clusters++;
-                                    clusterPos.add(mutable.toImmutable());
+                                    clusterPos.add(mutable.immutable());
                                 } else {
                                     buds++;
                                 }
                             } else if (wantKelp && b == Blocks.KELP) {
                                 // top of a kelp column that reached the water surface
-                                BlockState above = mc.world.getBlockState(mutable.up());
+                                BlockState above = mc.level.getBlockState(mutable.above());
                                 if (above.getFluidState().isEmpty()) {
                                     kelpTops++;
-                                    kelpPos.add(mutable.toImmutable());
+                                    kelpPos.add(mutable.immutable());
                                 }
                             } else if (wantPlayer && PLAYER_BLOCKS.contains(b)) {
-                                marks.add(new Mark(mutable.toImmutable(), Hint.PLAYER_BLOCK));
-                                notify(cp, Hint.PLAYER_BLOCK, b.getName().getString(), mutable.toImmutable());
+                                marks.add(new Mark(mutable.immutable(), Hint.PLAYER_BLOCK));
+                                notify(cp, Hint.PLAYER_BLOCK, b.getName().getString(), mutable.immutable());
                             } else if (wantPortal && b == Blocks.NETHER_PORTAL) {
-                                marks.add(new Mark(mutable.toImmutable(), Hint.PORTAL));
-                                notify(cp, Hint.PORTAL, "Netherportal", mutable.toImmutable());
+                                marks.add(new Mark(mutable.immutable(), Hint.PORTAL));
+                                notify(cp, Hint.PORTAL, "Netherportal", mutable.immutable());
                             }
                         }
                     }
@@ -299,7 +299,7 @@ public class BaseFinder extends Module {
             int total = buds + clusters;
             if (wantAmethyst && total >= 6 && (double) clusters / total >= amethystRatio.get()) {
                 for (BlockPos p : clusterPos) marks.add(new Mark(p, Hint.AMETHYST));
-                notify(cp, Hint.AMETHYST, clusters + "/" + total + " Cluster ausgewachsen", clusterPos.isEmpty() ? cp.getStartPos() : clusterPos.get(0));
+                notify(cp, Hint.AMETHYST, clusters + "/" + total + " Cluster ausgewachsen", clusterPos.isEmpty() ? cp.getWorldPosition() : clusterPos.get(0));
             }
             if (wantKelp && kelpTops >= kelpMin.getInt()) {
                 for (BlockPos p : kelpPos) marks.add(new Mark(p, Hint.KELP));
@@ -311,21 +311,21 @@ public class BaseFinder extends Module {
 
     private void notify(ChunkPos cp, Hint hint, String what, BlockPos pos) {
         if (!chat.isOn()) return;
-        String key = hint.name() + ":" + cp.toLong();
+        String key = hint.name() + ":" + cp.pack();
         if (!notified.add(key)) return;
-        ChatUtil.info(Text.literal(hint.label + ": ").styled(s -> s.withColor(hint.color & 0xFFFFFF))
-                .append(Text.literal(what + " ").formatted(Formatting.WHITE))
-                .append(Text.literal("@ " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).formatted(Formatting.GRAY)));
+        ChatUtil.info(Component.literal(hint.label + ": ").withStyle(s -> s.withColor(hint.color & 0xFFFFFF))
+                .append(Component.literal(what + " ").withStyle(ChatFormatting.WHITE))
+                .append(Component.literal("@ " + pos.getX() + " " + pos.getY() + " " + pos.getZ()).withStyle(ChatFormatting.GRAY)));
     }
 
     // ---------------------------------------------------------------------------------------------
     // Sounds (called from the network mixin on the render thread)
     // ---------------------------------------------------------------------------------------------
 
-    public void onSound(Identifier id, SoundCategory category, double x, double y, double z) {
+    public void onSound(Identifier id, SoundSource category, double x, double y, double z) {
         if (!sounds.isOn() || mc.player == null) return;
-        if (category == SoundCategory.MUSIC || category == SoundCategory.AMBIENT || category == SoundCategory.WEATHER
-                || category == SoundCategory.HOSTILE || category == SoundCategory.NEUTRAL || category == SoundCategory.VOICE) return;
+        if (category == SoundSource.MUSIC || category == SoundSource.AMBIENT || category == SoundSource.WEATHER
+                || category == SoundSource.HOSTILE || category == SoundSource.NEUTRAL || category == SoundSource.VOICE) return;
         String path = id.getPath();
         boolean activity = false;
         for (String s : ACTIVITY_SOUNDS) {
@@ -335,47 +335,47 @@ public class BaseFinder extends Module {
             activity = true;
         }
         if (!activity) return;
-        addSound(new Vec3d(x, y, z), path);
+        addSound(new Vec3(x, y, z), path);
     }
 
     public void onWorldEvent(int eventId, BlockPos pos) {
         if (!sounds.isOn()) return;
         String name = switch (eventId) {
-            case WorldEvents.DISPENSER_DISPENSES, WorldEvents.DISPENSER_FAILS, WorldEvents.DISPENSER_LAUNCHES_PROJECTILE -> "Werfer/Spender";
-            case WorldEvents.JUKEBOX_STARTS_PLAYING -> "Plattenspieler";
-            case WorldEvents.ANVIL_USED, WorldEvents.ANVIL_DESTROYED, WorldEvents.ANVIL_LANDS -> "Amboss";
-            case WorldEvents.BREWING_STAND_BREWS -> "Braustand";
-            case WorldEvents.GRINDSTONE_USED -> "Schleifstein";
-            case WorldEvents.SMITHING_TABLE_USED -> "Schmiedetisch";
-            case WorldEvents.LECTERN_BOOK_PAGE_TURNED -> "Lesepult";
-            case WorldEvents.CRAFTER_CRAFTS -> "Werkbank (Crafter)";
-            case WorldEvents.TRAVEL_THROUGH_PORTAL -> "Portal";
-            case WorldEvents.FIREWORK_ROCKET_SHOOTS -> "Feuerwerk";
+            case 1000, 1001, 1002 -> "Werfer/Spender";
+            case 1010 -> "Plattenspieler";
+            case 1029, 1030, 1031 -> "Amboss";
+            case 1035 -> "Braustand";
+            case 1042 -> "Schleifstein";
+            case 1044 -> "Schmiedetisch";
+            case 1043 -> "Lesepult";
+            case 1049 -> "Werkbank (Crafter)";
+            case 1032 -> "Portal";
+            case 1004 -> "Feuerwerk";
             default -> null;
         };
-        if (name != null) addSound(Vec3d.ofCenter(pos), name);
+        if (name != null) addSound(Vec3.atCenterOf(pos), name);
     }
 
-    private void addSound(Vec3d pos, String name) {
+    private void addSound(Vec3 pos, String name) {
         if (mc.player == null) return;
         // ignore our own noise
-        if (mc.player.getEyePos().squaredDistanceTo(pos) < 4 * 4) return;
+        if (mc.player.getEyePosition().distanceToSqr(pos) < 4 * 4) return;
         long now = System.currentTimeMillis();
         synchronized (soundMarks) {
             for (int i = 0; i < soundMarks.size(); i++) {
                 SoundMark s = soundMarks.get(i);
-                if (s.pos.squaredDistanceTo(pos) < 1.5 * 1.5) {
+                if (s.pos.distanceToSqr(pos) < 1.5 * 1.5) {
                     soundMarks.set(i, new SoundMark(s.pos, name, now));
                     return;
                 }
             }
             soundMarks.add(new SoundMark(pos, name, now));
         }
-        BlockPos bp = BlockPos.ofFloored(pos);
+        BlockPos bp = BlockPos.containing(pos);
         if (chat.isOn() && notified.add("SOUND:" + bp.asLong())) {
-            ChatUtil.info(Text.literal(Hint.SOUND.label + ": ").styled(s -> s.withColor(Hint.SOUND.color & 0xFFFFFF))
-                    .append(Text.literal(name + " ").formatted(Formatting.WHITE))
-                    .append(Text.literal("@ " + bp.getX() + " " + bp.getY() + " " + bp.getZ()).formatted(Formatting.GRAY)));
+            ChatUtil.info(Component.literal(Hint.SOUND.label + ": ").withStyle(s -> s.withColor(Hint.SOUND.color & 0xFFFFFF))
+                    .append(Component.literal(name + " ").withStyle(ChatFormatting.WHITE))
+                    .append(Component.literal("@ " + bp.getX() + " " + bp.getY() + " " + bp.getZ()).withStyle(ChatFormatting.GRAY)));
         }
     }
 
@@ -384,8 +384,8 @@ public class BaseFinder extends Module {
     // ---------------------------------------------------------------------------------------------
 
     @Override
-    public void onRender3D(WorldRenderContext context, Render3D render) {
-        if (mc.world == null || mc.player == null) return;
+    public void onRender3D(LevelRenderContext context, Render3D render) {
+        if (mc.level == null || mc.player == null) return;
         EnumMap<Hint, Boolean> on = new EnumMap<>(Hint.class);
         on.put(Hint.AMETHYST, amethyst.isOn());
         on.put(Hint.KELP, kelp.isOn());
@@ -396,7 +396,7 @@ public class BaseFinder extends Module {
         for (List<Mark> list : results.values()) {
             for (Mark m : list) {
                 if (!on.getOrDefault(m.hint, false)) continue;
-                Box box = new Box(m.pos);
+                AABB box = new AABB(m.pos);
                 render.box(box, m.hint.color);
                 if (tracers.isOn()) render.tracer(box.getCenter(), m.hint.color & 0x80FFFFFF);
             }
@@ -410,18 +410,18 @@ public class BaseFinder extends Module {
                     float fade = (float) Math.max(0.15, 1.0 - (now - s.time) / maxAge);
                     int alpha = (int) (fade * 255) << 24;
                     int color = (Hint.SOUND.color & 0xFFFFFF) | alpha;
-                    render.box(new Box(BlockPos.ofFloored(s.pos)), color);
+                    render.box(new AABB(BlockPos.containing(s.pos)), color);
                     if (tracers.isOn()) render.tracer(s.pos, color);
                 }
             }
         }
 
         if (entities.isOn()) {
-            for (Entity e : mc.world.getEntities()) {
-                if (e instanceof PlayerEntity) continue;
-                boolean hit = e instanceof ItemFrameEntity || e instanceof ArmorStandEntity || e instanceof ChestMinecartEntity
-                        || (e instanceof TameableEntity t && t.isTamed())
-                        || (e.hasCustomName() && !(e instanceof net.minecraft.entity.ItemEntity));
+            for (Entity e : mc.level.entitiesForRendering()) {
+                if (e instanceof Player) continue;
+                boolean hit = e instanceof ItemFrame || e instanceof ArmorStand || e instanceof MinecartChest
+                        || (e instanceof TamableAnimal t && t.isTame())
+                        || (e.hasCustomName() && !(e instanceof ItemEntity));
                 if (!hit) continue;
                 render.box(e.getBoundingBox(), Hint.ENTITY.color);
                 if (tracers.isOn()) render.tracer(e.getBoundingBox().getCenter(), Hint.ENTITY.color & 0x80FFFFFF);
