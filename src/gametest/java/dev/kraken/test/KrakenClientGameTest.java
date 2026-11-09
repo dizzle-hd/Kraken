@@ -15,6 +15,9 @@ public class KrakenClientGameTest implements FabricClientGameTest {
     public void runTest(ClientGameTestContext ctx) {
         // the first-start setup is tested on its own at the end
         ctx.runOnClient(c -> dev.kraken.config.ConfigManager.setOnboarded(true));
+        // KRAKEN_GLASS=false → screenshots without liquid glass (website gallery)
+        boolean glass = !"false".equalsIgnoreCase(System.getenv("KRAKEN_GLASS"));
+        ctx.runOnClient(c -> ModuleManager.get().get(Hud.class).liquidGlass.set(glass));
         try (TestSingleplayerContext sp = ctx.worldBuilder().setUseConsistentSettings(false).create()) {
             // test like on a normal Full-HD monitor
             ctx.getInput().resizeWindow(1920, 1080);

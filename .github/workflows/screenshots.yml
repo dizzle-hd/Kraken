@@ -1,0 +1,49 @@
+name: Screenshots
+
+# Runs the in-game test twice under a virtual display (liquid glass on / off) and pushes the
+# screenshots to the branch 'ci-screenshots' (used for the website gallery).
+on:
+  push:
+    branches: [claude/aimbot-verbesserung-3nb9ne]
+    paths: ['.github/workflows/screenshots.yml', 'src/gametest/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Virtual display + Mesa
+        run: sudo apt-get update -q && sudo apt-get install -yq xvfb mesa-utils libgl1-mesa-dri
+      - name: Game test (liquid glass on)
+        env: { KRAKEN_GLASS: 'true' }
+        run: |
+          xvfb-run -a -s "-screen 0 1920x1080x24" ./gradlew runClientGameTest --no-daemon --stacktrace 2>&1 | tee test-glass.log | grep -E "KrakenTest|Exception|ERROR|FAILED|BUILD" | head -100
+          mkdir -p out/glass && find build/run -path '*screenshots*' -name '*.png' -exec cp {} out/glass/ \;
+          ls -la out/glass
+      - name: Game test (liquid glass off)
+        env: { KRAKEN_GLASS: 'false' }
+        run: |
+          rm -rf build/run/clientGameTest/screenshots
+          xvfb-run -a -s "-screen 0 1920x1080x24" ./gradlew runClientGameTest --no-daemon --stacktrace 2>&1 | tee test-noglass.log | grep -E "KrakenTest|Exception|ERROR|FAILED|BUILD" | head -100
+          mkdir -p out/noglass && find build/run -path '*screenshots*' -name '*.png' -exec cp {} out/noglass/ \;
+          ls -la out/noglass
+      - name: Push screenshots to ci-screenshots
+        if: always()
+        run: |
+          cp test-*.log out/ 2>/dev/null || true
+          cd out
+          git init -q -b ci-screenshots
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A && git commit -qm "Screenshots for ${GITHUB_SHA::8}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-screenshots
