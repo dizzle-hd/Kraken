@@ -65,6 +65,14 @@ public class NautilusClient implements ClientModInitializer {
             HudManager.get().tick();
         });
 
+        // crystal spam: break a crystal the moment it appears
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            if (entity instanceof net.minecraft.world.entity.boss.enderdragon.EndCrystal crystal) {
+                dev.nautilus.module.crystal.AutoCrystal ac = ModuleManager.get().get(dev.nautilus.module.crystal.AutoCrystal.class);
+                if (ac != null && ac.isEnabled()) ac.onCrystalSpawn(crystal);
+            }
+        });
+
         LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
             RENDER_3D.begin();
             for (Module m : ModuleManager.get().getModules()) {

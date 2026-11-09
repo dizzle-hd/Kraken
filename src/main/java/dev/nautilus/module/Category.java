@@ -8,7 +8,8 @@ import net.minecraft.world.item.Items;
 public enum Category {
     CLIENT("Client", Items.COMMAND_BLOCK),
     COMBAT("Combat", Items.DIAMOND_SWORD),
-    SMP("SMP", Items.SPYGLASS);
+    SMP("SMP", Items.SPYGLASS),
+    CRYSTAL("Crystal", Items.END_CRYSTAL);
 
     private final String displayName;
     private final Item icon;

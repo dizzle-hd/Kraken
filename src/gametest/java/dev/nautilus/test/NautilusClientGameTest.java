@@ -69,10 +69,10 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
             ctx.takeScreenshot("04-enabled");
 
-            // back to the main wheel, open SMP (index 2 → 240°) and its BaseFinder settings
+            // back to the main wheel, open SMP (index 2 of 4 → 180°) and its BaseFinder settings
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
-            clickWheel(ctx, 240, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 180, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
             clickWheel(ctx, 180, InputConstants.MOUSE_BUTTON_RIGHT, true);
             ctx.waitTicks(15);
@@ -228,6 +228,9 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.getInput().releaseKey(InputConstants.KEY_C);
             ctx.waitTicks(5);
 
+            // --- Crystal PvP ---
+            crystalTests(ctx, sp);
+
             // --- HUD: every element on ---
             ctx.runOnClient(c -> {
                 for (var e : dev.nautilus.hud.HudManager.get().elements()) e.enabled = true;
@@ -274,6 +277,126 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.getInput().pressKey(InputConstants.KEY_RETURN);
             ctx.waitTicks(5);
         }
+    }
+
+    private static void set(dev.nautilus.module.Module m, String name, Object value) {
+        for (var st : m.getSettings()) {
+            if (!st.getName().equals(name)) continue;
+            if (st instanceof dev.nautilus.setting.BoolSetting b) b.set((Boolean) value);
+            else if (st instanceof dev.nautilus.setting.NumberSetting n) n.set(((Number) value).doubleValue());
+            else if (st instanceof dev.nautilus.setting.ModeSetting md) md.set((String) value);
+            return;
+        }
+        throw new IllegalArgumentException("no setting " + name + " in " + m.getName());
+    }
+
+    private static float playerHp(TestSingleplayerContext sp) {
+        return sp.getServer().computeOnServer(server -> server.getPlayerList().getPlayers().get(0).getHealth());
+    }
+
+    private static int count(ClientGameTestContext ctx, net.minecraft.world.item.Item item) {
+        return ctx.computeOnClient(c -> {
+            int n = 0;
+            var inv = c.player.getInventory();
+            for (int i = 0; i < inv.getContainerSize(); i++) if (inv.getItem(i).is(item)) n += inv.getItem(i).getCount();
+            return n;
+        });
+    }
+
+    private static void crystalTests(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        var mm = ModuleManager.get();
+        var srv = sp.getServer();
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("effect give @a minecraft:resistance 600 3 true"); // the player survives his own tests
+        srv.runCommand("clear @a");
+        srv.runCommand("item replace entity @a hotbar.0 with minecraft:end_crystal 64");
+        srv.runCommand("item replace entity @a hotbar.1 with minecraft:glowstone 64");
+        srv.runCommand("item replace entity @a hotbar.2 with minecraft:obsidian 64");
+        srv.runCommand("item replace entity @a hotbar.3 with minecraft:totem_of_undying 2");
+        srv.runCommand("execute at @a run fill ~-6 ~-1 ~-6 ~6 ~-1 ~6 minecraft:obsidian");
+        srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
+        ctx.runOnClient(c -> { c.player.setYRot(0); c.player.setXRot(0); c.player.getInventory().setSelectedSlot(5); });
+        ctx.waitTicks(10);
+
+        // AutoTotem
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(true));
+        ctx.waitTicks(5);
+        boolean totem = ctx.computeOnClient(c -> c.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING));
+        System.out.println("[NautilusTest] AutoTotem: totem in off hand = " + totem);
+
+        // AutoCrystal vs. a tanky zombie 3 blocks south
+        java.util.UUID z = spawnZombie(sp, 0, 3, 300f);
+        ctx.waitTicks(5);
+        int crystalsBefore = count(ctx, net.minecraft.world.item.Items.END_CRYSTAL);
+        float hpBefore = playerHp(sp);
+        ctx.runOnClient(c -> {
+            var ac = mm.get(dev.nautilus.module.crystal.AutoCrystal.class);
+            set(ac, "Monster", true);
+            set(ac, "Min. Schaden", 4.0);
+            ac.setEnabled(true);
+        });
+        ctx.waitTicks(40);
+        ctx.takeScreenshot("14-autocrystal");
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.AutoCrystal.class).setEnabled(false));
+        System.out.println("[NautilusTest] AutoCrystal: zombie " + zombieState(sp, z) + ", crystals used "
+                + (crystalsBefore - count(ctx, net.minecraft.world.item.Items.END_CRYSTAL)) + ", player hp " + hpBefore + " -> " + playerHp(sp));
+
+        // AnchorMacro + SafeAnchor: anchor 3 blocks south at foot level, a zombie behind it
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
+        java.util.UUID z2 = spawnZombie(sp, 0, 5, 300f);
+        int glowBefore = count(ctx, net.minecraft.world.item.Items.GLOWSTONE);
+        ctx.runOnClient(c -> {
+            c.player.getInventory().setSelectedSlot(5);
+            // look at the block where the anchor will appear
+            var eyes = c.player.getEyePosition();
+            var target = net.minecraft.world.phys.Vec3.atCenterOf(c.player.blockPosition().south(3)).add(0, 0.3, 0);
+            float[] rot = dev.nautilus.util.RotationUtil.rotationsTo(eyes, target);
+            c.player.setYRot(rot[0]);
+            c.player.setXRot(rot[1]);
+            mm.get(dev.nautilus.module.crystal.SafeAnchor.class).setEnabled(true);
+            mm.get(dev.nautilus.module.crystal.AnchorMacro.class).setEnabled(true);
+        });
+        ctx.waitTicks(3);
+        srv.runCommand("execute at @a run setblock ~ ~ ~3 minecraft:respawn_anchor");
+        String anchorLog = "";
+        for (int i = 0; i < 25; i++) {
+            ctx.waitTick();
+            if (i == 4) ctx.takeScreenshot("15-anchor-macro");
+            anchorLog += ctx.computeOnClient(c -> {
+                var p = c.player.blockPosition();
+                var a = c.level.getBlockState(p.south(3));
+                var sh = c.level.getBlockState(p.south(2));
+                return (a.is(net.minecraft.world.level.block.Blocks.RESPAWN_ANCHOR) ? "A" + a.getValue(net.minecraft.world.level.block.RespawnAnchorBlock.CHARGE) : "-")
+                        + (sh.is(net.minecraft.world.level.block.Blocks.GLOWSTONE) ? "S" : "") + " ";
+            });
+        }
+        System.out.println("[NautilusTest] AnchorMacro states per tick (A<charge>, S = shield): " + anchorLog);
+        System.out.println("[NautilusTest] AnchorMacro: glowstone used " + (glowBefore - count(ctx, net.minecraft.world.item.Items.GLOWSTONE))
+                + ", zombie " + zombieState(sp, z2) + ", player hp " + playerHp(sp));
+        ctx.runOnClient(c -> {
+            mm.get(dev.nautilus.module.crystal.AnchorMacro.class).setEnabled(false);
+            mm.get(dev.nautilus.module.crystal.SafeAnchor.class).setEnabled(false);
+        });
+
+        // Surround
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
+        ctx.runOnClient(c -> { c.player.setXRot(30); mm.get(dev.nautilus.module.crystal.Surround.class).setEnabled(true); });
+        ctx.waitTicks(10);
+        String around = ctx.computeOnClient(c -> {
+            int n = 0;
+            for (var d : net.minecraft.core.Direction.Plane.HORIZONTAL)
+                if (c.level.getBlockState(c.player.blockPosition().relative(d)).is(net.minecraft.world.level.block.Blocks.OBSIDIAN)) n++;
+            return n + "/4";
+        });
+        ctx.takeScreenshot("16-surround");
+        System.out.println("[NautilusTest] Surround: obsidian around the feet " + around);
+        ctx.runOnClient(c -> {
+            mm.get(dev.nautilus.module.crystal.Surround.class).setEnabled(false);
+            mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(false);
+        });
+        srv.runCommand("kill @e[type=!minecraft:player]");
     }
 
     /** Spawns a zombie without AI next to the player on the server and returns its UUID. */
