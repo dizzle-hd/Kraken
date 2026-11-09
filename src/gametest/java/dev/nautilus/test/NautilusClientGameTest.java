@@ -320,7 +320,15 @@ public class NautilusClientGameTest implements FabricClientGameTest {
 
         // AutoTotem
         ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(true));
-        ctx.waitTicks(5);
+        StringBuilder totemLog = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            ctx.waitTick();
+            if (i == 1) ctx.takeScreenshot("13b-autototem");
+            String st = ctx.computeOnClient(c -> (c.gui.screen() instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen ? "INV" : "-")
+                    + (c.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING) ? "+T" : ""));
+            totemLog.append(st).append(' ');
+        }
+        System.out.println("[NautilusTest] AutoTotem per tick (INV = inventory open, +T = totem in off hand): " + totemLog);
         boolean totem = ctx.computeOnClient(c -> c.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING));
         System.out.println("[NautilusTest] AutoTotem: totem in off hand = " + totem);
 
@@ -382,8 +390,19 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         // Surround
         srv.runCommand("kill @e[type=!minecraft:player]");
         srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
-        ctx.runOnClient(c -> { c.player.setXRot(30); mm.get(dev.nautilus.module.crystal.Surround.class).setEnabled(true); });
-        ctx.waitTicks(10);
+        // stand off-centre first, so the surround has to walk to the middle
+        ctx.runOnClient(c -> {
+            var b = c.player.blockPosition();
+            c.player.setPos(b.getX() + 0.78, c.player.getY(), b.getZ() + 0.27);
+            c.player.setYRot(37);
+            c.player.setXRot(30);
+        });
+        ctx.waitTicks(5);
+        String before = ctx.computeOnClient(c -> String.format(java.util.Locale.ROOT, "%.2f/%.2f", c.player.getX() - Math.floor(c.player.getX()), c.player.getZ() - Math.floor(c.player.getZ())));
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.Surround.class).setEnabled(true));
+        ctx.waitTicks(40);
+        System.out.println("[NautilusTest] Surround centering by key taps: position in block " + before + " -> "
+                + ctx.computeOnClient(c -> String.format(java.util.Locale.ROOT, "%.2f/%.2f", c.player.getX() - Math.floor(c.player.getX()), c.player.getZ() - Math.floor(c.player.getZ()))));
         String around = ctx.computeOnClient(c -> {
             int n = 0;
             for (var d : net.minecraft.core.Direction.Plane.HORIZONTAL)
