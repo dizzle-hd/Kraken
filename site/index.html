@@ -10,7 +10,7 @@
   <meta property="og:title" content="Kraken Client">
   <meta property="og:description" content="Fabric Client für Minecraft 26.3 mit Radial-Menü statt Click-GUI.">
   <meta property="og:image" content="assets/shots/wheel.jpg">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=__BUILD__">
 </head>
 <body>
   <div class="bg" aria-hidden="true"></div>
@@ -39,7 +39,11 @@
           echten 3D-Icons, Glas-Design und frei anordnbarem HUD.</p>
 
         <div class="alpha-note" role="note">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg>
+          <svg class="warn" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10.3 3.9 2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" fill="#ffb347" stroke="#ffd27a" stroke-width="1" stroke-linejoin="round"/>
+            <path d="M12 9v5" stroke="#2a0e08" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="12" cy="17.3" r="1.35" fill="#2a0e08"/>
+          </svg>
           <div><strong>Alpha – noch in Entwicklung.</strong> Funktionen können fehlen, sich ändern oder Fehler haben,
             und nicht alle Module sind schon ausgiebig getestet. Bitte zuerst im Einzelspieler ausprobieren und
             Fehler gerne auf <a class="repo-issues" href="#" target="_blank" rel="noopener">GitHub melden</a>.</div>
@@ -47,7 +51,7 @@
 
         <div class="download glass" id="download">
           <a class="btn-download is-loading" id="dl-button" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" /></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" /></svg>
             <span id="dl-label">Neueste Version wird geladen …</span>
           </a>
           <div class="dl-meta" id="dl-meta">&nbsp;</div>
@@ -151,6 +155,6 @@
     <img alt="">
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=__BUILD__"></script>
 </body>
 </html>
