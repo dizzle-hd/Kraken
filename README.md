@@ -93,7 +93,7 @@ Alles wird in `config/nautilusclient.json` gespeichert (eine alte `config/kraken
 ```
 ./gradlew build
 ```
-Benötigt **JDK 25**. Die Mod liegt danach in `build/libs/nautilus-client-2.0.0.jar` (benötigt Fabric Loader + Fabric API für 26.3).
+Benötigt **JDK 25**. Die Mod liegt danach in `build/libs/nautilus-client-2.1.0.jar` (benötigt Fabric Loader + Fabric API für 26.3).
 
 Minecraft 26.x ist nicht mehr obfuskiert – der Code nutzt direkt die offiziellen Mojang-Namen, ohne Yarn-Mappings.
 

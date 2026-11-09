@@ -52,6 +52,13 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
             ctx.takeScreenshot("01d-head-combat");
 
+            // search: just type – the wheel shows the hits
+            ctx.getInput().typeChars("aura");
+            ctx.waitTicks(12);
+            ctx.takeScreenshot("01e-search-aura");
+            ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
+            ctx.waitTicks(10);
+
             // hover + click "Combat" (segment 1 of 3 → 120° clockwise from the top)
             clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(15);
@@ -449,8 +456,8 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         double[] pos = ctx.computeOnClient(c -> {
             var w = c.getWindow();
             double sw = w.getGuiScaledWidth(), sh = w.getGuiScaledHeight();
-            double r = Math.min(Math.min((sh - 30) / 2 - 4, sw * 0.33), 200) * 0.70;
-            double cx = sw / 2.0, cy = (sh - 22) / 2.0 + 3;
+            double r = dev.nautilus.gui.RadialScreen.wheelRadius((float) sw, (float) sh) * 0.70;
+            double cx = sw / 2.0, cy = dev.nautilus.gui.RadialScreen.wheelCenterY((float) sh);
             double a = Math.toRadians(angle);
             double x = cx + Math.sin(a) * r, y = cy - Math.cos(a) * r;
             double f = w.getGuiScale();

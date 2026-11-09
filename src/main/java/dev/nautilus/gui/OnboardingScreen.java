@@ -43,8 +43,21 @@ public class OnboardingScreen extends Screen {
 
     private record Warning(int color, String title, String text) {}
 
+    private final Screen parent;
+
     public OnboardingScreen() {
+        this(null);
+    }
+
+    /** @param parent screen to return to (the title screen on the first start), null = back to the game */
+    public OnboardingScreen(Screen parent) {
         super(Component.literal("Nautilus Client – Einrichtung"));
+        this.parent = parent;
+    }
+
+    @Override
+    public void onClose() {
+        minecraft.gui.setScreen(parent);
     }
 
     @Override
@@ -82,12 +95,14 @@ public class OnboardingScreen extends Screen {
     @Override
     public void extractBackground(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
         float open = Math.min(1f, (System.currentTimeMillis() - openedAt) / 250f);
+        // on the title screen there is no world behind us: draw the menu panorama first
+        if (minecraft.level == null) super.extractBackground(ctx, mouseX, mouseY, delta);
         Shapes s = new Shapes();
         s.rect(0, 0, width, height, Shapes.alpha(0x8C120604, open));
         // live preview of the wheel size on the settings page
         if (page == 1) {
             float r = RadialScreen.wheelRadius(width, height);
-            float cx = width / 2f, cy = (height - 22f) / 2f + 3f;
+            float cx = width / 2f, cy = RadialScreen.wheelCenterY(height);
             s.ring(cx, cy, r, 1.2f, 0x66FF5A2A);
             s.ring(cx, cy, r * 0.44f, 1f, 0x33FF5A2A);
         }
@@ -273,6 +288,7 @@ public class OnboardingScreen extends Screen {
                 {"Links-Klick", "Kategorie öffnen, Modul an/aus"},
                 {"Rechts-Klick", "Einstellungen eines Moduls"},
                 {"ESC / Mitte", "Zurück"},
+                {"Tippen im Rad", "Module suchen"},
                 {"Client → Einrichtung", "Diese Einrichtung erneut öffnen"},
         };
         for (String[] r : rows) {

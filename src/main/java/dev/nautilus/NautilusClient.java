@@ -13,6 +13,7 @@ import dev.nautilus.module.ModuleManager;
 import dev.nautilus.module.client.Hud;
 import dev.nautilus.util.Render3D;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
@@ -32,6 +33,7 @@ public class NautilusClient implements ClientModInitializer {
     public static KeyMapping openWheel;
 
     private static final Render3D RENDER_3D = new Render3D();
+    private static boolean onboardingShown;
 
     @Override
     public void onInitializeClient() {
@@ -50,16 +52,18 @@ public class NautilusClient implements ClientModInitializer {
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            // first start of the game: the setup screen on top of the title screen
+            if (!ConfigManager.onboarded() && !onboardingShown && client.gui.screen() instanceof net.minecraft.client.gui.screens.TitleScreen title
+                    && !FabricLoader.getInstance().isModLoaded("nautilusclient-gametest")) {
+                onboardingShown = true;
+                client.gui.setScreen(new dev.nautilus.gui.OnboardingScreen(title));
+            }
             while (openWheel.consumeClick()) {
                 if (client.gui.screen() == null) client.gui.setScreen(new RadialScreen());
             }
             if (client.player == null || client.level == null) {
                 TpsTracker.reset();
                 return;
-            }
-            // first start: the setup screen, once the player is in a world
-            if (!ConfigManager.onboarded() && client.gui.screen() == null && client.player.tickCount > 20) {
-                client.gui.setScreen(new dev.nautilus.gui.OnboardingScreen());
             }
             ModuleManager.get().onTick(client);
             HudManager.get().tick();

@@ -63,12 +63,17 @@ public class RadialScreen extends Screen {
     private static final float YAW_SIGN = 1f, PITCH_SIGN = 1f;
 
     // ---- navigation state ------------------------------------------------------------------------
-    private enum Level { CATEGORIES, MODULES, SETTINGS }
+    private enum Level { CATEGORIES, MODULES, SETTINGS, SEARCH }
 
     private Level level = Level.CATEGORIES;
     private Category category;
     private Module module;
     private int page;
+    /** Search: typed text (empty = no search) and whether the open settings came from the search. */
+    private String query = "";
+    private boolean settingsFromSearch;
+    private long lastTypedAt;
+    private float searchSpin, searchSpinTarget;
 
     // ---- animation state -------------------------------------------------------------------------
     private final long openedAt = System.currentTimeMillis();
@@ -125,6 +130,11 @@ public class RadialScreen extends Screen {
                     list.add(new Entry(m.getName(), m.getIcon(), m.getDescription(), m.isEnabled(), null, m, null, false));
                 }
             }
+            case SEARCH -> {
+                for (Module m : searchResults()) {
+                    list.add(new Entry(m.getName(), m.getIcon(), m.getCategory().getDisplayName() + " · " + m.getDescription(), m.isEnabled(), null, m, null, false));
+                }
+            }
             case SETTINGS -> {
                 list.add(new Entry("Aktiv", null, "Modul an- oder ausschalten", module.isEnabled(), null, module, null, true));
                 for (Setting<?> s : module.getSettings()) {
@@ -136,6 +146,22 @@ public class RadialScreen extends Screen {
             }
         }
         return list;
+    }
+
+    /** Modules whose name (first), category or description contains the query. */
+    private List<Module> searchResults() {
+        String q = query.toLowerCase(java.util.Locale.ROOT).trim();
+        List<Module> starts = new ArrayList<>(), name = new ArrayList<>(), other = new ArrayList<>();
+        for (Module m : ModuleManager.get().getModules()) {
+            String n = m.getName().toLowerCase(java.util.Locale.ROOT);
+            if (n.startsWith(q)) starts.add(m);
+            else if (n.contains(q)) name.add(m);
+            else if (m.getCategory().getDisplayName().toLowerCase(java.util.Locale.ROOT).contains(q)
+                    || m.getDescription().toLowerCase(java.util.Locale.ROOT).contains(q)) other.add(m);
+        }
+        starts.addAll(name);
+        starts.addAll(other);
+        return starts;
     }
 
     private int pageCount(int total) {
@@ -157,7 +183,15 @@ public class RadialScreen extends Screen {
     // =============================================================================================
 
     /** Radius of the wheel for a screen size, including the "Rad-Größe" setting (never larger than fits). */
+    /** Height of the search bar strip above the wheel. */
+    public static final float SEARCH_STRIP = 18f;
+
+    public static float wheelCenterY(float height) {
+        return (height - 22f) / 2f + 3f + SEARCH_STRIP / 2f;
+    }
+
     public static float wheelRadius(float width, float height) {
+        height -= SEARCH_STRIP;
         float fit = Math.min((height - 30f) / 2f - 4f, width * 0.45f);
         float base = Math.min(Math.min((height - 30f) / 2f - 4f, width * 0.33f), 200f);
         dev.nautilus.module.client.Hud hud = dev.nautilus.module.ModuleManager.get().get(dev.nautilus.module.client.Hud.class);
@@ -174,7 +208,7 @@ public class RadialScreen extends Screen {
         ringR = R * 0.405f;
         discR = R * 0.375f;
         cx = width / 2f;
-        cy = (height - 22f) / 2f + 3f;
+        cy = wheelCenterY(height);
     }
 
     /** -1 = nothing, -2 = centre, otherwise segment index. */
@@ -220,6 +254,10 @@ public class RadialScreen extends Screen {
     private void text(GuiGraphicsExtractor ctx, String text, float x, float y, float scale, int color, boolean bold) {
         // soft shadow keeps the labels readable over bright terrain now that there is no background
         UiText.centered(ctx, font, text, x, y, scale, color, bold, true);
+    }
+
+    private void leftText(GuiGraphicsExtractor ctx, String text, float x, float y, float scale, int color, boolean bold) {
+        UiText.left(ctx, font, text, x, y, scale, color, bold, true);
     }
 
     /** Text centred in the disc; scaled down so it never crosses the disc border at its height. */
@@ -416,7 +454,8 @@ public class RadialScreen extends Screen {
         }
         c.ring(cx, cy, ringR, R * 0.03f, 0x10FFFFFF); // faint track
         float sweep = ease((now - openedAt) / 600f) * close;
-        float rot = time * 0.32f;
+        searchSpin += (searchSpinTarget - searchSpin) * Math.min(1f, dt * 6f);
+        float rot = time * 0.32f + searchSpin;
         float[][] arcs = {{0.02f, 0.27f}, {0.36f, 0.61f}, {0.70f, 0.93f}}; // three long arcs
         float aw = Math.max(1.5f, R * 0.016f);
         for (float[] arc : arcs) {
@@ -476,6 +515,7 @@ public class RadialScreen extends Screen {
             // category/module of a level is only set while that level is shown
             ItemStack icon = level == Level.MODULES
                     ? (category != null ? category.getIcon() : null)
+                    : level == Level.SEARCH ? SEARCH_ICON
                     : (module != null ? module.getIcon() : null);
             if (icon != null && cSize > 0.5f) models.add(new WheelModelsRenderState.Model(icon, cx, cy - R * 0.085f, cSize * 0.8f, time * 45f, 12f));
         }
@@ -528,6 +568,11 @@ public class RadialScreen extends Screen {
                 centerText(ctx, category.getDisplayName(), cy + R * 0.165f, nameScale, ca, true);
                 centerText(ctx, "‹ zurück", cy + R * 0.265f, nameScale * 0.62f, backColor, false);
             }
+            case SEARCH -> {
+                int hits = searchResults().size();
+                centerText(ctx, hits == 0 ? "Nichts gefunden" : hits == 1 ? "1 Treffer" : hits + " Treffer", cy + R * 0.165f, nameScale * (hits == 0 ? 0.7f : 0.9f), ca, true);
+                centerText(ctx, "‹ zurück", cy + R * 0.265f, nameScale * 0.62f, backColor, false);
+            }
             case SETTINGS -> {
                 centerText(ctx, module.getName(), cy + R * 0.12f, nameScale * 0.85f, ca, true);
                 int pages = pageCount(allEntries().size());
@@ -547,11 +592,55 @@ public class RadialScreen extends Screen {
                 centerText(ctx, "‹ zurück", backY, nameScale * 0.62f, backColor, false);
             }
         }
-        if (hovered == -2 && level != Level.CATEGORIES) hint = "Zurück";
+        if (hovered == -2 && level != Level.CATEGORIES) hint = level == Level.SEARCH ? "Suche beenden" : "Zurück";
         ctx.pose().popMatrix();
 
+        renderSearchBar(ctx, close, mouseX, mouseY);
         renderHint(ctx, close);
     }
+
+    /** Glass search bar above the wheel: magnifier, query (or placeholder) and a blinking caret. */
+    private void renderSearchBar(GuiGraphicsExtractor ctx, float close, int mouseX, int mouseY) {
+        if (level == Level.SETTINGS) return;
+        boolean active = level == Level.SEARCH;
+        float s = Math.max(0.7f, Math.min(1f, R / 150f));
+        float ph = 13f, pw = Math.min(width - 20f, Math.max(150f, R * 1.15f));
+        float x1 = width / 2f - pw / 2f, x2 = width / 2f + pw / 2f;
+        float y1 = 3f, y2 = y1 + ph;
+        float appear = ease((System.currentTimeMillis() - openedAt) / 300f) * close;
+        ctx.nextStratum();
+        Shapes bar = new Shapes();
+        if (LiquidGlass.enabled()) {
+            LiquidGlass.roundRect(ctx, x1, y1, x2, y2, ph / 2f, appear);
+            bar.roundRect(x1, y1, x2, y2, ph / 2f, Shapes.alpha(active ? 0x40FF5A2A : 0x302A0E06, appear));
+        } else {
+            bar.roundRect(x1, y1, x2, y2, ph / 2f, Shapes.alpha(active ? 0xC0401408 : 0xB02A0E06, appear));
+        }
+        bar.roundRectRim(x1, y1, x2, y2, ph / 2f, 0.8f, Shapes.alpha(active ? 0xCCFF6A3A : 0x40FFFFFF, appear));
+        // magnifier
+        float mx = x1 + 9f, my = (y1 + y2) / 2f - 0.5f;
+        bar.ring(mx, my, 2.6f, 1.1f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
+        bar.line(mx + 1.9f, my + 1.9f, mx + 4f, my + 4f, 1.2f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
+        bar.submit(ctx);
+        float tx = x1 + 17f, ty = (y1 + y2) / 2f;
+        if (active) {
+            String shown = query;
+            float maxW = pw - 26f;
+            while (shown.length() > 1 && textWidth(shown, false) * 0.8f * s > maxW) shown = shown.substring(1);
+            leftText(ctx, shown, tx, ty, 0.8f * s, Shapes.alpha(0xFFFFFFFF, appear), false);
+            if ((System.currentTimeMillis() - lastTypedAt) % 1000 < 550) {
+                float cxp = tx + textWidth(shown, false) * 0.8f * s + 1f;
+                Shapes caret = new Shapes();
+                caret.rect(cxp, ty - 4f * s, cxp + 0.8f, ty + 4f * s, Shapes.alpha(ACCENT, appear));
+                caret.submit(ctx);
+            }
+        } else {
+            leftText(ctx, "Modul suchen … (einfach tippen)", tx, ty, 0.75f * s, Shapes.alpha(0x99FFFFFF, appear), false);
+        }
+        if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) hint = active ? "ESC oder Klick in die Mitte: Suche beenden" : "Einfach lostippen, um Module zu finden";
+    }
+
+    private static final ItemStack SEARCH_ICON = new ItemStack(net.minecraft.world.item.Items.SPYGLASS);
 
     private PlayerBustModel bustWide, bustSlim;
 
@@ -564,7 +653,8 @@ public class RadialScreen extends Screen {
             bustSlim = new PlayerBustModel(models.bakeLayer(net.minecraft.client.model.geom.ModelLayers.PLAYER_SLIM));
         }
         PlayerBustModel model = skin.model() == net.minecraft.world.entity.player.PlayerModelType.SLIM ? bustSlim : bustWide;
-        model.headYawDeg = headYaw * 0.65f;
+        // the model faces the viewer: turning towards a cursor on the right is a negative model yaw
+        model.headYawDeg = -headYaw * 0.65f;
         model.headPitchDeg = headPitch;
         // head + torso (1.25 model units) should be about 1.2 disc radii tall
         float bust = discR * 1.2f * Math.max(0.01f, appear);
@@ -573,7 +663,7 @@ public class RadialScreen extends Screen {
         float headTop = cy - discR * 0.78f;
         int x0 = Math.round(cx - discR), x1 = Math.round(cx + discR);
         int y0 = Math.round(headTop - fullH * 0.015f), y1 = Math.round(y0 + fullH);
-        ctx.skin(model, skin.body().texturePath(), scale, -4f, -headYaw * 0.35f, -1.0625f, x0, y0, x1, y1);
+        ctx.skin(model, skin.body().texturePath(), scale, -4f, headYaw * 0.35f, -1.0625f, x0, y0, x1, y1);
     }
 
     /** Small pill "UID n" under the name, like in the reference design. */
@@ -701,6 +791,12 @@ public class RadialScreen extends Screen {
                 if (right || button == InputConstants.MOUSE_BUTTON_MIDDLE) enter(Level.SETTINGS, category, e.module());
                 else e.module().toggle();
             }
+            case SEARCH -> {
+                if (right || button == InputConstants.MOUSE_BUTTON_MIDDLE) {
+                    enter(Level.SETTINGS, e.module().getCategory(), e.module());
+                    settingsFromSearch = true;
+                } else e.module().toggle();
+            }
             case SETTINGS -> {
                 if (e.moduleToggle()) module.toggle();
                 else if (e.setting() instanceof BoolSetting b) b.toggle();
@@ -750,6 +846,15 @@ public class RadialScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (level == Level.SEARCH) {
+            int pages = pageCount(allEntries().size());
+            int np = Math.max(0, Math.min(pages - 1, page - (int) Math.signum(verticalAmount)));
+            if (np != page) {
+                page = np;
+                restartAnimations();
+            }
+            return true;
+        }
         if (level == Level.SETTINGS) {
             List<Entry> entries = entries();
             int hit = hitTest(mouseX, mouseY, entries.size());
@@ -788,6 +893,16 @@ public class RadialScreen extends Screen {
             if (level == Level.CATEGORIES) onClose(); else back();
             return true;
         }
+        if (level == Level.SEARCH && key == InputConstants.KEY_BACKSPACE) {
+            setQuery(query.isEmpty() ? "" : query.substring(0, query.length() - 1));
+            return true;
+        }
+        if (level == Level.SEARCH && (key == InputConstants.KEY_RETURN || key == InputConstants.KEY_NUMPADENTER)) {
+            // Enter toggles the best hit
+            List<Module> hits = searchResults();
+            if (!hits.isEmpty()) hits.get(0).toggle();
+            return true;
+        }
         if (NautilusClient.openWheel.matches(input)) {
             onClose();
             return true;
@@ -795,15 +910,59 @@ public class RadialScreen extends Screen {
         return super.keyPressed(input);
     }
 
+    @Override
+    public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
+        if (listening != null || closingAt >= 0 || level == Level.SETTINGS) return false;
+        if (!event.isAllowedChatCharacter()) return false;
+        String c = event.codepointAsString();
+        if (level != Level.SEARCH && c.isBlank()) return false;
+        setQuery(query + c);
+        return true;
+    }
+
+    /** Updates the search; the wheel spins a bit and the hits pop in again on every keystroke. */
+    private void setQuery(String q) {
+        query = q;
+        lastTypedAt = System.currentTimeMillis();
+        if (query.isEmpty()) {
+            enter(Level.CATEGORIES, null, null);
+            return;
+        }
+        if (level != Level.SEARCH) {
+            level = Level.SEARCH;
+            category = null;
+            module = null;
+        }
+        page = 0;
+        searchSpinTarget += 0.9f;
+        restartAnimations();
+    }
+
     private void back() {
+        if (level == Level.SETTINGS && settingsFromSearch && !query.isEmpty()) {
+            settingsFromSearch = false;
+            level = Level.SEARCH;
+            module = null;
+            category = null;
+            page = 0;
+            restartAnimations();
+            return;
+        }
+        if (level == Level.SEARCH) {
+            query = "";
+            enter(Level.CATEGORIES, null, null);
+            return;
+        }
         switch (level) {
             case SETTINGS -> enter(Level.MODULES, category, null);
             case MODULES -> enter(Level.CATEGORIES, null, null);
-            case CATEGORIES -> {}
+            default -> {}
         }
     }
 
     private void enter(Level l, Category c, Module m) {
+        if (l != Level.SETTINGS) settingsFromSearch = false;
+        if (l == Level.CATEGORIES || l == Level.MODULES) query = "";
         level = l;
         category = c;
         module = m;
