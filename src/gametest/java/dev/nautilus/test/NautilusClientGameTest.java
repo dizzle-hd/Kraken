@@ -312,7 +312,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         srv.runCommand("item replace entity @a hotbar.0 with minecraft:end_crystal 64");
         srv.runCommand("item replace entity @a hotbar.1 with minecraft:glowstone 64");
         srv.runCommand("item replace entity @a hotbar.2 with minecraft:obsidian 64");
-        srv.runCommand("item replace entity @a hotbar.3 with minecraft:totem_of_undying 2");
+        srv.runCommand("item replace entity @a hotbar.3 with minecraft:totem_of_undying 1");
         srv.runCommand("execute at @a run fill ~-6 ~-1 ~-6 ~6 ~-1 ~6 minecraft:obsidian");
         srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~3 ~6 minecraft:air");
         ctx.runOnClient(c -> { c.player.setYRot(0); c.player.setXRot(0); c.player.getInventory().setSelectedSlot(5); });
@@ -322,6 +322,10 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(true));
         ctx.waitTicks(5);
         boolean totem = ctx.computeOnClient(c -> c.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING));
+        System.out.println("[NautilusTest] AutoTotem debug: " + ctx.computeOnClient(c -> "screen=" + c.gui.screen() + " creative=" + c.player.isCreative()
+                + " enabled=" + mm.get(dev.nautilus.module.crystal.AutoTotem.class).isEnabled() + " slot=" + dev.nautilus.util.InvUtil.inventory(net.minecraft.world.item.Items.TOTEM_OF_UNDYING)
+                + " offhand=" + c.player.getOffhandItem() + " carried=" + c.player.inventoryMenu.getCarried() + " containerId=" + c.player.inventoryMenu.containerId
+                + " open=" + c.player.containerMenu));
         System.out.println("[NautilusTest] AutoTotem: totem in off hand = " + totem);
 
         // AutoCrystal vs. a tanky zombie 3 blocks south

@@ -20,6 +20,7 @@ public class Surround extends Module {
     private final ModeSetting blockMode = add(new ModeSetting("Block", "Welcher Block gesetzt wird", "Obsidian", "Obsidian", "Weinender Obsidian", "Beide"));
     private final NumberSetting perTick = add(new NumberSetting("Blöcke pro Tick", "Wie viele Blöcke pro Tick gesetzt werden", 2, 1, 4, 1));
     private final NumberSetting delay = add(new NumberSetting("Verzögerung", "Ticks zwischen zwei Durchgängen", 0, 0, 10, 1));
+    private final BoolSetting center = add(new BoolSetting("Zentrieren", "Dich beim Einschalten auf die Blockmitte schieben, damit alle vier Seiten frei sind", true));
     private final BoolSetting support = add(new BoolSetting("Stützblöcke", "Auch Blöcke unter den Ringblöcken setzen, falls dort Luft ist", true));
     private final BoolSetting doubleHeight = add(new BoolSetting("Doppelt", "Zweite Reihe auf Kopfhöhe (gegen Kristalle auf Kopfhöhe)", false));
     private final BoolSetting disableOnMove = add(new BoolSetting("Aus beim Verlassen", "Ausschalten, sobald du den Block verlässt oder springst", true));
@@ -36,6 +37,10 @@ public class Surround extends Module {
     protected void onEnable() {
         start = mc.player == null ? null : mc.player.blockPosition();
         wait = 0;
+        if (start != null && center.isOn() && mc.player.onGround()) {
+            mc.player.setPos(start.getX() + 0.5, mc.player.getY(), start.getZ() + 0.5);
+            mc.player.setDeltaMovement(0, mc.player.getDeltaMovement().y, 0);
+        }
     }
 
     private boolean isBlock(ItemStack s) {
