@@ -41,8 +41,6 @@ public class RadialScreen extends Screen {
     // ---- palette ---------------------------------------------------------------------------------
     private static final int ACCENT = 0xFFFF5A2A;
     private static final int TINT = 0x382A0E06;
-    /** Liquid glass proof of concept on the top segment of the main wheel. */
-    private static final boolean LIQUID_GLASS_POC = true;
     private static final int GLASS_IN = 0x0CFFE2D6;
     private static final int GLASS_OUT = 0x17FFE2D6;
     private static final int GLASS_HOVER_IN = 0x1AFFE2D6;
@@ -368,9 +366,19 @@ public class RadialScreen extends Screen {
             float act = activeAnim[i];
             int in = Shapes.lerp(Shapes.lerp(GLASS_IN, GLASS_HOVER_IN, h), GLASS_ON_IN, act);
             int out = Shapes.lerp(Shapes.lerp(GLASS_OUT, GLASS_HOVER_OUT, h), GLASS_ON_OUT, act);
-            if (LIQUID_GLASS_POC && level == Level.CATEGORIES && i == 0) {
-                // proof of concept: this one segment is real liquid glass (blur + refraction shader)
+            if (LiquidGlass.enabled()) {
+                // liquid glass segment + overlays for hover (lighter) and active modules (orange)
                 LiquidGlass.sector(ctx, cx, cy, rIn, rOut, a0, a1, gap, corner, alpha);
+                Shapes over = new Shapes();
+                if (h > 0.01f) over.roundedSector(cx, cy, rIn, rOut, a0, a1, gap, corner,
+                        Shapes.alpha(0x16FFFFFF, h * alpha), Shapes.alpha(0x26FFFFFF, h * alpha));
+                if (act > 0.01f) {
+                    over.roundedSector(cx, cy, rIn, rOut, a0, a1, gap, corner,
+                            Shapes.alpha(0x3CFF5A2A, act * alpha), Shapes.alpha(0x5AFF5A2A, act * alpha));
+                    over.roundedSectorOutline(cx, cy, rIn, rOut, a0, a1, gap, corner, Math.max(1f, R * 0.008f),
+                            Shapes.alpha(ACCENT, act * alpha * 0.9f));
+                }
+                over.submit(ctx);
                 ctx.pose().popMatrix();
                 continue;
             }
@@ -390,8 +398,13 @@ public class RadialScreen extends Screen {
         // ---------------- centre disc + 3 orange arcs ----------------
         centerHover += ((hovered == -2 && level != Level.CATEGORIES ? 1f : 0f) - centerHover) * Math.min(1f, dt * 14f);
         Shapes c = new Shapes();
-        c.circle(cx, cy, discR, Shapes.lerp(0x46200805, 0x60301008, centerHover), 0x5A2A0C06);
-        c.ring(cx, cy, discR, Math.max(1f, R * 0.005f), 0x26FFFFFF);
+        if (LiquidGlass.enabled()) {
+            LiquidGlass.circle(ctx, cx, cy, discR, 1f);
+            c.circle(cx, cy, discR, Shapes.lerp(0x1E200805, 0x34301008, centerHover), 0x281A0805);
+        } else {
+            c.circle(cx, cy, discR, Shapes.lerp(0x46200805, 0x60301008, centerHover), 0x5A2A0C06);
+            c.ring(cx, cy, discR, Math.max(1f, R * 0.005f), 0x26FFFFFF);
+        }
         c.ring(cx, cy, ringR, R * 0.03f, 0x10FFFFFF); // faint track
         float sweep = ease((now - openedAt) / 600f) * close;
         float rot = time * 0.32f;
@@ -430,23 +443,21 @@ public class RadialScreen extends Screen {
             if (size > 0.5f) models.add(new WheelModelsRenderState.Model(e.icon(), bx, by - R * 0.085f, size, spin, 12f));
         }
         float cSize = R * 0.34f * center;
-        if (level == Level.CATEGORIES) {
-            ItemStack head = head();
-            if (head != null && cSize > 0.5f) {
-                // the head always looks at the mouse cursor (like the player in the inventory)
-                float hx = cx, hy = cy - R * 0.075f;
-                float dx = mouseX - hx, dy = mouseY - hy;
-                float reach = R * 0.9f;
-                float targetYaw = (float) Math.toDegrees(Math.atan(dx / reach)) * 0.6f;
-                float targetPitch = (float) Math.toDegrees(Math.atan(dy / reach)) * 0.45f;
-                targetYaw = Math.max(-45f, Math.min(45f, targetYaw));
-                targetPitch = Math.max(-28f, Math.min(28f, targetPitch));
-                if (!headInit) { headYaw = targetYaw; headPitch = targetPitch; headInit = true; }
-                float follow = Math.min(1f, dt * 12f);
-                headYaw += (targetYaw - headYaw) * follow;
-                headPitch += (targetPitch - headPitch) * follow;
-                models.add(new WheelModelsRenderState.Model(head, hx, hy, cSize, 180f + YAW_SIGN * headYaw, PITCH_SIGN * headPitch));
-            }
+        boolean drawBust = false;
+        if (level == Level.CATEGORIES && minecraft.player != null && cSize > 0.5f) {
+            // the player looks at the mouse cursor (head turns more than the body)
+            float hx = cx, hy = cy - R * 0.12f;
+            float dx = mouseX - hx, dy = mouseY - hy;
+            float reach = R * 0.9f;
+            float targetYaw = (float) Math.toDegrees(Math.atan(dx / reach)) * 0.75f;
+            float targetPitch = (float) Math.toDegrees(Math.atan(dy / reach)) * 0.5f;
+            targetYaw = Math.max(-55f, Math.min(55f, targetYaw));
+            targetPitch = Math.max(-30f, Math.min(30f, targetPitch));
+            if (!headInit) { headYaw = targetYaw; headPitch = targetPitch; headInit = true; }
+            float follow = Math.min(1f, dt * 12f);
+            headYaw += (targetYaw - headYaw) * follow;
+            headPitch += (targetPitch - headPitch) * follow;
+            drawBust = true;
         } else {
             ItemStack icon = level == Level.MODULES ? category.getIcon() : module.getIcon();
             if (cSize > 0.5f) models.add(new WheelModelsRenderState.Model(icon, cx, cy - R * 0.085f, cSize * 0.8f, time * 45f, 12f));
@@ -457,6 +468,7 @@ public class RadialScreen extends Screen {
         // models + text in their own strata so they are always on top of the glass
         ctx.nextStratum();
         if (!models.isEmpty()) ctx.guiRenderState.addPicturesInPictureState(new WheelModelsRenderState(width, height, models));
+        if (drawBust) drawBust(ctx, center);
         ctx.nextStratum();
 
         ctx.pose().pushMatrix();
@@ -491,7 +503,10 @@ public class RadialScreen extends Screen {
         int backColor = Shapes.lerp(Shapes.alpha(TEXT_DIM, center * 0.7f), Shapes.alpha(VALUE, center), centerHover);
         float nameScale = Math.max(0.85f, Math.min(1.8f, R / 100f));
         switch (level) {
-            case CATEGORIES -> centerText(ctx, minecraft.getUser().getName(), cy + R * 0.205f, nameScale * 0.92f, ca, false);
+            case CATEGORIES -> {
+                centerText(ctx, minecraft.getUser().getName(), cy + R * 0.17f, nameScale * 0.92f, ca, false);
+                uidBadge(ctx, cy + R * 0.265f, nameScale, center);
+            }
             case MODULES -> {
                 centerText(ctx, category.getDisplayName(), cy + R * 0.165f, nameScale, ca, true);
                 centerText(ctx, "‹ zurück", cy + R * 0.265f, nameScale * 0.62f, backColor, false);
@@ -519,6 +534,45 @@ public class RadialScreen extends Screen {
         ctx.pose().popMatrix();
 
         renderHint(ctx, close);
+    }
+
+    private PlayerBustModel bustWide, bustSlim;
+
+    /** 3D bust of the player (head + torso + arms) in the centre, rendered by vanilla's GUI skin renderer. */
+    private void drawBust(GuiGraphicsExtractor ctx, float appear) {
+        var skin = minecraft.player.getSkin();
+        if (bustWide == null) {
+            var models = minecraft.getModelManager().entityModels().get();
+            bustWide = new PlayerBustModel(models.bakeLayer(net.minecraft.client.model.geom.ModelLayers.PLAYER));
+            bustSlim = new PlayerBustModel(models.bakeLayer(net.minecraft.client.model.geom.ModelLayers.PLAYER_SLIM));
+        }
+        PlayerBustModel model = skin.model() == net.minecraft.world.entity.player.PlayerModelType.SLIM ? bustSlim : bustWide;
+        model.headYawDeg = headYaw * 0.65f;
+        model.headPitchDeg = headPitch;
+        // head + torso (1.25 model units) should be about 1.2 disc radii tall
+        float bust = discR * 1.2f * Math.max(0.01f, appear);
+        float scale = bust / 1.25f;
+        float fullH = scale * 2.125f;
+        float headTop = cy - discR * 0.78f;
+        int x0 = Math.round(cx - discR), x1 = Math.round(cx + discR);
+        int y0 = Math.round(headTop - fullH * 0.015f), y1 = Math.round(y0 + fullH);
+        ctx.skin(model, skin.body().texturePath(), scale, -4f, -headYaw * 0.35f, -1.0625f, x0, y0, x1, y1);
+    }
+
+    /** Small pill "UID n" under the name, like in the reference design. */
+    private void uidBadge(GuiGraphicsExtractor ctx, float y, float nameScale, float appear) {
+        String text = "UID " + dev.kraken.config.ConfigManager.uid();
+        float s = nameScale * 0.5f;
+        float tw = textWidth(text, true) * s;
+        float h = 9f * s + 4f, w = tw + 10f;
+        float dy = Math.abs(y - cy) + h / 2f;
+        float maxW = 2f * (float) Math.sqrt(Math.max(0f, (discR - 3f) * (discR - 3f) - dy * dy));
+        if (w > maxW) { float f = maxW / w; s *= f; tw *= f; w = maxW; h = 9f * s + 4f; }
+        Shapes p = new Shapes();
+        p.roundRect(cx - w / 2f, y - h / 2f, cx + w / 2f, y + h / 2f, h / 2f, Shapes.alpha(0x40FF5A2A, appear));
+        p.roundRectRim(cx - w / 2f, y - h / 2f, cx + w / 2f, y + h / 2f, h / 2f, 0.8f, Shapes.alpha(0xCCFF6A3A, appear));
+        p.submit(ctx);
+        text(ctx, text, cx, y, s, Shapes.alpha(0xFFFFE0D4, appear), true);
     }
 
     private ItemStack head() {
@@ -584,7 +638,19 @@ public class RadialScreen extends Screen {
         float s = Math.max(0.75f, Math.min(1.1f, R / 140f));
         int w = textWidth(hint, false);
         if (w * s > width - 20) s = (width - 20f) / w;
-        text(ctx, hint, width / 2f, height - 11f, s, Shapes.alpha(TEXT_DIM, close), false);
+        // description in its own glass pill, above the hotbar so it stays readable
+        float tw = w * s, ph = 9f * s + 7f, pw = tw + 16f;
+        float py = height - ph / 2f - 3f;
+        ctx.nextStratum();
+        Shapes pill = new Shapes();
+        if (LiquidGlass.enabled()) {
+            LiquidGlass.roundRect(ctx, width / 2f - pw / 2f, py - ph / 2f, width / 2f + pw / 2f, py + ph / 2f, ph / 2f, close);
+            pill.roundRect(width / 2f - pw / 2f, py - ph / 2f, width / 2f + pw / 2f, py + ph / 2f, ph / 2f, Shapes.alpha(0x302A0E06, close));
+        } else {
+            pill.roundRect(width / 2f - pw / 2f, py - ph / 2f, width / 2f + pw / 2f, py + ph / 2f, ph / 2f, Shapes.alpha(0xB02A0E06, close));
+        }
+        pill.submit(ctx);
+        text(ctx, hint, width / 2f, py, s, Shapes.alpha(0xFFF6ECE8, close), false);
     }
 
     // =============================================================================================

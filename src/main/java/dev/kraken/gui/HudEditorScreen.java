@@ -133,7 +133,7 @@ public class HudEditorScreen extends Screen {
 
         Shapes s = new Shapes();
         s.roundRect(px, py, px + pw, py + ph, 10f, 0x8C1A0805); // stronger tint: the editor panel must stay readable
-        HudStyle.pill(s, px, py, px + pw, py + ph, 1f);
+        HudStyle.pill(ctx, s, px, py, px + pw, py + ph, 1f);
         List<Runnable> text = new ArrayList<>();
         text.add(() -> HudStyle.text(ctx, title, width / 2f - tw / 2f, py + 12f + 4f, 1.1f, HudStyle.TEXT, true));
         text.add(() -> HudStyle.text(ctx, help, width / 2f - hw / 2f, py + 12f + 11f + 4f, 0.72f, HudStyle.TEXT_DIM, false));

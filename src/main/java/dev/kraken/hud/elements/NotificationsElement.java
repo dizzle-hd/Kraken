@@ -59,7 +59,7 @@ public class NotificationsElement extends HudElement {
             float w = toastWidth(t);
             float slide = (1 - (1 - (float) Math.pow(1 - in, 3))) * (w + 12f) * (right ? 1 : -1);
             float x1 = (right ? x + total - w : x) + slide, y1 = yy;
-            HudStyle.pill(s, x1, y1, x1 + w, y1 + H, e);
+            HudStyle.pill(ctx, s, x1, y1, x1 + w, y1 + H, e);
             s.circle(x1 + 8f, y1 + H / 2f, 2.6f, Shapes.alpha(t.color(), e));
             // progress line showing how long the toast stays
             if (!editor) {

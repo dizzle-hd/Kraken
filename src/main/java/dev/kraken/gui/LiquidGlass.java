@@ -62,6 +62,12 @@ public final class LiquidGlass {
 
     private LiquidGlass() {}
 
+    /** Liquid glass on/off (setting of the HUD module). */
+    public static boolean enabled() {
+        dev.kraken.module.client.Hud hud = dev.kraken.module.ModuleManager.get().get(dev.kraken.module.client.Hud.class);
+        return hud == null || hud.liquidGlass.isOn();
+    }
+
     private static RenderPipeline blur(String dir) {
         return RenderPipeline.builder(RenderPipelines.GLOBALS_SNIPPET)
                 .withLocation(Identifier.fromNamespaceAndPath("kraken", "pipeline/glass_blur_" + dir))
@@ -140,58 +146,111 @@ public final class LiquidGlass {
     // Glass shapes
     // =============================================================================================
 
+    /** A signed distance field in GUI px (negative inside). */
+    @FunctionalInterface
+    private interface Sdf {
+        float at(float x, float y);
+    }
+
     /**
      * A liquid-glass annular sector with rounded corners (same geometry as
      * {@link Shapes#roundedSector}). Angles in radians, clockwise from 12 o'clock.
      */
     public static void sector(GuiGraphicsExtractor ctx, float cx, float cy, float rIn, float rOut, float a0, float a1,
                               float gap, float corner, float alpha) {
-        requested = true;
-        GpuTextureView blurred = ensureTextures();
-        Matrix3x2f pose = new Matrix3x2f(ctx.pose());
-        float sw = ctx.guiWidth(), sh = ctx.guiHeight();
         SectorShape shape = new SectorShape(cx, cy, rIn, rOut, a0, a1, gap, corner);
-
-        // polar grid that covers the shape plus the anti-aliasing margin
         float margin = OUTER + 1f;
         float r0 = Math.max(0, rIn - margin), r1 = rOut + margin;
+        polar(ctx, shape::sdf, cx, cy, r0, r1, a0, a1, Math.min(BEVEL, (rOut - rIn) * 0.18f), alpha);
+    }
+
+    /** A liquid-glass disc. */
+    public static void circle(GuiGraphicsExtractor ctx, float cx, float cy, float r, float alpha) {
+        Sdf sdf = (x, y) -> (float) Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) - r;
+        polar(ctx, sdf, cx, cy, 0, r + OUTER + 1f, 0, (float) (Math.PI * 2), Math.min(BEVEL, r * 0.25f), alpha);
+    }
+
+    /** A liquid-glass rounded rectangle (pills, cards). */
+    public static void roundRect(GuiGraphicsExtractor ctx, float x1, float y1, float x2, float y2, float radius, float alpha) {
+        float hw = (x2 - x1) / 2f, hh = (y2 - y1) / 2f, mx = x1 + hw, my = y1 + hh;
+        float r = Math.min(radius, Math.min(hw, hh));
+        Sdf sdf = (x, y) -> {
+            float qx = Math.abs(x - mx) - (hw - r), qy = Math.abs(y - my) - (hh - r);
+            float ox = Math.max(qx, 0), oy = Math.max(qy, 0);
+            return (float) Math.sqrt(ox * ox + oy * oy) + Math.min(Math.max(qx, qy), 0f) - r;
+        };
+        float m = OUTER + 1f;
+        float bevel = Math.min(BEVEL, Math.min(hw, hh) * 0.75f);
+        float step = Math.max(0.75f, Math.min(1.5f, bevel / 3f));
+        int cols = Math.max(2, (int) Math.ceil((x2 - x1 + 2 * m) / step));
+        int rows = Math.max(2, (int) Math.ceil((y2 - y1 + 2 * m) / step));
+        float[] xs = new float[(rows + 1) * (cols + 1)], ys = new float[xs.length];
+        for (int i = 0; i <= rows; i++) {
+            for (int j = 0; j <= cols; j++) {
+                int k = i * (cols + 1) + j;
+                xs[k] = x1 - m + (x2 - x1 + 2 * m) * j / cols;
+                ys[k] = y1 - m + (y2 - y1 + 2 * m) * i / rows;
+            }
+        }
+        emit(ctx, sdf, xs, ys, rows, cols, bevel, alpha, x1 - m, y1 - m, x2 + m, y2 + m);
+    }
+
+    private static void polar(GuiGraphicsExtractor ctx, Sdf sdf, float cx, float cy, float r0, float r1, float a0, float a1,
+                              float bevel, float alpha) {
         float span = a1 - a0;
-        int radial = Math.max(8, (int) Math.ceil((r1 - r0) / 1.5f));
-        int angular = Math.max(8, (int) Math.ceil(span * r1 / 1.5f));
-        float[] xs = new float[(radial + 1) * (angular + 1)];
-        float[] ys = new float[xs.length];
-        int[] cols = new int[xs.length];
-        float[] us = new float[xs.length], vs = new float[xs.length];
-        Vector2f tmp = new Vector2f();
-        int ai = (int) (Math.max(0f, Math.min(1f, alpha)) * 255f);
+        float step = Math.max(0.75f, Math.min(1.5f, bevel / 3f));
+        int radial = Math.max(8, (int) Math.ceil((r1 - r0) / step));
+        int angular = Math.max(8, (int) Math.ceil(span * r1 / step));
+        float[] xs = new float[(radial + 1) * (angular + 1)], ys = new float[xs.length];
         for (int i = 0; i <= radial; i++) {
             float r = r0 + (r1 - r0) * i / radial;
             for (int j = 0; j <= angular; j++) {
                 float a = a0 + span * j / angular;
-                float x = cx + (float) Math.sin(a) * r, y = cy - (float) Math.cos(a) * r;
                 int k = i * (angular + 1) + j;
-                xs[k] = x;
-                ys[k] = y;
-                float d = shape.sdf(x, y);
-                float e = 0.35f;
-                float nx = shape.sdf(x + e, y) - shape.sdf(x - e, y);
-                float ny = shape.sdf(x, y + e) - shape.sdf(x, y - e);
-                float nl = (float) Math.sqrt(nx * nx + ny * ny);
-                if (nl > 1e-5f) { nx /= nl; ny /= nl; }
-                int enc = (int) (Math.max(0f, Math.min(1f, (d + BEVEL) / (BEVEL + OUTER))) * 255f);
-                int gx = (int) ((nx * 0.5f + 0.5f) * 255f), gy = (int) ((ny * 0.5f + 0.5f) * 255f);
-                cols[k] = (ai << 24) | (enc << 16) | (gx << 8) | gy;
-                pose.transformPosition(tmp.set(x, y));
-                us[k] = tmp.x / sw;
-                vs[k] = 1f - tmp.y / sh;
+                xs[k] = cx + (float) Math.sin(a) * r;
+                ys[k] = cy - (float) Math.cos(a) * r;
             }
         }
-        ScreenRectangle bounds = new ScreenRectangle((int) (cx - r1 - 1), (int) (cy - r1 - 1), (int) (2 * r1 + 2), (int) (2 * r1 + 2))
-                .transformMaxBounds(pose);
+        emit(ctx, sdf, xs, ys, radial, angular, bevel, alpha, cx - r1, cy - r1, cx + r1, cy + r1);
+    }
+
+    /**
+     * Encodes signed distance + normal per grid vertex and submits the glass element. The distance is
+     * rescaled so that this shape's bevel maps to the shader's fixed BEVEL; the shader converts the
+     * refraction back to screen pixels with derivatives, so small pills bend proportionally less.
+     */
+    private static void emit(GuiGraphicsExtractor ctx, Sdf sdf, float[] xs, float[] ys, int rows, int cols, float bevel, float alpha,
+                             float bx0, float by0, float bx1, float by1) {
+        requested = true;
+        GpuTextureView blurred = ensureTextures();
+        Matrix3x2f pose = new Matrix3x2f(ctx.pose());
+        float sw = ctx.guiWidth(), sh = ctx.guiHeight();
+        float scale = BEVEL / Math.max(0.5f, bevel);
+        int[] colors = new int[xs.length];
+        float[] us = new float[xs.length], vs = new float[xs.length];
+        Vector2f tmp = new Vector2f();
+        int ai = (int) (Math.max(0f, Math.min(1f, alpha)) * 255f);
+        for (int k = 0; k < xs.length; k++) {
+            float x = xs[k], y = ys[k];
+            float d = sdf.at(x, y) * scale;
+            float e = 0.35f;
+            float nx = sdf.at(x + e, y) - sdf.at(x - e, y);
+            float ny = sdf.at(x, y + e) - sdf.at(x, y - e);
+            float nl = (float) Math.sqrt(nx * nx + ny * ny);
+            if (nl > 1e-5f) { nx /= nl; ny /= nl; }
+            int enc = (int) (Math.max(0f, Math.min(1f, (d + BEVEL) / (BEVEL + OUTER))) * 255f);
+            int gx = (int) ((nx * 0.5f + 0.5f) * 255f), gy = (int) ((ny * 0.5f + 0.5f) * 255f);
+            colors[k] = (ai << 24) | (enc << 16) | (gx << 8) | gy;
+            pose.transformPosition(tmp.set(x, y));
+            us[k] = tmp.x / sw;
+            vs[k] = 1f - tmp.y / sh;
+        }
+        ScreenRectangle bounds = new ScreenRectangle((int) Math.floor(bx0) - 1, (int) Math.floor(by0) - 1,
+                (int) Math.ceil(bx1 - bx0) + 2, (int) Math.ceil(by1 - by0) + 2).transformMaxBounds(pose);
         ScreenRectangle scissor = ctx.scissorStack.peek();
         if (scissor != null) bounds = scissor.intersection(bounds);
         TextureSetup tex = TextureSetup.singleTexture(blurred, linear());
-        ctx.guiRenderState.addGuiElement(new GlassState(pose, xs, ys, us, vs, cols, radial, angular, tex, scissor, bounds));
+        ctx.guiRenderState.addGuiElement(new GlassState(pose, xs, ys, us, vs, colors, rows, cols, tex, scissor, bounds));
     }
 
     /** Signed distance (GUI px, negative inside) to a rounded annular sector. */

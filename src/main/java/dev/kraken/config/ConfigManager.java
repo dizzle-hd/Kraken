@@ -21,7 +21,18 @@ public final class ConfigManager {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("kraken.json");
 
+    private static int uid;
+
     private ConfigManager() {}
+
+    /** A small id of this installation, created once and shown in the wheel ("UID"). */
+    public static int uid() {
+        if (uid <= 0) {
+            uid = 1 + new java.util.Random().nextInt(9999);
+            save();
+        }
+        return uid;
+    }
 
     public static void save() {
         JsonObject root = new JsonObject();
@@ -36,6 +47,7 @@ public final class ConfigManager {
             modules.add(m.getName(), obj);
         }
         root.add("modules", modules);
+        if (uid > 0) root.addProperty("uid", uid);
         root.add("hud", dev.kraken.hud.HudManager.get().toJson());
         try {
             Files.createDirectories(FILE.getParent());
@@ -50,6 +62,7 @@ public final class ConfigManager {
         try {
             JsonObject root = JsonParser.parseString(Files.readString(FILE, StandardCharsets.UTF_8)).getAsJsonObject();
             dev.kraken.hud.HudManager.get().fromJson(root.get("hud"));
+            if (root.has("uid")) uid = root.get("uid").getAsInt();
             JsonObject modules = root.getAsJsonObject("modules");
             if (modules == null) return;
             for (Module m : ModuleManager.get().getModules()) {

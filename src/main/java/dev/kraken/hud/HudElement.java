@@ -127,7 +127,7 @@ public abstract class HudElement {
 
     protected static void labelValue(Shapes s, List<Runnable> text, GuiGraphicsExtractor ctx, float x, float y, String label, String value, int valueColor) {
         float w = labelValueWidth(label, value);
-        HudStyle.pill(s, x, y, x + w, y + HudStyle.PILL_H, 1f);
+        HudStyle.pill(ctx, s, x, y, x + w, y + HudStyle.PILL_H, 1f);
         float cy = y + HudStyle.PILL_H / 2f;
         text.add(() -> {
             float tx = x + HudStyle.PAD;

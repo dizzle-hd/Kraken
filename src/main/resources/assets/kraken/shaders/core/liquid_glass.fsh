@@ -38,14 +38,20 @@ void main() {
     float edge = clamp(1.0 + sdf / BEVEL, 0.0, 1.0);               // 0 inside .. 1 at the edge
     float bend = edge * edge * edge;
 
+    // convert "shader units" (the distance field is rescaled per shape so its bevel == BEVEL) to uv:
+    // derivatives give uv per pixel and units per pixel, so the bend is proportional to the shape size
+    vec2 uvPerPx = vec2(abs(dFdx(texCoord0.x)) + abs(dFdy(texCoord0.x)), abs(dFdx(texCoord0.y)) + abs(dFdy(texCoord0.y)));
+    float unitsPerPx = max(fwidth(sdf), 1e-4);
+    vec2 uvPerUnit = uvPerPx / unitsPerPx;
+
     // refraction: near the rim the background is pulled inwards (lens edge)
-    vec2 uv = texCoord0 - nuv * bend * 0.045;
+    vec2 uv = texCoord0 - nuv * bend * BEVEL * 2.2 * uvPerUnit;
     // a touch of chromatic aberration where the glass bends most
-    float ca = bend * 0.0055;
+    vec2 ca = nuv * bend * BEVEL * 0.28 * uvPerUnit;
     vec3 col;
-    col.r = texture(Sampler0, uv - nuv * ca).r;
+    col.r = texture(Sampler0, uv - ca).r;
     col.g = texture(Sampler0, uv).g;
-    col.b = texture(Sampler0, uv + nuv * ca).b;
+    col.b = texture(Sampler0, uv + ca).b;
 
     // glass grade: a bit brighter and more saturated than the world behind it
     float lum = dot(col, vec3(0.299, 0.587, 0.114));

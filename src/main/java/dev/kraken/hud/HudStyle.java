@@ -1,5 +1,6 @@
 package dev.kraken.hud;
 
+import dev.kraken.gui.LiquidGlass;
 import dev.kraken.gui.Shapes;
 import dev.kraken.gui.UiText;
 import net.minecraft.client.Minecraft;
@@ -32,8 +33,14 @@ public final class HudStyle {
 
     private HudStyle() {}
 
-    public static void pill(Shapes s, float x1, float y1, float x2, float y2, float alpha) {
+    public static void pill(GuiGraphicsExtractor ctx, Shapes s, float x1, float y1, float x2, float y2, float alpha) {
         float r = Math.min((y2 - y1) / 2f, 7f);
+        if (LiquidGlass.enabled()) {
+            // real liquid glass (blur + refraction), a faint warm tint keeps text readable
+            LiquidGlass.roundRect(ctx, x1, y1, x2, y2, r, alpha);
+            s.roundRect(x1, y1, x2, y2, r, Shapes.alpha(0x1E2A0E06, alpha));
+            return;
+        }
         s.roundRect(x1, y1, x2, y2, r, Shapes.alpha(TINT, alpha));
         s.roundRectGradient(x1, y1, x2, y2, r, Shapes.alpha(GLASS_TOP, alpha), Shapes.alpha(GLASS_BOTTOM, alpha));
         s.roundRectGradient(x1 + 1f, y1 + 1f, x2 - 1f, y1 + (y2 - y1) * 0.5f, r * 0.8f, Shapes.alpha(SHINE, alpha), 0x00FFFFFF);

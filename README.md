@@ -25,8 +25,8 @@ Jeder Push auf den Standard-Branch baut den Mod per GitHub Actions (`.github/wor
 veröffentlicht ihn als neues Release `v<version>-build.<nummer>`. Die Webseite (`site/`, veröffentlicht über
 `.github/workflows/pages.yml`) liest das neueste Release über die GitHub-API.
 
-Alle Icons und der Spielerkopf in der Mitte sind echte, sich drehende 3D-Modelle. Die Schrift ist
-[Nunito](https://github.com/googlefonts/nunito) (SIL Open Font License, siehe `assets/kraken/font/OFL.txt`).
+Rad, Mitte und HUD sind aus **Liquid Glass** (eigener Shader: Unschärfe nur hinter dem Glas, Lichtbrechung am Rand, Lichtkante; im HUD-Modul abschaltbar). Alle Icons sind echte, sich drehende 3D-Modelle, in der Mitte steht der Spieler als 3D-Büste und schaut zur Maus. Die Schrift ist
+[Nunito](https://github.com/googlefonts/nunito) (SIL Open Font License, siehe `assets/kraken/font/nunito_ofl_license.txt`).
 
 ## Bedienung
 

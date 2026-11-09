@@ -20,7 +20,7 @@ public class WatermarkElement extends HudElement {
 
     @Override
     public void render(GuiGraphicsExtractor ctx, Shapes s, List<Runnable> text, float x, float y, float dt, boolean editor) {
-        HudStyle.pill(s, x, y, x + width(editor), y + H, 1f);
+        HudStyle.pill(ctx, s, x, y, x + width(editor), y + H, 1f);
         KrakenLogo.draw(s, x + 7f + LOGO / 2f, y + H / 2f, LOGO, (System.currentTimeMillis() % 600000L) / 1000f,
                 HudStyle.ACCENT, 0xFFFFFFFF, 0xFF2A0E08);
         text.add(() -> HudStyle.text(ctx, "Kraken", x + 7f + LOGO + 5f, y + H / 2f, 1f, HudStyle.TEXT, true));
