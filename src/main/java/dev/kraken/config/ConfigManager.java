@@ -22,6 +22,15 @@ public final class ConfigManager {
     private static final Path FILE = FabricLoader.getInstance().getConfigDir().resolve("kraken.json");
 
     private static int uid;
+    private static boolean onboarded;
+
+    /** Was the first-start setup (OnboardingScreen) completed? */
+    public static boolean onboarded() { return onboarded; }
+
+    public static void setOnboarded(boolean value) {
+        onboarded = value;
+        save();
+    }
 
     private ConfigManager() {}
 
@@ -48,6 +57,7 @@ public final class ConfigManager {
         }
         root.add("modules", modules);
         if (uid > 0) root.addProperty("uid", uid);
+        root.addProperty("onboarded", onboarded);
         root.add("hud", dev.kraken.hud.HudManager.get().toJson());
         try {
             Files.createDirectories(FILE.getParent());
@@ -63,6 +73,7 @@ public final class ConfigManager {
             JsonObject root = JsonParser.parseString(Files.readString(FILE, StandardCharsets.UTF_8)).getAsJsonObject();
             dev.kraken.hud.HudManager.get().fromJson(root.get("hud"));
             if (root.has("uid")) uid = root.get("uid").getAsInt();
+            if (root.has("onboarded")) onboarded = root.get("onboarded").getAsBoolean();
             JsonObject modules = root.getAsJsonObject("modules");
             if (modules == null) return;
             for (Module m : ModuleManager.get().getModules()) {

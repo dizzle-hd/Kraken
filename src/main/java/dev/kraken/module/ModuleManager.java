@@ -43,6 +43,7 @@ public final class ModuleManager {
         register(new Hud());
         register(new Notifications());
         register(new HudEditor());
+        register(new dev.kraken.module.client.Setup());
         register(new Zoom());
         register(new Freecam());
     }

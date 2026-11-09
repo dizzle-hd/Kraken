@@ -57,6 +57,10 @@ public class Kraken implements ClientModInitializer {
                 TpsTracker.reset();
                 return;
             }
+            // first start: the setup screen, once the player is in a world
+            if (!ConfigManager.onboarded() && client.gui.screen() == null && client.player.tickCount > 20) {
+                client.gui.setScreen(new dev.kraken.gui.OnboardingScreen());
+            }
             ModuleManager.get().onTick(client);
             HudManager.get().tick();
         });

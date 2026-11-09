@@ -156,8 +156,17 @@ public class RadialScreen extends Screen {
     // Geometry
     // =============================================================================================
 
+    /** Radius of the wheel for a screen size, including the "Rad-Größe" setting (never larger than fits). */
+    public static float wheelRadius(float width, float height) {
+        float fit = Math.min((height - 30f) / 2f - 4f, width * 0.45f);
+        float base = Math.min(Math.min((height - 30f) / 2f - 4f, width * 0.33f), 200f);
+        dev.kraken.module.client.Hud hud = dev.kraken.module.ModuleManager.get().get(dev.kraken.module.client.Hud.class);
+        float scale = hud == null ? 1f : hud.wheelSize.getFloat() / 100f;
+        return Math.max(60f, Math.min(fit, base * scale));
+    }
+
     private void layout() {
-        R = Math.min(Math.min((height - 30f) / 2f - 4f, width * 0.33f), 200f);
+        R = wheelRadius(width, height);
         rOut = R;
         rIn = R * 0.44f;
         gap = Math.max(3f, R * 0.028f);

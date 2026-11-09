@@ -30,6 +30,10 @@ veröffentlicht ihn als neues Release `v<version>-build.<nummer>`. Die Webseite 
 Rad, Mitte und HUD sind aus **Liquid Glass** (eigener Shader: Unschärfe nur hinter dem Glas, Lichtbrechung am Rand, Lichtkante; im HUD-Modul abschaltbar). Alle Icons sind echte, sich drehende 3D-Modelle, in der Mitte steht der Spieler als 3D-Büste und schaut zur Maus. Die Schrift ist
 [Nunito](https://github.com/googlefonts/nunito) (SIL Open Font License, siehe `assets/kraken/font/nunito_ofl_license.txt`).
 
+## Einrichtung
+
+Beim ersten Betreten einer Welt öffnet sich die **Einrichtung**: Hinweise (Alpha, experimentelle Module, Sodium/Iris gefunden, Server-Regeln), dann Rad-Taste, Rad-Größe (mit Vorschau), Liquid Glass und HUD an/aus, zum Schluss die wichtigsten Tasten. Erneut öffnen: im Rad unter **Client → Einrichtung**.
+
 ## Bedienung
 
 | Aktion | Taste |

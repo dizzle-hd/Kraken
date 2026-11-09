@@ -13,6 +13,8 @@ import com.mojang.blaze3d.platform.InputConstants;
 public class KrakenClientGameTest implements FabricClientGameTest {
     @Override
     public void runTest(ClientGameTestContext ctx) {
+        // the first-start setup is tested on its own at the end
+        ctx.runOnClient(c -> dev.kraken.config.ConfigManager.setOnboarded(true));
         try (TestSingleplayerContext sp = ctx.worldBuilder().setUseConsistentSettings(false).create()) {
             // test like on a normal Full-HD monitor
             ctx.getInput().resizeWindow(1920, 1080);
@@ -255,6 +257,19 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             ctx.setScreen(() -> null);
             ctx.waitTicks(5);
             ctx.takeScreenshot("12-hud-after-edit");
+
+            // --- first-start setup: all three pages ---
+            ctx.setScreen(dev.kraken.gui.OnboardingScreen::new);
+            ctx.waitTicks(10);
+            ctx.takeScreenshot("13-onboarding-1");
+            ctx.getInput().pressKey(InputConstants.KEY_RETURN);
+            ctx.waitTicks(5);
+            ctx.takeScreenshot("13-onboarding-2");
+            ctx.getInput().pressKey(InputConstants.KEY_RETURN);
+            ctx.waitTicks(5);
+            ctx.takeScreenshot("13-onboarding-3");
+            ctx.getInput().pressKey(InputConstants.KEY_RETURN);
+            ctx.waitTicks(5);
         }
     }
 
