@@ -133,6 +133,92 @@ public final class Shapes {
         return this;
     }
 
+
+    // ---- rounded annular sectors (glass segments) ------------------------------------------------
+
+    private static float angleOf(float dx, float dy) {
+        return (float) Math.atan2(dx, -dy);
+    }
+
+    /** Adds the wedge of radius r around (px,py) between the directions of angles t1 and t2 (shortest way). */
+    private void wedge(float px, float py, float rIn, float rOut, float t1, float t2, int color) {
+        float d = t2 - t1;
+        while (d > Math.PI) d -= (float) (Math.PI * 2);
+        while (d < -Math.PI) d += (float) (Math.PI * 2);
+        float a = d >= 0 ? t1 : t1 + d, b = d >= 0 ? t1 + d : t1;
+        sector(px, py, rIn, rOut, a, b, 0, color, color);
+    }
+
+    /**
+     * Annular sector with rounded corners: the Minkowski sum of a shrunken sector with a disk of
+     * radius {@code r}. Built from non-overlapping pieces so translucent colours stay even.
+     */
+    public Shapes roundedSector(float cx, float cy, float rIn, float rOut, float a0, float a1, float gap, float r, int colIn, int colOut) {
+        r = Math.max(0.5f, Math.min(r, (rOut - rIn) / 2f - 0.5f));
+        float off = gap / 2f + r;
+        float ri = rIn + r, ro = rOut - r;
+        float span = a1 - a0;
+        if (off / ri * 2 >= span) { // too thin for rounded corners
+            return sector(cx, cy, rIn, rOut, a0, a1, gap, colIn, colOut);
+        }
+        int cri = lerp(colIn, colOut, (ri - rIn) / (rOut - rIn));
+        int cro = lerp(colIn, colOut, (ro - rIn) / (rOut - rIn));
+        // core
+        sector(cx, cy, ri, ro, a0, a1, off * 2, cri, cro);
+        // outer & inner bands
+        float oa0 = a0 + off / ro, oa1 = a1 - off / ro;
+        float ia0 = a0 + off / ri, ia1 = a1 - off / ri;
+        sector(cx, cy, ro, rOut, oa0, oa1, 0, cro, colOut);
+        sector(cx, cy, rIn, ri, ia0, ia1, 0, colIn, cri);
+        // side bands + corner wedges
+        for (int side = 0; side < 2; side++) {
+            float a = side == 0 ? a0 : a1;
+            float tin = side == 0 ? ia0 : ia1, tout = side == 0 ? oa0 : oa1;
+            float pix = px(cx, ri, tin), piy = py(cy, ri, tin);
+            float pox = px(cx, ro, tout), poy = py(cy, ro, tout);
+            // outward normal of this side (perpendicular to the radial line)
+            float nx = (float) Math.cos(a) * (side == 0 ? -1 : 1), ny = (float) Math.sin(a) * (side == 0 ? -1 : 1);
+            quad(pix, piy, cri, pox, poy, cro, pox + nx * r, poy + ny * r, cro, pix + nx * r, piy + ny * r, cri);
+            float tn = angleOf(nx, ny);
+            wedge(pox, poy, 0, r, tn, angleOf(pox - cx, poy - cy), cro);
+            wedge(pix, piy, 0, r, tn, angleOf(cx - pix, cy - piy), cri);
+        }
+        return this;
+    }
+
+    /** Outline (rim) of {@link #roundedSector} with the same geometry. */
+    public Shapes roundedSectorOutline(float cx, float cy, float rIn, float rOut, float a0, float a1, float gap, float r, float w, int color) {
+        r = Math.max(0.5f, Math.min(r, (rOut - rIn) / 2f - 0.5f));
+        float off = gap / 2f + r;
+        float ri = rIn + r, ro = rOut - r;
+        if (off / ri * 2 >= a1 - a0) return sectorOutline(cx, cy, rIn, rOut, a0, a1, gap, w, color);
+        float oa0 = a0 + off / ro, oa1 = a1 - off / ro;
+        float ia0 = a0 + off / ri, ia1 = a1 - off / ri;
+        sector(cx, cy, rOut - w, rOut, oa0, oa1, 0, color, color);
+        sector(cx, cy, rIn, rIn + w, ia0, ia1, 0, color, color);
+        for (int side = 0; side < 2; side++) {
+            float a = side == 0 ? a0 : a1;
+            float tin = side == 0 ? ia0 : ia1, tout = side == 0 ? oa0 : oa1;
+            float pix = px(cx, ri, tin), piy = py(cy, ri, tin);
+            float pox = px(cx, ro, tout), poy = py(cy, ro, tout);
+            float nx = (float) Math.cos(a) * (side == 0 ? -1 : 1), ny = (float) Math.sin(a) * (side == 0 ? -1 : 1);
+            quad(pix + nx * (r - w), piy + ny * (r - w), color, pox + nx * (r - w), poy + ny * (r - w), color,
+                    pox + nx * r, poy + ny * r, color, pix + nx * r, piy + ny * r, color);
+            float tn = angleOf(nx, ny);
+            wedge(pox, poy, r - w, r, tn, angleOf(pox - cx, poy - cy), color);
+            wedge(pix, piy, r - w, r, tn, angleOf(cx - pix, cy - piy), color);
+        }
+        return this;
+    }
+
+    /** Soft radial glow: a ring fading from {@code color} at r to transparent at r + width. */
+    public Shapes glow(float cx, float cy, float r, float width, float a0, float a1, int color) {
+        int clear = color & 0x00FFFFFF;
+        sector(cx, cy, r, r + width, a0, a1, 0, color, clear);
+        sector(cx, cy, Math.max(0, r - width), r, a0, a1, 0, clear, color);
+        return this;
+    }
+
     /** Sends everything to the GUI renderer using the current matrix and scissor of {@code ctx}. */
     public void submit(GuiGraphicsExtractor ctx) {
         if (colors.isEmpty()) return;

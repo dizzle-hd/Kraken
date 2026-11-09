@@ -3,6 +3,7 @@ package dev.kraken;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.kraken.config.ConfigManager;
 import dev.kraken.gui.RadialScreen;
+import dev.kraken.gui.WheelModelsRenderer;
 import dev.kraken.module.Module;
 import dev.kraken.module.ModuleManager;
 import dev.kraken.module.client.Hud;
@@ -11,6 +12,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.minecraft.client.KeyMapping;
@@ -34,6 +36,9 @@ public class Kraken implements ClientModInitializer {
 
         openWheel = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.kraken.wheel", InputConstants.Type.KEYBOARD, InputConstants.KEY_RSHIFT, KEY_CATEGORY));
+
+        // 3D item models + player head inside the wheel
+        PictureInPictureRendererRegistry.register(ctx -> new WheelModelsRenderer());
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (client.player == null || client.level == null) return;

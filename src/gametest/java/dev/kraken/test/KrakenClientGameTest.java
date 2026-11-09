@@ -48,6 +48,10 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             clickWheel(ctx, 180, InputConstants.MOUSE_BUTTON_RIGHT, true);
             ctx.waitTicks(15);
             ctx.takeScreenshot("05-basefinder");
+            // second settings page
+            ctx.getInput().scroll(-1);
+            ctx.waitTicks(15);
+            ctx.takeScreenshot("05b-basefinder-page2");
 
             ctx.setScreen(() -> null);
             ctx.waitTicks(5);
@@ -109,8 +113,8 @@ public class KrakenClientGameTest implements FabricClientGameTest {
         double[] pos = ctx.computeOnClient(c -> {
             var w = c.getWindow();
             double sw = w.getGuiScaledWidth(), sh = w.getGuiScaledHeight();
-            double r = Math.min(Math.min((sh - 34) / 2 - 10, sw * 0.30), 165) * 0.75;
-            double cx = sw / 2.0, cy = (sh - 26) / 2.0 + 4;
+            double r = Math.min(Math.min((sh - 30) / 2 - 4, sw * 0.33), 200) * 0.70;
+            double cx = sw / 2.0, cy = (sh - 22) / 2.0 + 3;
             double a = Math.toRadians(angle);
             double x = cx + Math.sin(a) * r, y = cy - Math.cos(a) * r;
             double f = w.getGuiScale();

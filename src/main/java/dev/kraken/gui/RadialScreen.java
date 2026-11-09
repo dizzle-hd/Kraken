@@ -1,5 +1,6 @@
 package dev.kraken.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.kraken.Kraken;
 import dev.kraken.config.ConfigManager;
 import dev.kraken.module.Category;
@@ -11,61 +12,85 @@ import dev.kraken.setting.ModeSetting;
 import dev.kraken.setting.NumberSetting;
 import dev.kraken.setting.Setting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.PlayerFaceExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.FontDescription;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
- * The Kraken wheel: categories arranged in a ring around the player's head, spinning item icons,
- * an animated status ring. Clicking a category turns the wheel into a module wheel, right-clicking
- * a module opens its settings card.
+ * The Kraken wheel. Three levels live inside the same wheel:
+ * <ol>
+ *     <li>categories around the 3D player head,</li>
+ *     <li>the modules of a category,</li>
+ *     <li>the settings of a module (toggles, arc sliders, modes, keybind) – no external panel.</li>
+ * </ol>
+ * Segments are rounded "frosted glass" sectors over a blurred, tinted background. Every icon is a
+ * real rotating 3D item model, the centre shows the 3D head of the player.
  */
 public class RadialScreen extends Screen {
     // ---- palette ---------------------------------------------------------------------------------
     private static final int ACCENT = 0xFFFF5A2A;
-    private static final int SEG_FILL = 0x1FFFC8B4;
-    private static final int SEG_FILL_HOVER = 0x38FFC8B4;
-    private static final int SEG_FILL_ON = 0x55FF5A2A;
-    private static final int SEG_BORDER = 0x26FFDCCF;
-    private static final int CENTER_FILL = 0x66301008;
-    private static final int TEXT = 0xFFF4E6E0;
-    private static final int TEXT_DIM = 0xFFB89A90;
-    private static final int PANEL = 0xFA2A0F09;
-    private static final int PANEL_BORDER = 0x40FFB49C;
+    private static final int GLASS_IN = 0x0CFFE2D6;
+    private static final int GLASS_OUT = 0x17FFE2D6;
+    private static final int GLASS_HOVER_IN = 0x1AFFE2D6;
+    private static final int GLASS_HOVER_OUT = 0x2AFFE2D6;
+    private static final int GLASS_ON_IN = 0x2CFF6A3A;
+    private static final int GLASS_ON_OUT = 0x48FF6A3A;
+    private static final int RIM = 0x22FFFFFF;
+    private static final int RIM_HOVER = 0x5CFFFFFF;
+    private static final int SHINE = 0x12FFFFFF;
+    private static final int TEXT = 0xFFF6ECE8;
+    private static final int TEXT_DIM = 0xB4F0D8D0;
+    private static final int VALUE = 0xFFFFC2AE;
 
-    private static final float GAP = 5f;
+    private static final FontDescription CLEAN = new FontDescription.Resource(Identifier.fromNamespaceAndPath(Kraken.MOD_ID, "clean"));
+    private static final FontDescription CLEAN_BOLD = new FontDescription.Resource(Identifier.fromNamespaceAndPath(Kraken.MOD_ID, "clean_bold"));
+
     private static final float TAU = (float) (Math.PI * 2);
+    private static final int MAX_PER_PAGE = 9;
 
-    // ---- state -----------------------------------------------------------------------------------
+    // ---- navigation state ------------------------------------------------------------------------
+    private enum Level { CATEGORIES, MODULES, SETTINGS }
+
+    private Level level = Level.CATEGORIES;
+    private Category category;
+    private Module module;
+    private int page;
+
+    // ---- animation state -------------------------------------------------------------------------
     private final long openedAt = System.currentTimeMillis();
-    private long viewChangedAt = openedAt;
-    private Category category;              // null = main wheel
-    private Module settingsModule;          // module whose settings card is open
-    private long panelChangedAt;
-    private float panelAnim;                // 0..1 slide-in of the settings card
-    private final float[] hoverAnim = new float[32];
-    private long lastFrame = System.currentTimeMillis();
+    private long levelChangedAt = openedAt;
+    private long closingAt = -1;
+    private boolean closed;
+    private long lastFrame = openedAt;
+    private final float[] hoverAnim = new float[MAX_PER_PAGE + 8];
+    private final float[] activeAnim = new float[MAX_PER_PAGE + 8];
+    private final float[] valueAnim = new float[MAX_PER_PAGE + 8];
+    private float centerHover;
 
-    // settings card interaction
-    private float panelScroll;
+    // ---- interaction -----------------------------------------------------------------------------
     private NumberSetting dragging;
-    private float dragX, dragW;
+    private int draggingIndex = -1;
     private KeySetting listening;
-    private final List<Row> rows = new ArrayList<>();
     private String hint;
 
-    // geometry of the current frame
-    private float cx, cy, rOuter, rInner, rCenter;
+    // ---- per-frame geometry ----------------------------------------------------------------------
+    private float cx, cy, R, rIn, rOut, gap, corner, discR, ringR;
+    private ItemStack headStack;
 
-    private record Row(Setting<?> setting, float x, float y, float w, float h, float trackX, float trackW) {}
+    /** One segment of the current level. */
+    private record Entry(String label, ItemStack icon, String description, boolean active,
+                         Category category, Module module, Setting<?> setting, boolean moduleToggle) {}
 
     public RadialScreen() {
         super(Component.literal("Kraken"));
@@ -77,38 +102,73 @@ public class RadialScreen extends Screen {
     }
 
     // =============================================================================================
-    // Layout helpers
+    // Entries
     // =============================================================================================
 
-    private int segmentCount() {
-        return category == null ? Category.values().length : ModuleManager.get().getModules(category).size();
+    private List<Entry> allEntries() {
+        List<Entry> list = new ArrayList<>();
+        switch (level) {
+            case CATEGORIES -> {
+                for (Category c : Category.values()) {
+                    boolean any = false;
+                    for (Module m : ModuleManager.get().getModules(c)) any |= m.isEnabled() && c != Category.CLIENT;
+                    list.add(new Entry(c.getDisplayName(), c.getIcon(), c.getDisplayName() + " öffnen", any, c, null, null, false));
+                }
+            }
+            case MODULES -> {
+                for (Module m : ModuleManager.get().getModules(category)) {
+                    list.add(new Entry(m.getName(), m.getIcon(), m.getDescription(), m.isEnabled(), null, m, null, false));
+                }
+            }
+            case SETTINGS -> {
+                list.add(new Entry("Aktiv", null, "Modul an- oder ausschalten", module.isEnabled(), null, module, null, true));
+                for (Setting<?> s : module.getSettings()) {
+                    if (!s.isVisible()) continue;
+                    boolean on = s instanceof BoolSetting b && b.isOn();
+                    list.add(new Entry(s.getName(), null, s.getDescription(), on, null, module, s, false));
+                }
+                list.add(new Entry(module.keybind.getName(), null, module.keybind.getDescription(), false, null, module, module.keybind, false));
+            }
+        }
+        return list;
     }
+
+    private int pageCount(int total) {
+        return Math.max(1, (total + MAX_PER_PAGE - 1) / MAX_PER_PAGE);
+    }
+
+    /** Entries of the current page; pages are balanced (17 → 9 + 8). */
+    private List<Entry> entries() {
+        List<Entry> all = allEntries();
+        int pages = pageCount(all.size());
+        page = Math.max(0, Math.min(page, pages - 1));
+        int per = (all.size() + pages - 1) / pages;
+        int from = page * per;
+        return all.subList(Math.min(from, all.size()), Math.min(from + per, all.size()));
+    }
+
+    // =============================================================================================
+    // Geometry
+    // =============================================================================================
 
     private void layout() {
-        float panelW = panelWidth();
-        // leave room at the bottom for the hint line
-        float full = Math.min(Math.min((height - 34f) / 2f - 10f, width * 0.30f), 165f);
-        // with the settings card open the wheel shrinks if necessary so both fit side by side
-        float withPanel = Math.min(full, (width - panelW - 48f) / 2f);
-        rOuter = Math.max(60f, full + (withPanel - full) * panelAnim);
-        rInner = rOuter * 0.50f;
-        rCenter = rInner - Math.max(8f, rOuter * 0.07f);
-        float shift = panelAnim * (panelW + 24f) / 2f;
-        cx = width / 2f - shift;
-        cy = (height - 26f) / 2f + 4f;
+        R = Math.min(Math.min((height - 30f) / 2f - 4f, width * 0.33f), 200f);
+        rOut = R;
+        rIn = R * 0.44f;
+        gap = Math.max(3f, R * 0.028f);
+        corner = R * 0.07f;
+        ringR = R * 0.405f;
+        discR = R * 0.375f;
+        cx = width / 2f;
+        cy = (height - 22f) / 2f + 3f;
     }
 
-    private float panelWidth() {
-        return Math.max(150f, Math.min(210f, width * 0.42f));
-    }
-
-    /** -1 = none, -2 = center, otherwise segment index. */
-    private int hitTest(double mx, double my) {
+    /** -1 = nothing, -2 = centre, otherwise segment index. */
+    private int hitTest(double mx, double my, int n) {
         double dx = mx - cx, dy = my - cy;
         double d = Math.sqrt(dx * dx + dy * dy);
-        if (d <= rCenter) return -2;
-        int n = segmentCount();
-        if (n == 0 || d < rInner || d > rOuter + 8) return -1;
+        if (d <= discR + 4) return -2;
+        if (n == 0 || d < rIn || d > rOut + R * 0.05f) return -1;
         double a = Math.atan2(dx, -dy);
         if (a < 0) a += TAU;
         float step = TAU / n;
@@ -122,8 +182,106 @@ public class RadialScreen extends Screen {
 
     private static float easeBack(float t) {
         t = Math.max(0, Math.min(1, t));
-        float c1 = 1.70158f, c3 = c1 + 1;
+        float c1 = 1.4f, c3 = c1 + 1;
         return 1 + c3 * (float) Math.pow(t - 1, 3) + c1 * (float) Math.pow(t - 1, 2);
+    }
+
+    private float closeFactor(long now) {
+        return closingAt < 0 ? 1f : 1f - ease((now - closingAt) / 160f);
+    }
+
+    // =============================================================================================
+    // Text (clean TTF font) and label fitting
+    // =============================================================================================
+
+    private Component styled(String text, boolean bold) {
+        return Component.literal(text).withStyle(s -> s.withFont(bold ? CLEAN_BOLD : CLEAN));
+    }
+
+    private int textWidth(String text, boolean bold) {
+        return font.width(styled(text, bold));
+    }
+
+    /** Draws text centred horizontally and vertically around (x, y). */
+    private void text(GuiGraphicsExtractor ctx, String text, float x, float y, float scale, int color, boolean bold) {
+        Component c = styled(text, bold);
+        int w = font.width(c);
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(x, y);
+        ctx.pose().scale(scale, scale);
+        ctx.text(font, c, -w / 2, -4, color, false);
+        ctx.pose().popMatrix();
+    }
+
+    private record Fit(String[] lines, float scale) {}
+
+    /** Is the axis-aligned box completely inside the (padded) segment? */
+    private boolean boxInside(float x0, float y0, float x1, float y1, float a0, float a1) {
+        float pad = gap / 2f + R * 0.035f;
+        for (int i = 0; i <= 2; i++) {
+            for (int j = 0; j <= 2; j++) {
+                float px = x0 + (x1 - x0) * i / 2f, py = y0 + (y1 - y0) * j / 2f;
+                float dx = px - cx, dy = py - cy;
+                float d = (float) Math.sqrt(dx * dx + dy * dy);
+                if (d < rIn + pad || d > rOut - pad) return false;
+                float a = (float) Math.atan2(dx, -dy);
+                float mid = (a0 + a1) / 2f;
+                float rel = a - mid;
+                while (rel > Math.PI) rel -= TAU;
+                while (rel < -Math.PI) rel += TAU;
+                float half = (a1 - a0) / 2f - pad / Math.max(d, 1f);
+                if (Math.abs(rel) > half) return false;
+            }
+        }
+        return true;
+    }
+
+    /** Finds the largest scale (and optional 2-line split) at which a label fits into its segment. */
+    private Fit fitLabel(String label, float x, float y, float base, float a0, float a1, boolean bold) {
+        List<String[]> options = new ArrayList<>();
+        options.add(new String[]{label});
+        String[] split = splitLabel(label);
+        if (split != null) options.add(split);
+        for (float s = base; s >= base * 0.55f; s -= base * 0.05f) {
+            for (String[] lines : options) {
+                int w = 0;
+                for (String l : lines) w = Math.max(w, textWidth(l, bold));
+                float bw = w * s, bh = lines.length * 9f * s;
+                if (boxInside(x - bw / 2f, y - bh / 2f, x + bw / 2f, y + bh / 2f, a0, a1)) return new Fit(lines, s);
+            }
+        }
+        // last resort: shorten with an ellipsis
+        float s = base * 0.55f;
+        String t = label;
+        while (t.length() > 2) {
+            t = t.substring(0, t.length() - 1);
+            float bw = textWidth(t + "…", bold) * s;
+            if (boxInside(x - bw / 2f, y - 4.5f * s, x + bw / 2f, y + 4.5f * s, a0, a1)) return new Fit(new String[]{t + "…"}, s);
+        }
+        return new Fit(new String[]{label}, s);
+    }
+
+    /** "BlatantKillAura" → {"Blatant", "KillAura"}, "Min. Verzögerung" → {"Min.", "Verzögerung"}. */
+    private static String[] splitLabel(String label) {
+        int best = -1;
+        for (int i = 1; i < label.length(); i++) {
+            boolean camel = Character.isUpperCase(label.charAt(i)) && Character.isLowerCase(label.charAt(i - 1));
+            boolean space = label.charAt(i - 1) == ' ' || label.charAt(i - 1) == '-';
+            if (camel || space) {
+                if (best < 0 || Math.abs(i - label.length() / 2) < Math.abs(best - label.length() / 2)) best = i;
+            }
+        }
+        if (best < 0) return null;
+        return new String[]{label.substring(0, best).trim(), label.substring(best).trim()};
+    }
+
+    private void drawFit(GuiGraphicsExtractor ctx, Fit fit, float x, float y, int color, boolean bold) {
+        float lh = 9f * fit.scale();
+        float yy = y - (fit.lines().length - 1) * lh / 2f;
+        for (String l : fit.lines()) {
+            text(ctx, l, x, yy, fit.scale(), color, bold);
+            yy += lh;
+        }
     }
 
     // =============================================================================================
@@ -132,13 +290,16 @@ public class RadialScreen extends Screen {
 
     @Override
     public void extractBackground(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
-        float open = ease((System.currentTimeMillis() - openedAt) / 300f);
-        int a = (int) (0xE6 * open);
+        long now = System.currentTimeMillis();
+        float open = ease((now - openedAt) / 280f) * closeFactor(now);
+        if (minecraft.options.getMenuBackgroundBlurriness() >= 1.0f && open > 0.3f) ctx.blurBeforeThisStratum();
+        int a = (int) (0xD8 * open);
         Shapes s = new Shapes();
-        float w = width, h = height, mx = w * 0.55f, my = h * 0.5f;
-        int tl = (a << 24) | 0xC63C12, tm = (a << 24) | 0xB83511, tr = (a << 24) | 0x8E2A10;
-        int ml = (a << 24) | 0x7A2412, mm = (a << 24) | 0x5A1B0E, mr = (a << 24) | 0x3E130B;
-        int bl = (a << 24) | 0xA62E10, bm = (a << 24) | 0x5C1C0E, br = (a << 24) | 0x220C08;
+        float w = width, h = height, mx = w * 0.5f, my = h * 0.55f;
+        // warm orange-red like the reference: bright top-left / bottom-left, dark bottom-right
+        int tl = (a << 24) | 0xC9401A, tm = (a << 24) | 0xA8320F, tr = (a << 24) | 0x7A2410;
+        int ml = (a << 24) | 0x8A2A12, mm = (a << 24) | 0x5E1D0E, mr = (a << 24) | 0x3A130B;
+        int bl = (a << 24) | 0xB0341A, bm = (a << 24) | 0x4A170C, br = (a << 24) | 0x1E0A07;
         s.gradient(0, 0, mx, my, tl, tm, ml, mm);
         s.gradient(mx, 0, w, my, tm, tr, mm, mr);
         s.gradient(0, my, mx, h, ml, mm, bl, bm);
@@ -149,356 +310,256 @@ public class RadialScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
         super.extractRenderState(ctx, mouseX, mouseY, delta);
-
         long now = System.currentTimeMillis();
+        if (closingAt >= 0 && now - closingAt > 170) {
+            if (!closed) {
+                closed = true;
+                minecraft.execute(RadialScreen.super::onClose);
+            }
+            return;
+        }
         float dt = Math.min(0.1f, (now - lastFrame) / 1000f);
         lastFrame = now;
         float time = (now - openedAt) / 1000f;
-
-        float panelTarget = settingsModule != null ? 1f : 0f;
-        panelAnim += (panelTarget - panelAnim) * Math.min(1f, dt * 14f);
-        if (Math.abs(panelAnim - panelTarget) < 0.002f) panelAnim = panelTarget;
-
         layout();
         hint = null;
 
-        float open = easeBack((now - openedAt) / 380f);
-        float swap = easeBack((now - viewChangedAt) / 320f);
-        float scale = 0.82f + 0.18f * Math.min(open, swap);
+        List<Entry> entries = entries();
+        int n = entries.size();
+        int hovered = dragging == null ? hitTest(mouseX, mouseY, n) : draggingIndex;
+        float close = closeFactor(now);
+        float openT = easeBack((now - openedAt) / 420f) * close;
+
+        // whole wheel scales in when the screen opens / closes
+        ctx.pose().pushMatrix();
+        float ws = 0.86f + 0.14f * openT;
+        ctx.pose().translate(cx, cy);
+        ctx.pose().scale(ws, ws);
+        ctx.pose().translate(-cx, -cy);
+
+        List<WheelModelsRenderState.Model> models = new ArrayList<>();
+        float step = n > 0 ? TAU / n : TAU;
+
+        // ---------------- glass segments ----------------
+        float[] pop = new float[n];
+        for (int i = 0; i < n; i++) {
+            Entry e = entries.get(i);
+            float k = Math.min(1f, dt * 14f);
+            hoverAnim[i] += ((i == hovered ? 1f : 0f) - hoverAnim[i]) * k;
+            activeAnim[i] += ((e.active() ? 1f : 0f) - activeAnim[i]) * Math.min(1f, dt * 10f);
+            pop[i] = easeBack((now - levelChangedAt - i * 32L) / 340f) * close;
+
+            float h = hoverAnim[i];
+            float mid = i * step, a0 = mid - step / 2f, a1 = mid + step / 2f;
+            float push = R * 0.035f * h;
+            float ox = (float) Math.sin(mid) * push, oy = -(float) Math.cos(mid) * push;
+            float scx = cx + (float) Math.sin(mid) * R * 0.7f, scy = cy - (float) Math.cos(mid) * R * 0.7f;
+
+            ctx.pose().pushMatrix();
+            ctx.pose().translate(scx + ox, scy + oy);
+            float ps = 0.55f + 0.45f * pop[i];
+            ctx.pose().scale(ps, ps);
+            ctx.pose().translate(-scx, -scy);
+
+            float alpha = Math.max(0f, Math.min(1f, pop[i]));
+            float act = activeAnim[i];
+            int in = Shapes.lerp(Shapes.lerp(GLASS_IN, GLASS_HOVER_IN, h), GLASS_ON_IN, act);
+            int out = Shapes.lerp(Shapes.lerp(GLASS_OUT, GLASS_HOVER_OUT, h), GLASS_ON_OUT, act);
+            Shapes s = new Shapes();
+            s.roundedSector(cx, cy, rIn, rOut, a0, a1, gap, corner, Shapes.alpha(in, alpha), Shapes.alpha(out, alpha));
+            // specular shine along the outer rim (frosted glass highlight)
+            s.roundedSector(cx, cy, rOut - R * 0.09f, rOut - R * 0.012f, a0, a1, gap + R * 0.03f, R * 0.03f,
+                    0x00FFFFFF, Shapes.alpha(SHINE, alpha * (0.7f + 0.6f * h)));
+            int rim = Shapes.lerp(Shapes.lerp(RIM, RIM_HOVER, h), Shapes.alpha(ACCENT, 0.85f), act * 0.8f);
+            s.roundedSectorOutline(cx, cy, rIn, rOut, a0, a1, gap, corner, Math.max(1f, R * 0.006f), Shapes.alpha(rim, alpha));
+            s.submit(ctx);
+            ctx.pose().popMatrix();
+        }
+
+        // ---------------- centre disc + 3 orange arcs ----------------
+        centerHover += ((hovered == -2 && level != Level.CATEGORIES ? 1f : 0f) - centerHover) * Math.min(1f, dt * 14f);
+        Shapes c = new Shapes();
+        c.circle(cx, cy, discR, Shapes.lerp(0x46200805, 0x60301008, centerHover), 0x5A2A0C06);
+        c.ring(cx, cy, discR, Math.max(1f, R * 0.005f), 0x26FFFFFF);
+        c.ring(cx, cy, ringR, R * 0.03f, 0x10FFFFFF); // faint track
+        float sweep = ease((now - openedAt) / 600f) * close;
+        float rot = time * 0.32f;
+        float[][] arcs = {{0.02f, 0.27f}, {0.36f, 0.61f}, {0.70f, 0.93f}}; // three long arcs
+        float aw = Math.max(1.5f, R * 0.016f);
+        for (float[] arc : arcs) {
+            float a0 = arc[0] * TAU + rot;
+            float a1 = a0 + (arc[1] - arc[0]) * TAU * sweep;
+            c.glow(cx, cy, ringR, R * 0.035f, a0, a1, 0x55FF5A2A);
+            c.arc(cx, cy, ringR, aw, a0, a1, ACCENT);
+            // rounded arc caps
+            c.circle(cx + (float) Math.sin(a0) * ringR, cy - (float) Math.cos(a0) * ringR, aw / 2f, ACCENT);
+            c.circle(cx + (float) Math.sin(a1) * ringR, cy - (float) Math.cos(a1) * ringR, aw / 2f, ACCENT);
+        }
+        c.submit(ctx);
+
+        // ---------------- setting widgets (shapes) ----------------
+        if (level == Level.SETTINGS) {
+            Shapes w = new Shapes();
+            for (int i = 0; i < n; i++) widgetShapes(w, entries.get(i), i, step, pop[i], dt);
+            w.submit(ctx);
+        }
+
+        // ---------------- 3D models ----------------
+        float center = easeBack((now - levelChangedAt) / 360f) * close;
+        float iconSize = R * 0.19f;
+        for (int i = 0; i < n; i++) {
+            Entry e = entries.get(i);
+            if (e.icon() == null) continue;
+            float h = hoverAnim[i];
+            float mid = i * step;
+            float push = R * 0.035f * h;
+            float bx = cx + (float) Math.sin(mid) * (R * 0.71f + push);
+            float by = cy - (float) Math.cos(mid) * (R * 0.71f + push);
+            float spin = time * (55f + 140f * h) + i * 47f;
+            float size = iconSize * pop[i] * (1f + 0.14f * h);
+            if (size > 0.5f) models.add(new WheelModelsRenderState.Model(e.icon(), bx, by - R * 0.085f, size, spin, 12f));
+        }
+        float cSize = R * 0.34f * center;
+        if (level == Level.CATEGORIES) {
+            ItemStack head = head();
+            if (head != null && cSize > 0.5f) {
+                float yaw = 180f - 28f + (float) Math.sin(time * 0.9f) * 22f;
+                models.add(new WheelModelsRenderState.Model(head, cx, cy - R * 0.075f, cSize, yaw, 14f));
+            }
+        } else {
+            ItemStack icon = level == Level.MODULES ? category.getIcon() : module.getIcon();
+            if (cSize > 0.5f) models.add(new WheelModelsRenderState.Model(icon, cx, cy - R * 0.085f, cSize * 0.8f, time * 45f, 12f));
+        }
+
+        ctx.pose().popMatrix();
+
+        // models + text in their own strata so they are always on top of the glass
+        ctx.nextStratum();
+        if (!models.isEmpty()) ctx.guiRenderState.addPicturesInPictureState(new WheelModelsRenderState(width, height, models));
+        ctx.nextStratum();
 
         ctx.pose().pushMatrix();
         ctx.pose().translate(cx, cy);
-        ctx.pose().scale(scale, scale);
+        ctx.pose().scale(ws, ws);
         ctx.pose().translate(-cx, -cy);
 
-        int hovered = (dragging == null && !insidePanel(mouseX, mouseY)) ? hitTest(mouseX, mouseY) : -1;
-        renderWheel(ctx, hovered, time, dt);
-        renderCenter(ctx, hovered == -2, time);
-
-        ctx.pose().popMatrix();
-
-        if (panelAnim > 0.01f && settingsModule != null) {
-            ctx.nextStratum();
-            renderPanel(ctx, mouseX, mouseY);
-        }
-
-        renderHint(ctx);
-    }
-
-    private void renderWheel(GuiGraphicsExtractor ctx, int hovered, float time, float dt) {
-        int n = segmentCount();
-        List<Module> modules = category == null ? List.of() : ModuleManager.get().getModules(category);
-        if (n == 0) return;
-        float step = TAU / n;
-
-        Shapes s = new Shapes();
-        for (int i = 0; i < n && i < hoverAnim.length; i++) {
-            float target = i == hovered ? 1f : 0f;
-            hoverAnim[i] += (target - hoverAnim[i]) * Math.min(1f, dt * 16f);
-
-            float h = hoverAnim[i];
-            float mid = i * step;
-            float a0 = mid - step / 2f, a1 = mid + step / 2f;
-            // hovered segments pop out a little
-            float push = 5f * h;
-            float ox = (float) Math.sin(mid) * push, oy = -(float) Math.cos(mid) * push;
-
-            boolean on = category != null && modules.get(i).isEnabled();
-            boolean catActive = category == null && anyEnabled(Category.values()[i]);
-            int fill = on ? Shapes.lerp(SEG_FILL_ON, 0x70FF6A3A, h) : Shapes.lerp(SEG_FILL, SEG_FILL_HOVER, h);
-            int fillIn = Shapes.alpha(fill, 0.75f);
-            s.sector(cx + ox, cy + oy, rInner, rOuter, a0, a1, GAP, fillIn, fill);
-            int border = on ? Shapes.alpha(ACCENT, 0.55f + 0.45f * h) : Shapes.lerp(SEG_BORDER, 0x66FFDCCF, h);
-            s.sectorOutline(cx + ox, cy + oy, rInner, rOuter, a0, a1, GAP, 1f, border);
-
-            // small accent tick on categories that have something enabled
-            if (catActive) {
-                s.arc(cx + ox, cy + oy, rOuter - 3.5f, 2f, mid - 0.12f, mid + 0.12f, ACCENT);
-            }
-        }
-        s.submit(ctx);
-
-        // icons + labels
-        float iconScale = Math.max(1.3f, rOuter / 165f * 2.6f);
-        float rIcon = (rInner + rOuter) / 2f;
+        // ---------------- labels ----------------
+        float baseScale = Math.max(0.75f, Math.min(1.45f, R / 128f));
         for (int i = 0; i < n; i++) {
-            float h = i < hoverAnim.length ? hoverAnim[i] : 0f;
-            float mid = i * step;
-            float push = 5f * h;
-            float x = cx + (float) Math.sin(mid) * (rIcon + push);
-            float y = cy - (float) Math.cos(mid) * (rIcon + push);
-
-            ItemStack icon;
-            String label;
-            boolean on = false;
-            if (category == null) {
-                Category c = Category.values()[i];
-                icon = c.getIcon();
-                label = c.getDisplayName();
+            Entry e = entries.get(i);
+            float h = hoverAnim[i];
+            float mid = i * step, a0 = mid - step / 2f, a1 = mid + step / 2f;
+            float push = R * 0.035f * h;
+            float bx = cx + (float) Math.sin(mid) * (R * 0.71f + push);
+            float by = cy - (float) Math.cos(mid) * (R * 0.71f + push);
+            float alpha = Math.max(0f, Math.min(1f, pop[i]));
+            if (alpha < 0.05f) continue;
+            int color = Shapes.alpha(Shapes.lerp(TEXT, 0xFFFFFFFF, h), alpha);
+            if (level == Level.SETTINGS) {
+                widgetText(ctx, e, i, mid, a0, a1, bx, by, baseScale, alpha, h);
             } else {
-                Module m = modules.get(i);
-                icon = m.getIcon();
-                label = m.getName();
-                on = m.isEnabled();
+                float ly = by + R * 0.115f;
+                Fit fit = fitLabel(e.label(), bx, ly, baseScale, a0, a1, false);
+                drawFit(ctx, fit, bx, ly, color, false);
             }
-
-            // spinning item: a horizontal squash by cos(angle) looks exactly like a Y-axis rotation
-            float spin = Math.max(0.08f, Math.abs((float) Math.cos(time * (1.1f + h * 1.6f) + i * 0.9f)));
-            float sc = iconScale * (1f + 0.12f * h);
-            ctx.pose().pushMatrix();
-            ctx.pose().translate(x, y - 6f * iconScale / 2.2f);
-            ctx.pose().scale(sc * spin, sc);
-            ctx.item(icon, -8, -8);
-            ctx.pose().popMatrix();
-
-            // label: CamelCase names are split onto two lines if they do not fit, then scaled down if needed
-            float maxW = Math.min(rOuter - rInner, 2f * rIcon * (float) Math.sin(step / 2f)) - 6f;
-            float base = Math.max(1f, Math.min(1.5f, rOuter / 115f));
-            String[] lines = {label};
-            if (font.width(label) * base > maxW) {
-                String[] split = splitLabel(label);
-                if (split != null) lines = split;
-            }
-            int tw = 0;
-            for (String l : lines) tw = Math.max(tw, font.width(l));
-            float ts = tw * base > maxW ? Math.max(0.6f, maxW / tw) : base;
-            int color = on ? 0xFFFFB49C : Shapes.lerp(TEXT, 0xFFFFFFFF, h);
-            float ly = y + 9f * iconScale / 2.2f + 4f - (lines.length - 1) * 4f * ts;
-            for (String l : lines) {
-                ctx.pose().pushMatrix();
-                ctx.pose().translate(x, ly);
-                ctx.pose().scale(ts, ts);
-                ctx.text(font, l, -font.width(l) / 2, 0, color, true);
-                ctx.pose().popMatrix();
-                ly += 9f * ts;
-            }
+            if (i == hovered) hint = e.description();
         }
 
-        if (hovered >= 0) {
-            if (category == null) {
-                hint = Category.values()[hovered].getDisplayName() + " – Klicken zum Öffnen";
-            } else {
-                Module m = modules.get(hovered);
-                hint = m.getDescription();
+        // ---------------- centre text ----------------
+        int ca = Shapes.alpha(0xFFFFFFFF, Math.max(0f, Math.min(1f, center)));
+        float nameScale = Math.max(0.85f, Math.min(1.8f, R / 100f));
+        float maxNameW = discR * 1.7f;
+        switch (level) {
+            case CATEGORIES -> {
+                String name = minecraft.getUser().getName();
+                float s = Math.min(nameScale * 0.92f, maxNameW / Math.max(1, textWidth(name, false)));
+                text(ctx, name, cx, cy + R * 0.205f, s, ca, false);
             }
-        } else if (hovered == -2 && category != null) {
-            hint = "Zurück zur Übersicht";
-        }
-    }
-
-    /** "BlatantKillAura" → {"Blatant", "KillAura"}; null if there is no good split point. */
-    private static String[] splitLabel(String label) {
-        int best = -1;
-        for (int i = 1; i < label.length(); i++) {
-            if (Character.isUpperCase(label.charAt(i)) && Character.isLowerCase(label.charAt(i - 1))) {
-                if (best < 0 || Math.abs(i - label.length() / 2) < Math.abs(best - label.length() / 2)) best = i;
+            case MODULES -> {
+                String name = category.getDisplayName();
+                float s = Math.min(nameScale, maxNameW / Math.max(1, textWidth(name, true)));
+                text(ctx, name, cx, cy + R * 0.175f, s, ca, true);
+                text(ctx, "‹ zurück", cx, cy + R * 0.285f, nameScale * 0.58f, Shapes.lerp(Shapes.alpha(TEXT_DIM, center * 0.7f), Shapes.alpha(VALUE, center), centerHover), false);
+            }
+            case SETTINGS -> {
+                String name = module.getName();
+                float s = Math.min(nameScale * 0.85f, maxNameW / Math.max(1, textWidth(name, true)));
+                text(ctx, name, cx, cy + R * 0.165f, s, ca, true);
+                int pages = pageCount(allEntries().size());
+                String sub = pages > 1 ? "Seite " + (page + 1) + "/" + pages + "  ·  ‹ zurück" : "‹ zurück";
+                text(ctx, sub, cx, cy + R * 0.27f, nameScale * 0.58f, Shapes.lerp(Shapes.alpha(TEXT_DIM, center * 0.7f), Shapes.alpha(VALUE, center), centerHover), false);
             }
         }
-        return best < 0 ? null : new String[]{label.substring(0, best), label.substring(best)};
-    }
-
-    private boolean anyEnabled(Category c) {
-        for (Module m : ModuleManager.get().getModules(c)) if (m.isEnabled() && c != Category.CLIENT) return true;
-        return false;
-    }
-
-    private void renderCenter(GuiGraphicsExtractor ctx, boolean hovered, float time) {
-        Shapes s = new Shapes();
-        // soft glow + disc
-        s.circle(cx, cy, rCenter + 10f, 0x00000000, 0x00000000);
-        s.circle(cx, cy, rCenter, hovered && category != null ? 0x80401409 : CENTER_FILL, 0x80250A05);
-        s.ring(cx, cy, rCenter, 1f, 0x30FFC8B4);
-
-        // animated status ring made of arcs with gaps
-        float ringR = rCenter + 5.5f;
-        float rot = time * 0.35f;
-        float[][] arcs = {{0.00f, 0.17f}, {0.21f, 0.41f}, {0.45f, 0.53f}, {0.57f, 0.86f}, {0.90f, 0.96f}};
-        for (float[] arc : arcs) {
-            float a0 = arc[0] * TAU + rot, a1 = arc[1] * TAU + rot;
-            s.arc(cx, cy, ringR, 6f, a0, a1, 0x22FF5A2A);
-            s.arc(cx, cy, ringR, 2.5f, a0, a1, ACCENT);
-        }
-        s.submit(ctx);
-
-        float headSize = Math.max(24f, rCenter * 0.95f);
-        if (category == null) {
-            // player head + name
-            if (minecraft != null && minecraft.player != null) {
-                int hs = Math.round(headSize);
-                PlayerFaceExtractor.extractRenderState(ctx, minecraft.player.getSkin(), Math.round(cx - hs / 2f), Math.round(cy - hs / 2f - 7), hs);
-            }
-            String name = minecraft != null ? minecraft.getUser().getName() : "Kraken";
-            float ts = rCenter > 50 ? 1.4f : 1.1f;
-            drawCentered(ctx, name, cx, cy + headSize / 2f - 2f, ts, 0xFFFFFFFF);
-        } else {
-            float spin = Math.max(0.08f, Math.abs((float) Math.cos(time * 1.3f)));
-            float sc = headSize / 16f * 0.9f;
-            ctx.pose().pushMatrix();
-            ctx.pose().translate(cx, cy - 8f);
-            ctx.pose().scale(sc * spin, sc);
-            ctx.item(category.getIcon(), -8, -8);
-            ctx.pose().popMatrix();
-            drawCentered(ctx, category.getDisplayName(), cx, cy + headSize / 2f - 4f, 1.3f, 0xFFFFFFFF);
-            drawCentered(ctx, hovered ? "‹ Zurück" : "‹", cx, cy + headSize / 2f + 9f, 0.8f, hovered ? 0xFFFFB49C : TEXT_DIM);
-        }
-    }
-
-    private void drawCentered(GuiGraphicsExtractor ctx, String text, float x, float y, float scale, int color) {
-        ctx.pose().pushMatrix();
-        ctx.pose().translate(x, y);
-        ctx.pose().scale(scale, scale);
-        ctx.text(font, text, -font.width(text) / 2, 0, color, true);
+        if (hovered == -2 && level != Level.CATEGORIES) hint = "Zurück";
         ctx.pose().popMatrix();
+
+        renderHint(ctx, close);
     }
 
-    private void renderHint(GuiGraphicsExtractor ctx) {
-        if (hint == null) {
-            hint = category == null ? "Kategorie wählen  §8·  ESC / " + Kraken.openWheel.getTranslatedKeyMessage().getString() + " schließt"
-                    : "Links-Klick: Modul an/aus  §8·  Rechts-Klick: Einstellungen  §8·  ESC: zurück";
+    private ItemStack head() {
+        if (headStack == null && minecraft.player != null) {
+            headStack = new ItemStack(Items.PLAYER_HEAD);
+            headStack.set(DataComponents.PROFILE, ResolvableProfile.createResolved(minecraft.player.getGameProfile()));
         }
-        // single line, scaled down if it is too long
-        int w = font.width(hint);
-        float scale = Math.min(1f, (width - 20f) / w);
-        ctx.pose().pushMatrix();
-        ctx.pose().translate(width / 2f, height - 13f);
-        ctx.pose().scale(scale, scale);
-        ctx.text(font, hint, -w / 2, 0, TEXT_DIM, false);
-        ctx.pose().popMatrix();
+        return headStack;
     }
 
-    // ---- settings card ---------------------------------------------------------------------------
+    // ---- setting widgets ------------------------------------------------------------------------
 
-    private float panelX() {
-        float w = panelWidth();
-        float x = cx + rOuter + 24f;
-        if (x + w > width - 8) x = width - w - 8;
-        return x + (1f - panelAnim) * 30f;
-    }
-
-    private float panelTop() { return 20f; }
-    private float panelBottom() { return height - 30f; }
-
-    private boolean insidePanel(double mx, double my) {
-        if (settingsModule == null) return false;
-        float x = panelX();
-        return mx >= x && mx <= x + panelWidth() && my >= panelTop() && my <= panelBottom();
-    }
-
-    private void renderPanel(GuiGraphicsExtractor ctx, int mouseX, int mouseY) {
-        Module m = settingsModule;
-        float a = panelAnim;
-        float x = panelX(), w = panelWidth();
-        float top = panelTop();
-
-        // content height
-        List<FormattedCharSequence> desc = font.split(Component.literal(m.getDescription()), (int) w - 20);
-        float header = 34 + desc.size() * 10 + 8;
-        List<Setting<?>> visible = new ArrayList<>();
-        for (Setting<?> s : m.getSettings()) if (s.isVisible()) visible.add(s);
-        visible.add(m.keybind);
-        float contentH = header;
-        for (Setting<?> s : visible) contentH += rowHeight(s);
-        contentH += 8;
-        float maxH = panelBottom() - top;
-        float h = Math.min(contentH, maxH);
-        float y = cy - h / 2f;
-        if (y < top) y = top;
-        float maxScroll = Math.max(0, contentH - h);
-        panelScroll = Math.max(0, Math.min(panelScroll, maxScroll));
-
-        Shapes s = new Shapes();
-        s.roundRect(x, y, x + w, y + h, 10, Shapes.alpha(PANEL, a));
-        s.roundRectOutline(x, y, x + w, y + h, 10, 1, Shapes.alpha(PANEL_BORDER, a));
-        s.submit(ctx);
-
-        ctx.enableScissor((int) x, (int) y + 1, (int) (x + w), (int) (y + h) - 1);
-        float yy = y + 10 - panelScroll;
-
-        // header: icon, name, on/off pill
-        ctx.item(m.getIcon(), (int) x + 10, (int) yy);
-        ctx.text(font, m.getName(), (int) x + 32, (int) yy + 4, 0xFFFFFFFF, true);
-        float pillW = 30, pillX = x + w - pillW - 10, pillY = yy + 3;
-        Shapes hs = new Shapes();
-        hs.roundRect(pillX, pillY, pillX + pillW, pillY + 11, 5.5f, m.isEnabled() ? ACCENT : 0x40FFFFFF);
-        hs.submit(ctx);
-        String pill = m.isEnabled() ? "AN" : "AUS";
-        ctx.text(font, pill, (int) (pillX + pillW / 2 - font.width(pill) / 2f), (int) pillY + 2, 0xFFFFFFFF, false);
-        rows.clear();
-        rows.add(new Row(null, pillX, pillY, pillW, 11, 0, 0)); // null setting = module toggle
-
-        yy += 22;
-        for (FormattedCharSequence line : desc) {
-            ctx.text(font, line, (int) x + 10, (int) yy, TEXT_DIM, false);
-            yy += 10;
+    private void widgetShapes(Shapes s, Entry e, int i, float step, float pop, float dt) {
+        float alpha = Math.max(0f, Math.min(1f, pop));
+        if (alpha < 0.05f) return;
+        float mid = i * step, a0 = mid - step / 2f, a1 = mid + step / 2f;
+        float push = R * 0.035f * hoverAnim[i];
+        float bx = cx + (float) Math.sin(mid) * (R * 0.71f + push);
+        float by = cy - (float) Math.cos(mid) * (R * 0.71f + push);
+        boolean toggle = e.moduleToggle() || e.setting() instanceof BoolSetting;
+        if (toggle) {
+            float on = activeAnim[i];
+            float pw = R * 0.15f, ph = R * 0.075f;
+            float px = bx - pw / 2f, py = by + R * 0.04f;
+            s.roundRect(px, py, px + pw, py + ph, ph / 2f, Shapes.alpha(Shapes.lerp(0x40FFFFFF, ACCENT, on), alpha));
+            float kr = ph / 2f - Math.max(1f, R * 0.01f);
+            float kx = px + ph / 2f + (pw - ph) * on;
+            s.circle(kx, py + ph / 2f, kr, Shapes.alpha(0xFFFFFFFF, alpha));
+        } else if (e.setting() instanceof NumberSetting num) {
+            valueAnim[i] += ((float) num.getFraction() - valueAnim[i]) * Math.min(1f, dt * 18f);
+            float off = (gap / 2f + R * 0.06f) / (rOut - R * 0.075f);
+            float s0 = a0 + off, s1 = a1 - off;
+            float r = rOut - R * 0.075f, tw = Math.max(2f, R * 0.022f);
+            float ox = (float) Math.sin(mid) * push, oy = -(float) Math.cos(mid) * push;
+            s.arc(cx + ox, cy + oy, r, tw, s0, s1, Shapes.alpha(0x38FFFFFF, alpha));
+            float fe = s0 + (s1 - s0) * valueAnim[i];
+            if (fe > s0 + 0.001f) s.arc(cx + ox, cy + oy, r, tw, s0, fe, Shapes.alpha(ACCENT, alpha));
+            float kx = cx + ox + (float) Math.sin(fe) * r, ky = cy + oy - (float) Math.cos(fe) * r;
+            s.circle(kx, ky, tw * (num == dragging ? 1.6f : 1.2f), Shapes.alpha(0xFFFFFFFF, alpha));
         }
-        yy += 4;
-        Shapes div = new Shapes();
-        div.rect(x + 10, yy, x + w - 10, yy + 1, 0x30FFC8B4);
-        div.submit(ctx);
-        yy += 6;
-
-        Shapes shapes = new Shapes();
-        List<Runnable> texts = new ArrayList<>();
-        for (Setting<?> setting : visible) {
-            float rh = rowHeight(setting);
-            float rx = x + 8, rw = w - 16;
-            boolean hover = mouseX >= rx && mouseX <= rx + rw && mouseY >= yy && mouseY <= yy + rh && mouseY >= y && mouseY <= y + h;
-            if (hover) {
-                shapes.roundRect(rx, yy, rx + rw, yy + rh, 4, 0x14FFFFFF);
-                hint = setting.getDescription();
-            }
-            final float ry = yy;
-            final String name = setting.getName();
-            texts.add(() -> ctx.text(font, name, (int) rx + 4, (int) ry + 5, TEXT, false));
-
-            float trackX = 0, trackW = 0;
-            if (setting instanceof BoolSetting b) {
-                float sw = 20, sh = 10, sx = rx + rw - sw - 4, sy = yy + (rh - sh) / 2;
-                shapes.roundRect(sx, sy, sx + sw, sy + sh, 5, b.isOn() ? ACCENT : 0x40FFFFFF);
-                float knob = b.isOn() ? sx + sw - 5 : sx + 5;
-                shapes.circle(knob, sy + 5, 3.5f, 0xFFFFFFFF);
-            } else if (setting instanceof NumberSetting num) {
-                String val = num.display();
-                texts.add(() -> ctx.text(font, val, (int) (rx + rw - 4 - font.width(val)), (int) ry + 5, 0xFFFFB49C, false));
-                trackX = rx + 4;
-                trackW = rw - 8;
-                float ty = yy + 18;
-                shapes.roundRect(trackX, ty, trackX + trackW, ty + 3, 1.5f, 0x40FFFFFF);
-                float fx = trackX + trackW * (float) num.getFraction();
-                shapes.roundRect(trackX, ty, fx, ty + 3, 1.5f, ACCENT);
-                shapes.circle(fx, ty + 1.5f, num == dragging ? 4.5f : 3.5f, 0xFFFFFFFF);
-            } else if (setting instanceof ModeSetting mode) {
-                String val = "‹ " + mode.get() + " ›";
-                texts.add(() -> ctx.text(font, val, (int) (rx + rw - 4 - font.width(val)), (int) ry + 5, 0xFFFFB49C, false));
-            } else if (setting instanceof KeySetting key) {
-                String val = key == listening ? "[ … ]" : "[" + key.display() + "]";
-                texts.add(() -> ctx.text(font, val, (int) (rx + rw - 4 - font.width(val)), (int) ry + 5,
-                        key == listening ? ACCENT : 0xFFFFB49C, false));
-            }
-            rows.add(new Row(setting, rx, yy, rw, rh, trackX, trackW));
-            yy += rh;
-        }
-        shapes.submit(ctx);
-        for (Runnable r : texts) r.run();
-        ctx.disableScissor();
-
-        // scroll bar
-        if (maxScroll > 0) {
-            float barH = h * h / contentH;
-            float barY = y + (h - barH) * (panelScroll / maxScroll);
-            Shapes sb = new Shapes();
-            sb.roundRect(x + w - 4, barY + 4, x + w - 2, barY + barH - 4, 1, 0x50FFFFFF);
-            sb.submit(ctx);
-        }
-        // remember visible area for clicks
-        panelVisibleTop = y;
-        panelVisibleBottom = y + h;
     }
 
-    private float panelVisibleTop, panelVisibleBottom;
+    private void widgetText(GuiGraphicsExtractor ctx, Entry e, int i, float mid, float a0, float a1, float bx, float by,
+                            float base, float alpha, float h) {
+        int color = Shapes.alpha(Shapes.lerp(TEXT, 0xFFFFFFFF, h), alpha);
+        int value = Shapes.alpha(VALUE, alpha);
+        float labelY = by - R * 0.06f;
+        Fit fit = fitLabel(e.label(), bx, labelY, base * 0.9f, a0, a1, false);
+        drawFit(ctx, fit, bx, labelY, color, false);
+        String v = null;
+        if (e.setting() instanceof NumberSetting num) v = num.display();
+        else if (e.setting() instanceof ModeSetting mode) v = "‹ " + mode.get() + " ›";
+        else if (e.setting() instanceof KeySetting key) v = key == listening ? "Taste drücken …" : key.display();
+        if (v != null) {
+            float vy = by + R * 0.075f;
+            Fit vf = fitLabel(v, bx, vy, base * 1.05f, a0, a1, true);
+            drawFit(ctx, vf, bx, vy, value, true);
+        }
+    }
 
-    private static float rowHeight(Setting<?> s) {
-        return s instanceof NumberSetting ? 26 : 18;
+    private void renderHint(GuiGraphicsExtractor ctx, float close) {
+        if (hint == null) return; // like the reference: no permanent help text
+        float s = Math.max(0.75f, Math.min(1.1f, R / 140f));
+        int w = textWidth(hint, false);
+        if (w * s > width - 20) s = (width - 20f) / w;
+        text(ctx, hint, width / 2f, height - 11f, s, Shapes.alpha(TEXT_DIM, close), false);
     }
 
     // =============================================================================================
@@ -507,65 +568,66 @@ public class RadialScreen extends Screen {
 
     @Override
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled) {
-        double mx = click.x(), my = click.y();
+        if (closingAt >= 0) return true;
         int button = click.button();
-
         if (listening != null) {
             if (button == InputConstants.MOUSE_BUTTON_RIGHT) listening.set(-1);
             listening = null;
             return true;
         }
-
-        if (settingsModule != null && insidePanel(mx, my)) {
-            if (my < panelVisibleTop || my > panelVisibleBottom) return true;
-            for (Row row : rows) {
-                if (mx < row.x || mx > row.x + row.w || my < row.y || my > row.y + row.h) continue;
-                Setting<?> s = row.setting;
-                if (s == null) settingsModule.toggle();
-                else if (s instanceof BoolSetting b) b.toggle();
-                else if (s instanceof ModeSetting mode) mode.cycle(button != InputConstants.MOUSE_BUTTON_RIGHT);
-                else if (s instanceof KeySetting key) {
-                    if (button == InputConstants.MOUSE_BUTTON_RIGHT) key.set(-1); else listening = key;
-                } else if (s instanceof NumberSetting num) {
-                    dragging = num;
-                    dragX = row.trackX;
-                    dragW = row.trackW;
-                    num.setFraction((mx - dragX) / dragW);
-                }
-                return true;
-            }
-            return true;
-        }
-
-        int hit = hitTest(mx, my);
+        List<Entry> entries = entries();
+        int hit = hitTest(click.x(), click.y(), entries.size());
         if (hit == -2) {
-            if (category != null) switchView(null);
+            back();
             return true;
         }
-        if (hit >= 0) {
-            if (category == null) {
-                switchView(Category.values()[hit]);
-            } else {
-                Module m = ModuleManager.get().getModules(category).get(hit);
-                if (button == InputConstants.MOUSE_BUTTON_RIGHT || button == InputConstants.MOUSE_BUTTON_MIDDLE) {
-                    openSettings(m == settingsModule ? null : m);
-                } else {
-                    m.toggle();
+        if (hit < 0) {
+            back();
+            return true;
+        }
+        Entry e = entries.get(hit);
+        boolean right = button == InputConstants.MOUSE_BUTTON_RIGHT;
+        switch (level) {
+            case CATEGORIES -> enter(Level.MODULES, e.category(), null);
+            case MODULES -> {
+                if (right || button == InputConstants.MOUSE_BUTTON_MIDDLE) enter(Level.SETTINGS, category, e.module());
+                else e.module().toggle();
+            }
+            case SETTINGS -> {
+                if (e.moduleToggle()) module.toggle();
+                else if (e.setting() instanceof BoolSetting b) b.toggle();
+                else if (e.setting() instanceof ModeSetting m) m.cycle(!right);
+                else if (e.setting() instanceof KeySetting k) {
+                    if (right) k.set(-1); else listening = k;
+                } else if (e.setting() instanceof NumberSetting num) {
+                    if (right) num.set(num.get() - num.getStep());
+                    else {
+                        dragging = num;
+                        draggingIndex = hit;
+                        dragTo(num, hit, entries.size(), click.x(), click.y());
+                    }
                 }
             }
-            return true;
         }
-
-        // click into the void
-        if (settingsModule != null) openSettings(null);
-        else if (category != null) switchView(null);
         return true;
+    }
+
+    private void dragTo(NumberSetting num, int index, int n, double mx, double my) {
+        float step = TAU / n;
+        float mid = index * step, a0 = mid - step / 2f, a1 = mid + step / 2f;
+        float off = (gap / 2f + R * 0.06f) / (rOut - R * 0.075f);
+        float s0 = a0 + off, s1 = a1 - off;
+        float a = (float) Math.atan2(mx - cx, -(my - cy));
+        float rel = a - mid;
+        while (rel > Math.PI) rel -= TAU;
+        while (rel < -Math.PI) rel += TAU;
+        num.setFraction((mid + rel - s0) / (s1 - s0));
     }
 
     @Override
     public boolean mouseDragged(MouseButtonEvent click, double offsetX, double offsetY) {
         if (dragging != null) {
-            dragging.setFraction((click.x() - dragX) / dragW);
+            dragTo(dragging, draggingIndex, entries().size(), click.x(), click.y());
             return true;
         }
         return super.mouseDragged(click, offsetX, offsetY);
@@ -574,13 +636,27 @@ public class RadialScreen extends Screen {
     @Override
     public boolean mouseReleased(MouseButtonEvent click) {
         dragging = null;
+        draggingIndex = -1;
         return super.mouseReleased(click);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        if (insidePanel(mouseX, mouseY)) {
-            panelScroll -= (float) verticalAmount * 14f;
+        if (level == Level.SETTINGS) {
+            List<Entry> entries = entries();
+            int hit = hitTest(mouseX, mouseY, entries.size());
+            if (hit >= 0 && entries.get(hit).setting() instanceof NumberSetting num) {
+                num.set(num.get() + Math.signum(verticalAmount) * num.getStep());
+                return true;
+            }
+            int pages = pageCount(allEntries().size());
+            if (pages > 1) {
+                int np = Math.max(0, Math.min(pages - 1, page - (int) Math.signum(verticalAmount)));
+                if (np != page) {
+                    page = np;
+                    restartAnimations();
+                }
+            }
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
@@ -601,9 +677,7 @@ public class RadialScreen extends Screen {
             return true;
         }
         if (key == InputConstants.KEY_ESCAPE) {
-            if (settingsModule != null) openSettings(null);
-            else if (category != null) switchView(null);
-            else onClose();
+            if (level == Level.CATEGORIES) onClose(); else back();
             return true;
         }
         if (Kraken.openWheel.matches(input)) {
@@ -613,20 +687,36 @@ public class RadialScreen extends Screen {
         return super.keyPressed(input);
     }
 
-    private void switchView(Category c) {
-        category = c;
-        viewChangedAt = System.currentTimeMillis();
-        java.util.Arrays.fill(hoverAnim, 0f);
-        openSettings(null);
+    private void back() {
+        switch (level) {
+            case SETTINGS -> enter(Level.MODULES, category, null);
+            case MODULES -> enter(Level.CATEGORIES, null, null);
+            case CATEGORIES -> {}
+        }
     }
 
-    private void openSettings(Module m) {
-        settingsModule = m;
-        panelScroll = 0;
+    private void enter(Level l, Category c, Module m) {
+        level = l;
+        category = c;
+        module = m;
+        page = 0;
         dragging = null;
         listening = null;
-        panelChangedAt = System.currentTimeMillis();
-        if (m != null && panelAnim < 0.05f) panelAnim = 0.001f;
+        restartAnimations();
+    }
+
+    private void restartAnimations() {
+        levelChangedAt = System.currentTimeMillis();
+        Arrays.fill(hoverAnim, 0f);
+        Arrays.fill(activeAnim, 0f);
+        Arrays.fill(valueAnim, 0f);
+        centerHover = 0f;
+    }
+
+    @Override
+    public void onClose() {
+        // play the closing animation first; the screen is really closed after it finished
+        if (closingAt < 0) closingAt = System.currentTimeMillis();
     }
 
     @Override

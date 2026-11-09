@@ -10,6 +10,9 @@ Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric A
 |---|---|
 | ![BaseFinder](docs/basefinder.png) | ![XRay](docs/xray.png) |
 
+Alle Icons und der Spielerkopf in der Mitte sind echte, sich drehende 3D-Modelle. Die Schrift ist
+[Nunito](https://github.com/googlefonts/nunito) (SIL Open Font License, siehe `assets/kraken/font/OFL.txt`).
+
 ## Bedienung
 
 | Aktion | Taste |
@@ -17,9 +20,12 @@ Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric A
 | Rad öffnen / schließen | `Rechts-Shift` (in den Minecraft-Steuerungen änderbar) |
 | Kategorie öffnen | Links-Klick auf ein Segment |
 | Modul an/aus | Links-Klick auf ein Modul |
-| Einstellungen eines Moduls | Rechts-Klick auf ein Modul |
+| Einstellungen eines Moduls | Rechts-Klick auf ein Modul – die Einstellungen erscheinen direkt im Rad |
+| Schalter / Modus ändern | Klick auf das Segment (Rechts-Klick = Modus rückwärts) |
+| Zahlenwert | Am orangen Bogen ziehen oder über dem Segment scrollen |
+| Mehr Einstellungen | Scrollen außerhalb eines Zahlen-Segments blättert die Seite um |
 | Zurück | Klick auf die Mitte oder `ESC` |
-| Modul-Taste setzen | Im Einstellungs-Panel auf „Taste“ klicken, Taste drücken (`Backspace` = entfernen) |
+| Modul-Taste setzen | In den Einstellungen auf „Taste“ klicken, Taste drücken (`Backspace` = entfernen) |
 
 Alles wird in `config/kraken.json` gespeichert.
 
