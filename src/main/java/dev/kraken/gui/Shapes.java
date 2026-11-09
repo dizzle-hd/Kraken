@@ -350,6 +350,27 @@ public final class Shapes {
         return this;
     }
 
+    /**
+     * Even glow around an arc with round ends (the shape of a "capsule" bent along a circle): fades from
+     * {@code color} at the arc border to transparent {@code width} further out, on both sides and
+     * around both ends, without overlapping pieces (so the glow is equally strong everywhere).
+     */
+    public Shapes ringGlow(float cx, float cy, float r, float lineWidth, float a0, float a1, float width, int color) {
+        if (a1 - a0 < 1e-4f) return this;
+        int clear = color & 0x00FFFFFF;
+        float h = lineWidth / 2f;
+        // outside and inside of the arc
+        sector(cx, cy, r + h, r + h + width, a0, a1, 0, color, clear);
+        sector(cx, cy, Math.max(0, r - h - width), r - h, a0, a1, 0, clear, color);
+        // half-discs around the two ends, facing away from the arc
+        float sx = cx + (float) Math.sin(a0) * r, sy = cy - (float) Math.cos(a0) * r;
+        float ex = cx + (float) Math.sin(a1) * r, ey = cy - (float) Math.cos(a1) * r;
+        float pi = (float) Math.PI;
+        sector(sx, sy, h, h + width, a0 - pi, a0, 0, color, clear);
+        sector(ex, ey, h, h + width, a1, a1 + pi, 0, color, clear);
+        return this;
+    }
+
     /** Soft radial glow: a ring fading from {@code color} at r to transparent at r + width. */
     public Shapes glow(float cx, float cy, float r, float width, float a0, float a1, int color) {
         int clear = color & 0x00FFFFFF;
