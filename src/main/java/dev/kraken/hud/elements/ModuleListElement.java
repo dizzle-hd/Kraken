@@ -22,7 +22,40 @@ public class ModuleListElement extends HudElement {
         super("modules", "Modulliste", true, END, START, 5, 5);
     }
 
+    // shown() is needed several times per frame (layout, width, height, render): compute it once per frame
+    private List<Module> cached;
+    private final java.util.Map<Module, Float> widthCache = new java.util.HashMap<>();
+    private long cachedFrame = -1;
+    private boolean cachedEditor;
+
     private List<Module> shown(boolean editor) {
+        long frame = dev.kraken.hud.HudManager.frame();
+        if (cached != null && frame == cachedFrame && editor == cachedEditor) return cached;
+        widthCache.clear();
+        cached = computeShown(editor);
+        cachedFrame = frame;
+        cachedEditor = editor;
+        return cached;
+    }
+
+    private float pillWidth(Module m) {
+        Float w = widthCache.get(m);
+        if (w == null) {
+            w = computePillWidth(m);
+            widthCache.put(m, w);
+        }
+        return w;
+    }
+
+    private static final java.util.Map<Module, String> INFO = new java.util.HashMap<>();
+
+    private String infoOf(Module m) {
+        pillWidth(m); // fills INFO for this frame
+        String s = INFO.get(m);
+        return s == null || s.isEmpty() ? null : s;
+    }
+
+    private List<Module> computeShown(boolean editor) {
         List<Module> list = new ArrayList<>();
         for (Module m : ModuleManager.get().getModules()) {
             if (m.getCategory() == Category.CLIENT) continue;
@@ -38,9 +71,10 @@ public class ModuleListElement extends HudElement {
         return list;
     }
 
-    private static float pillWidth(Module m) {
+    private static float computePillWidth(Module m) {
         float w = HudStyle.width(m.getName(), false, HudStyle.TEXT_SCALE);
         String info = m.getInfo();
+        INFO.put(m, info == null ? "" : info);
         if (info != null) w += 4f + HudStyle.width(info, false, HudStyle.TEXT_SCALE);
         return 13f + w + HudStyle.PAD;
     }
@@ -93,7 +127,7 @@ public class ModuleListElement extends HudElement {
             float y1 = yy;
             HudStyle.pill(ctx, s, x1, y1, x1 + w, y1 + HudStyle.PILL_H, e);
             s.circle(x1 + 7.5f, y1 + HudStyle.PILL_H / 2f, 2f, Shapes.alpha(HudStyle.ACCENT, e));
-            String name = m.getName(), info = m.getInfo();
+            String name = m.getName(), info = infoOf(m);
             float cy = y1 + HudStyle.PILL_H / 2f;
             int nc = Shapes.alpha(HudStyle.TEXT, e), ic = Shapes.alpha(HudStyle.TEXT_DIM, e);
             text.add(() -> {

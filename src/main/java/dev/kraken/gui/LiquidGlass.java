@@ -172,6 +172,29 @@ public final class LiquidGlass {
 
     /** A liquid-glass rounded rectangle (pills, cards). */
     public static void roundRect(GuiGraphicsExtractor ctx, float x1, float y1, float x2, float y2, float radius, float alpha) {
+        // the mesh only depends on the rectangle and alpha: HUD pills are the same every frame, so reuse it
+        MeshKey key = new MeshKey(x1, y1, x2, y2, radius, Math.round(Math.max(0f, Math.min(1f, alpha)) * 255f));
+        Mesh mesh = MESHES.get(key);
+        if (mesh == null) {
+            mesh = buildRoundRect(x1, y1, x2, y2, radius, alpha);
+            MESHES.put(key, mesh);
+        }
+        submit(ctx, mesh);
+    }
+
+    private record MeshKey(float x1, float y1, float x2, float y2, float r, int alpha) {}
+
+    /** Geometry + encoded SDF of a glass shape, independent of the pose / screen size. */
+    private record Mesh(float[] xs, float[] ys, int[] colors, int rows, int cols, float bx0, float by0, float bx1, float by1) {}
+
+    private static final java.util.Map<MeshKey, Mesh> MESHES = new java.util.LinkedHashMap<>(64, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(java.util.Map.Entry<MeshKey, Mesh> eldest) {
+            return size() > 96;
+        }
+    };
+
+    private static Mesh buildRoundRect(float x1, float y1, float x2, float y2, float radius, float alpha) {
         float hw = (x2 - x1) / 2f, hh = (y2 - y1) / 2f, mx = x1 + hw, my = y1 + hh;
         float r = Math.min(radius, Math.min(hw, hh));
         Sdf sdf = (x, y) -> {
@@ -192,7 +215,7 @@ public final class LiquidGlass {
                 ys[k] = y1 - m + (y2 - y1 + 2 * m) * i / rows;
             }
         }
-        emit(ctx, sdf, xs, ys, rows, cols, bevel, alpha, x1 - m, y1 - m, x2 + m, y2 + m);
+        return mesh(sdf, xs, ys, rows, cols, bevel, alpha, x1 - m, y1 - m, x2 + m, y2 + m);
     }
 
     private static void polar(GuiGraphicsExtractor ctx, Sdf sdf, float cx, float cy, float r0, float r1, float a0, float a1,
@@ -211,7 +234,7 @@ public final class LiquidGlass {
                 ys[k] = cy - (float) Math.cos(a) * r;
             }
         }
-        emit(ctx, sdf, xs, ys, radial, angular, bevel, alpha, cx - r1, cy - r1, cx + r1, cy + r1);
+        submit(ctx, mesh(sdf, xs, ys, radial, angular, bevel, alpha, cx - r1, cy - r1, cx + r1, cy + r1));
     }
 
     /**
@@ -219,16 +242,10 @@ public final class LiquidGlass {
      * rescaled so that this shape's bevel maps to the shader's fixed BEVEL; the shader converts the
      * refraction back to screen pixels with derivatives, so small pills bend proportionally less.
      */
-    private static void emit(GuiGraphicsExtractor ctx, Sdf sdf, float[] xs, float[] ys, int rows, int cols, float bevel, float alpha,
+    private static Mesh mesh(Sdf sdf, float[] xs, float[] ys, int rows, int cols, float bevel, float alpha,
                              float bx0, float by0, float bx1, float by1) {
-        requested = true;
-        GpuTextureView blurred = ensureTextures();
-        Matrix3x2f pose = new Matrix3x2f(ctx.pose());
-        float sw = ctx.guiWidth(), sh = ctx.guiHeight();
         float scale = BEVEL / Math.max(0.5f, bevel);
         int[] colors = new int[xs.length];
-        float[] us = new float[xs.length], vs = new float[xs.length];
-        Vector2f tmp = new Vector2f();
         int ai = (int) (Math.max(0f, Math.min(1f, alpha)) * 255f);
         for (int k = 0; k < xs.length; k++) {
             float x = xs[k], y = ys[k];
@@ -241,16 +258,34 @@ public final class LiquidGlass {
             int enc = (int) (Math.max(0f, Math.min(1f, (d + BEVEL) / (BEVEL + OUTER))) * 255f);
             int gx = (int) ((nx * 0.5f + 0.5f) * 255f), gy = (int) ((ny * 0.5f + 0.5f) * 255f);
             colors[k] = (ai << 24) | (enc << 16) | (gx << 8) | gy;
-            pose.transformPosition(tmp.set(x, y));
+        }
+        return new Mesh(xs, ys, colors, rows, cols, bx0, by0, bx1, by1);
+    }
+
+    /**
+     * Submits a glass mesh: only the screen UVs depend on the current pose. The distance is
+     * rescaled so that this shape's bevel maps to the shader's fixed BEVEL; the shader converts the
+     * refraction back to screen pixels with derivatives, so small pills bend proportionally less.
+     */
+    private static void submit(GuiGraphicsExtractor ctx, Mesh m) {
+        requested = true;
+        GpuTextureView blurred = ensureTextures();
+        Matrix3x2f pose = new Matrix3x2f(ctx.pose());
+        float sw = ctx.guiWidth(), sh = ctx.guiHeight();
+        float[] xs = m.xs(), ys = m.ys();
+        float[] us = new float[xs.length], vs = new float[xs.length];
+        Vector2f tmp = new Vector2f();
+        for (int k = 0; k < xs.length; k++) {
+            pose.transformPosition(tmp.set(xs[k], ys[k]));
             us[k] = tmp.x / sw;
             vs[k] = 1f - tmp.y / sh;
         }
-        ScreenRectangle bounds = new ScreenRectangle((int) Math.floor(bx0) - 1, (int) Math.floor(by0) - 1,
-                (int) Math.ceil(bx1 - bx0) + 2, (int) Math.ceil(by1 - by0) + 2).transformMaxBounds(pose);
+        ScreenRectangle bounds = new ScreenRectangle((int) Math.floor(m.bx0()) - 1, (int) Math.floor(m.by0()) - 1,
+                (int) Math.ceil(m.bx1() - m.bx0()) + 2, (int) Math.ceil(m.by1() - m.by0()) + 2).transformMaxBounds(pose);
         ScreenRectangle scissor = ctx.scissorStack.peek();
         if (scissor != null) bounds = scissor.intersection(bounds);
         TextureSetup tex = TextureSetup.singleTexture(blurred, linear());
-        ctx.guiRenderState.addGuiElement(new GlassState(pose, xs, ys, us, vs, colors, rows, cols, tex, scissor, bounds));
+        ctx.guiRenderState.addGuiElement(new GlassState(pose, xs, ys, us, vs, m.colors(), m.rows(), m.cols(), tex, scissor, bounds));
     }
 
     /** Signed distance (GUI px, negative inside) to a rounded annular sector. */

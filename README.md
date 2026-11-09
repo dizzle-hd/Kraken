@@ -1,6 +1,8 @@
 # Kraken
 
 > ⚠️ **Alpha – Kraken ist noch in Entwicklung.** Funktionen können fehlen, sich ändern oder Fehler haben.
+>
+> ⚠️ **Sodium wird momentan nicht unterstützt.** Bitte ohne Sodium (und ohne Iris) spielen.
 
 Fabric client mod for **Minecraft 26.3** (Java 25, Fabric Loader 0.20+, Fabric API 0.165+) with a radial wheel GUI instead of a click GUI.
 

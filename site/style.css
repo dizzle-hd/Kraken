@@ -259,3 +259,8 @@ footer .small { font-size: .82rem; opacity: .8; }
 .note.top { margin: -12px 0 18px; }
 @media (max-width: 1000px) { .alpha-note { margin-left: auto; margin-right: auto; text-align: left; } }
 @media (max-width: 640px) { .alpha-note { font-size: .9rem; padding: 12px 14px; } }
+
+/* Sodium incompatibility: same note as the alpha warning, a bit redder */
+.sodium-note { border-color: rgba(255, 122, 90, .45); background: linear-gradient(180deg, rgba(255, 110, 80, .24), rgba(255, 90, 60, .12)); color: #ffe2d8; }
+.sodium-note strong { color: #ffd0c2; }
+.chips .chip-warn { border-color: rgba(255, 122, 90, .6); color: #ffd0c2; background: rgba(255, 90, 60, .14); }

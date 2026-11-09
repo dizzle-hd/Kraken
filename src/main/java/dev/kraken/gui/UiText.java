@@ -23,8 +23,28 @@ public final class UiText {
         return Component.literal(text).withStyle(s -> s.withFont(bold ? CLEAN_BOLD : CLEAN));
     }
 
+    // measuring text builds a Component and walks every glyph: the HUD asks for the same strings many
+    // times per frame, so remember the result
+    private static final java.util.Map<String, Integer> WIDTHS = new java.util.HashMap<>();
+    private static Font widthFont;
+
     public static int width(Font font, String text, boolean bold) {
-        return font.width(styled(text, bold));
+        if (font != widthFont || WIDTHS.size() > 2048) {
+            WIDTHS.clear();
+            widthFont = font;
+        }
+        String key = bold ? "\u0001" + text : text;
+        Integer w = WIDTHS.get(key);
+        if (w == null) {
+            w = font.width(styled(text, bold));
+            WIDTHS.put(key, w);
+        }
+        return w;
+    }
+
+    /** Called after a resource reload (the font may have changed). */
+    public static void clearCache() {
+        WIDTHS.clear();
     }
 
     /** Draws text horizontally centred on x and vertically centred on y. */

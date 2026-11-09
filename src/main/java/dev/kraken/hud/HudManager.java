@@ -36,6 +36,11 @@ public final class HudManager {
 
     public static HudManager get() { return INSTANCE; }
 
+    private static long frame;
+
+    /** Increases once per HUD render: lets elements cache per-frame work. */
+    public static long frame() { return frame; }
+
     private HudManager() {
         Minecraft mc = Minecraft.getInstance();
         elements.add(new WatermarkElement());
@@ -103,6 +108,7 @@ public final class HudManager {
 
     /** Renders every enabled element (in the editor: also returns positions, see HudEditorScreen). */
     public void render(GuiGraphicsExtractor ctx, boolean editor, HudElement skip) {
+        frame++;
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
         float dt = Math.min(0.1f, (now - lastFrame) / 1000f);

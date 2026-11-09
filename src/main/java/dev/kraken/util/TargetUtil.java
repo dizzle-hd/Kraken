@@ -76,7 +76,9 @@ public final class TargetUtil {
         Vec3 eyes = mc.player.getEyePosition();
         double rangeSq = range * range;
         Map<LivingEntity, Float> angles = new HashMap<>();
-        for (Entity e : mc.level.entitiesForRendering()) {
+        // spatial query: only entities near the player instead of every entity of the world
+        AABB area = mc.player.getBoundingBox().inflate(range + 2);
+        for (Entity e : mc.level.getEntities(mc.player, area, ent -> ent instanceof LivingEntity)) {
             if (!isValid(e, filter)) continue;
             Vec3 point = RotationUtil.closestPoint(eyes, e);
             if (eyes.distanceToSqr(point) > rangeSq) continue;

@@ -54,8 +54,28 @@ public abstract class KillAuraBase extends Module {
     protected float[] aimAt(LivingEntity target, float yaw, float pitch, float partialTick, boolean needVisible) {
         Vec3 eyes = mc.player.getEyePosition(partialTick);
         AABB area = RotationUtil.aimArea(RotationUtil.predictedBox(target, partialTick, prediction.get()), aimPart.get());
-        return RotationUtil.rotationsTo(eyes, RotationUtil.bestAimPoint(eyes, yaw, pitch, area, needVisible));
+        if (!needVisible) return RotationUtil.rotationsTo(eyes, RotationUtil.bestAimPoint(eyes, yaw, pitch, area, false));
+
+        // the visibility search costs up to 45 ray casts; per-frame aiming re-uses the result of this tick
+        long tick = mc.level.getGameTime();
+        if (visTarget == target && visTick == tick && visOffset != null) {
+            Vec3 cheap = RotationUtil.bestAimPoint(eyes, yaw, pitch, area, false);
+            Vec3 p = visHidden ? new Vec3(area.minX, area.minY, area.minZ).add(visOffset) : cheap;
+            return RotationUtil.rotationsTo(eyes, p);
+        }
+        Vec3 cheap = RotationUtil.bestAimPoint(eyes, yaw, pitch, area, false);
+        Vec3 p = RotationUtil.bestAimPoint(eyes, yaw, pitch, area, true);
+        visTarget = target;
+        visTick = tick;
+        visHidden = p.distanceToSqr(cheap) > 1e-6;
+        visOffset = p.subtract(area.minX, area.minY, area.minZ);
+        return RotationUtil.rotationsTo(eyes, p);
     }
+
+    private LivingEntity visTarget;
+    private long visTick = -1;
+    private boolean visHidden;
+    private Vec3 visOffset;
 
     protected TargetUtil.Filter filter() {
         return new TargetUtil.Filter(players.isOn(), hostiles.isOn(), passives.isOn(), invisibles.isOn(), teammates.isOn());
