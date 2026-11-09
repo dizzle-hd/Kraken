@@ -51,7 +51,7 @@
     try {
       // the API does not return releases in date order (a new build can end up on position 7+),
       // so load a whole page and sort by publish date ourselves
-      const res = await fetch(`${api}/releases?per_page=100`, { headers: { Accept: "application/vnd.github+json" } });
+      const res = await fetch(`${api}/releases?per_page=100`, { cache: "no-cache", headers: { Accept: "application/vnd.github+json" } });
       if (!res.ok) throw new Error(res.status === 403 ? "GitHub-Limit erreicht – bitte später erneut versuchen." : "HTTP " + res.status);
       const releases = (await res.json())
         .filter((r) => !r.draft)
