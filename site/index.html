@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kraken Client (Alpha)</title>
-  <meta name="description" content="Kraken (Alpha, in Entwicklung) – Fabric Client für Minecraft 26.3 mit Radial-Menü, Combat- und SMP-Modulen, HUD-Editor. Immer die neueste Version herunterladen.">
+  <meta name="description" content="Kraken (alpha, in development) – Fabric client for Minecraft 26.3 with a radial menu, combat and SMP modules and a HUD editor. Always download the latest version.">
   <meta name="theme-color" content="#2a0e08">
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <meta property="og:title" content="Kraken Client">
-  <meta property="og:description" content="Fabric Client für Minecraft 26.3 mit Radial-Menü statt Click-GUI.">
+  <meta property="og:description" content="Fabric client for Minecraft 26.3 with a radial menu instead of a click GUI.">
   <meta property="og:image" content="assets/shots/wheel.jpg">
   <link rel="stylesheet" href="style.css?v=__BUILD__">
 </head>
@@ -21,7 +21,7 @@
       <a href="#features">Features</a>
       <a href="#screenshots">Screenshots</a>
       <a href="#install">Installation</a>
-      <a href="#changelog">Versionen</a>
+      <a href="#changelog">Versions</a>
       <a class="repo-link" href="#" target="_blank" rel="noopener">GitHub</a>
     </nav>
   </header>
@@ -35,8 +35,8 @@
           <img class="logo" src="assets/kraken.png" alt="Kraken Logo" width="150" height="150">
         </div>
         <h1>Kraken <span class="badge-alpha">Alpha</span></h1>
-        <p class="tagline">Fabric-Client für <strong>Minecraft 26.3</strong> – mit einem Radial-Menü statt Click-GUI,
-          echten 3D-Icons, Glas-Design und frei anordnbarem HUD.</p>
+        <p class="tagline">Fabric client for <strong>Minecraft 26.3</strong> – with a radial menu instead of a click GUI,
+          real 3D icons, a glass design and a freely arrangeable HUD.</p>
 
         <div class="alpha-note" role="note">
           <svg class="warn" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
@@ -44,9 +44,9 @@
             <path d="M12 9v5" stroke="#2a0e08" stroke-width="2.4" stroke-linecap="round"/>
             <circle cx="12" cy="17.3" r="1.35" fill="#2a0e08"/>
           </svg>
-          <div><strong>Alpha – noch in Entwicklung.</strong> Funktionen können fehlen, sich ändern oder Fehler haben,
-            und nicht alle Module sind schon ausgiebig getestet. Bitte zuerst im Einzelspieler ausprobieren und
-            Fehler gerne auf <a class="repo-issues" href="#" target="_blank" rel="noopener">GitHub melden</a>.</div>
+          <div><strong>Alpha – still in development.</strong> Features may be missing, change or have bugs,
+            and not every module has been tested thoroughly yet. Please try it in singleplayer first and
+            feel free to <a class="repo-issues" href="#" target="_blank" rel="noopener">report bugs on GitHub</a>.</div>
         </div>
 
         <div class="alpha-note sodium-note" role="note">
@@ -55,18 +55,18 @@
             <path d="M12 9v5" stroke="#2a0e08" stroke-width="2.4" stroke-linecap="round"/>
             <circle cx="12" cy="17.3" r="1.35" fill="#2a0e08"/>
           </svg>
-          <div><strong>Sodium: XRay funktioniert nicht.</strong> Kraken startet auch mit Sodium, aber XRay
-            schaltet sich dann automatisch ab. Alles andere ist mit Sodium (und Iris) noch <strong>experimentell</strong> –
-            bei Problemen bitte ohne Sodium testen.</div>
+          <div><strong>Sodium: XRay does not work.</strong> Kraken also starts with Sodium, but XRay
+            then switches itself off. Everything else is still <strong>experimental</strong> with Sodium (and Iris) –
+            if you run into problems, please test without Sodium.</div>
         </div>
 
         <div class="download glass" id="download">
           <a class="btn-download is-loading" id="dl-button" href="#">
             <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" /></svg>
-            <span id="dl-label">Neueste Version wird geladen …</span>
+            <span id="dl-label">Loading the latest version …</span>
           </a>
           <div class="dl-meta" id="dl-meta">&nbsp;</div>
-          <a class="dl-all" id="dl-all" href="#" target="_blank" rel="noopener">Alle Versionen ansehen →</a>
+          <a class="dl-all" id="dl-all" href="#" target="_blank" rel="noopener">View all versions →</a>
         </div>
 
         <ul class="chips">
@@ -74,48 +74,48 @@
           <li>Fabric Loader 0.20+</li>
           <li>Fabric API</li>
           <li>Java 25</li>
-          <li class="chip-warn">Sodium: experimentell, ohne XRay</li>
+          <li class="chip-warn">Sodium: experimental, no XRay</li>
         </ul>
       </div>
 
       <figure class="hero-shot glass">
-        <img src="assets/shots/wheel.jpg" alt="Das Kraken-Rad im Spiel" loading="eager">
+        <img src="assets/shots/wheel.jpg" alt="The Kraken wheel in game" loading="eager">
       </figure>
     </section>
 
     <!-- ============================== FEATURES ============================== -->
     <section id="features" class="section">
-      <h2>Was Kraken kann</h2>
+      <h2>What Kraken can do</h2>
       <div class="grid features">
         <article class="card glass">
           <div class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"/></svg></div>
-          <h3>Radial-Menü</h3>
-          <p><kbd>Rechts-Shift</kbd> öffnet das Rad: Kategorien, Module und alle Einstellungen direkt im Rad –
-            mit rotierenden 3D-Items und deinem 3D-Kopf, der der Maus folgt.</p>
+          <h3>Radial menu</h3>
+          <p><kbd>Right Shift</kbd> opens the wheel: categories, modules and all settings right inside the wheel –
+            with spinning 3D items and your 3D head following the mouse.</p>
         </article>
         <article class="card glass">
           <div class="icon"><svg viewBox="0 0 24 24"><path d="M14.5 3.5 20.5 3.5 20.5 9.5 9 21 3 15z"/><path d="M6 12l6 6"/></svg></div>
           <h3>Combat</h3>
-          <p>TriggerBot, Aimbot mit Vorhersage, SilentAim, SilentKillAura mit unsichtbarer Server-Rotation und eine aggressive BlatantKillAura.</p>
+          <p>TriggerBot, Aimbot with prediction, SilentAim, SilentKillAura with invisible server-side rotation and an aggressive BlatantKillAura.</p>
         </article>
         <article class="card glass">
           <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M12 12 20 7.5M12 12v9M12 12 4 7.5"/></svg></div>
           <h3>SMP</h3>
-          <p>XRay mit Fullbright und der BaseFinder: Amethyst-Wachstum, Sound-Blöcke, Lager, Spieler-Blöcke, Portale und mehr –
-            jeder Hinweis einzeln schaltbar.</p>
+          <p>XRay with fullbright and the BaseFinder: amethyst growth, sound blocks, storage, player blocks, portals and more –
+            every hint can be toggled on its own.</p>
         </article>
         <article class="card glass">
           <div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><rect x="6" y="7" width="6" height="3" rx="1.5"/><rect x="6" y="14" width="9" height="3" rx="1.5"/></svg></div>
-          <h3>HUD-Editor</h3>
-          <p>Logo, Modulliste, Koordinaten, FPS, Ping, TPS, Speed, Richtung, Uhrzeit und Benachrichtigungen –
-            per Drag &amp; Drop anordnen, mit Einrasten an Kanten.</p>
+          <h3>HUD editor</h3>
+          <p>Logo, module list, coordinates, FPS, ping, TPS, speed, direction, clock and notifications –
+            arrange them by drag &amp; drop, with snapping to edges.</p>
         </article>
       </div>
 
       <div class="grid modules">
         <div class="mod glass"><h4>Combat</h4><ul><li>TriggerBot</li><li>SilentAim</li><li>SilentKillAura</li><li>BlatantKillAura</li><li>Aimbot</li></ul></div>
         <div class="mod glass"><h4>SMP</h4><ul><li>XRay</li><li>BaseFinder</li></ul></div>
-        <div class="mod glass"><h4>Client</h4><ul><li>HUD</li><li>HUD-Editor</li><li>Notifications</li><li>Zoom</li><li>Freecam</li></ul></div>
+        <div class="mod glass"><h4>Client</h4><ul><li>HUD</li><li>HUD editor</li><li>Notifications</li><li>Zoom</li><li>Freecam</li></ul></div>
       </div>
     </section>
 
@@ -123,10 +123,10 @@
     <section id="screenshots" class="section">
       <h2>Screenshots</h2>
       <div class="gallery">
-        <button class="shot glass" data-src="assets/shots/combat.jpg"><img src="assets/shots/combat.jpg" alt="Combat-Module im Rad" loading="lazy"><span>Combat-Rad</span></button>
-        <button class="shot glass" data-src="assets/shots/settings.jpg"><img src="assets/shots/settings.jpg" alt="Einstellungen im Rad" loading="lazy"><span>Einstellungen im Rad</span></button>
-        <button class="shot glass" data-src="assets/shots/hud-editor.jpg"><img src="assets/shots/hud-editor.jpg" alt="HUD-Editor" loading="lazy"><span>HUD-Editor</span></button>
-        <button class="shot glass" data-src="assets/shots/basefinder.jpg"><img src="assets/shots/basefinder.jpg" alt="BaseFinder markiert eine Basis" loading="lazy"><span>BaseFinder</span></button>
+        <button class="shot glass" data-src="assets/shots/combat.jpg"><img src="assets/shots/combat.jpg" alt="Combat modules in the wheel" loading="lazy"><span>Combat wheel</span></button>
+        <button class="shot glass" data-src="assets/shots/settings.jpg"><img src="assets/shots/settings.jpg" alt="Settings in the wheel" loading="lazy"><span>Settings in the wheel</span></button>
+        <button class="shot glass" data-src="assets/shots/hud-editor.jpg"><img src="assets/shots/hud-editor.jpg" alt="HUD editor" loading="lazy"><span>HUD editor</span></button>
+        <button class="shot glass" data-src="assets/shots/basefinder.jpg"><img src="assets/shots/basefinder.jpg" alt="BaseFinder marking a base" loading="lazy"><span>BaseFinder</span></button>
         <button class="shot glass" data-src="assets/shots/xray.jpg"><img src="assets/shots/xray.jpg" alt="XRay" loading="lazy"><span>XRay</span></button>
         <button class="shot glass" data-src="assets/shots/hud.jpg"><img src="assets/shots/hud.jpg" alt="HUD" loading="lazy"><span>HUD</span></button>
       </div>
@@ -136,18 +136,18 @@
     <section id="install" class="section">
       <h2>Installation</h2>
       <ol class="steps">
-        <li class="glass"><span class="num">1</span><div><h3>Fabric installieren</h3><p>Den <a href="https://fabricmc.net/use/installer/" target="_blank" rel="noopener">Fabric-Installer</a> starten und Minecraft <strong>26.3</strong> auswählen.</p></div></li>
-        <li class="glass"><span class="num">2</span><div><h3>Fabric API dazu</h3><p>Die <a href="https://modrinth.com/mod/fabric-api" target="_blank" rel="noopener">Fabric API</a> für 26.3 herunterladen.</p></div></li>
-        <li class="glass"><span class="num">3</span><div><h3>Kraken herunterladen</h3><p>Oben auf <a href="#download">Download</a> klicken – du bekommst immer den neuesten Build.</p></div></li>
-        <li class="glass"><span class="num">4</span><div><h3>In den mods-Ordner</h3><p>Beide <code>.jar</code>-Dateien nach <code>.minecraft/mods</code> kopieren, mit dem Fabric-Profil starten und <kbd>Rechts-Shift</kbd> drücken.</p></div></li>
+        <li class="glass"><span class="num">1</span><div><h3>Install Fabric</h3><p>Run the <a href="https://fabricmc.net/use/installer/" target="_blank" rel="noopener">Fabric installer</a> and select Minecraft <strong>26.3</strong>.</p></div></li>
+        <li class="glass"><span class="num">2</span><div><h3>Add Fabric API</h3><p>Download the <a href="https://modrinth.com/mod/fabric-api" target="_blank" rel="noopener">Fabric API</a> for 26.3.</p></div></li>
+        <li class="glass"><span class="num">3</span><div><h3>Download Kraken</h3><p>Click <a href="#download">Download</a> above – you always get the latest build.</p></div></li>
+        <li class="glass"><span class="num">4</span><div><h3>Into the mods folder</h3><p>Copy both <code>.jar</code> files to <code>.minecraft/mods</code>, start the Fabric profile and press <kbd>Right Shift</kbd>.</p></div></li>
       </ol>
-      <p class="note">Benötigt <strong>Java 25</strong> (bringt der Minecraft-Launcher mit). Mit <strong>Sodium</strong> startet Kraken, XRay funktioniert dann aber nicht, der Rest ist experimentell.</p>
+      <p class="note">Requires <strong>Java 25</strong> (included with the Minecraft launcher). Kraken starts with <strong>Sodium</strong>, but XRay does not work then and everything else is experimental.</p>
     </section>
 
     <!-- ============================== CHANGELOG ============================== -->
     <section id="changelog" class="section">
-      <h2>Versionen</h2>
-      <p class="note top">Alle Versionen sind Alpha-Builds aus der laufenden Entwicklung – jeder Push erzeugt automatisch einen neuen Build.</p>
+      <h2>Versions</h2>
+      <p class="note top">All versions are alpha builds from ongoing development – every push automatically creates a new build.</p>
       <div class="releases" id="releases">
         <div class="release glass skeleton"></div>
         <div class="release glass skeleton"></div>
@@ -157,10 +157,10 @@
   </main>
 
   <footer>
-    <p><span class="badge-alpha small">Alpha</span> Kraken befindet sich in aktiver Entwicklung.</p>
-    <p>Kraken ist ein Fan-Projekt und steht in keiner Verbindung zu Mojang oder Microsoft.
-      Nutzung auf eigene Verantwortung – beachte die Regeln der Server, auf denen du spielst.</p>
-    <p class="small">Schrift: Nunito (SIL Open Font License) · <a class="repo-link" href="#" target="_blank" rel="noopener">Quellcode auf GitHub</a></p>
+    <p><span class="badge-alpha small">Alpha</span> Kraken is in active development.</p>
+    <p>Kraken is a fan project and is not affiliated with Mojang or Microsoft.
+      Use at your own risk – respect the rules of the servers you play on.</p>
+    <p class="small">Font: Nunito (SIL Open Font License) · <a class="repo-link" href="#" target="_blank" rel="noopener">Source code on GitHub</a></p>
   </footer>
 
   <div class="lightbox" id="lightbox" hidden>
