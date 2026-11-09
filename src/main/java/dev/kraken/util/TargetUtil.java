@@ -91,7 +91,7 @@ public final class TargetUtil {
                     .thenComparingDouble(e -> eyes.distanceToSqr(RotationUtil.closestPoint(eyes, e)));
             case "Winkel" -> Comparator.comparingDouble(angles::get);
             // distance, but a target right in front of you wins over one slightly closer behind you
-            default -> Comparator.comparingDouble(e -> eyes.distance(RotationUtil.closestPoint(eyes, e)) + angles.get(e) / 90.0);
+            default -> Comparator.comparingDouble(e -> Math.sqrt(eyes.distanceToSqr(RotationUtil.closestPoint(eyes, e))) + angles.get(e) / 90.0);
         };
         list.sort(cmp);
         return list;
