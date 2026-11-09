@@ -57,10 +57,10 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(15);
             ctx.takeScreenshot("03-settings");
 
-            // close the settings card, then left click a module to enable it (SilentKillAura = index 2 of 4 → 180°)
+            // close the settings card, then left click a module to enable it (SilentKillAura = index 2 of 5 → 144°)
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
-            clickWheel(ctx, 180, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 144, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
             ctx.takeScreenshot("04-enabled");
 
@@ -161,6 +161,38 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             });
             System.out.println("[KrakenTest] " + aimInfo + ", target " + zombieState(sp, target));
             ctx.runOnClient(c -> ModuleManager.get().get(dev.kraken.module.combat.BlatantKillAura.class).setEnabled(false));
+
+            // --- Aimbot: target 30 degrees to the side, it walks sideways; the crosshair must follow it ---
+            sp.getServer().runCommand("kill @e[type=!minecraft:player,type=!minecraft:armor_stand]");
+            ctx.runOnClient(c -> {
+                c.player.setYRot(0);
+                c.player.setXRot(0);
+            });
+            java.util.UUID moving = spawnZombie(sp, -2, 3.5, 1000f);
+            ctx.waitTicks(5);
+            ctx.runOnClient(c -> ModuleManager.get().get(dev.kraken.module.combat.Aimbot.class).setEnabled(true));
+            int onTarget = 0;
+            StringBuilder aimLog = new StringBuilder();
+            for (int i = 0; i < 40; i++) {
+                if (i >= 10) {
+                    // move the zombie 0.15 blocks per tick along x (like a walking player)
+                    sp.getServer().runOnServer(server -> {
+                        var z = server.getPlayerList().getPlayers().get(0).level().getEntity(moving);
+                        if (z != null) z.snapTo(z.getX() + 0.15, z.getY(), z.getZ());
+                    });
+                }
+                ctx.waitTick();
+                boolean hit = ctx.computeOnClient(c -> {
+                    var z = c.level.getEntity(moving);
+                    return z != null && dev.kraken.util.RotationUtil.rayHits(c.player.getEyePosition(), c.player.getYRot(), c.player.getXRot(), z.getBoundingBox(), 8);
+                });
+                if (i >= 10 && hit) onTarget++;
+                float y = ctx.computeOnClient(c -> c.player.getYRot());
+                aimLog.append(String.format(java.util.Locale.ROOT, "%.1f%s ", y, hit ? "*" : ""));
+            }
+            System.out.println("[KrakenTest] Aimbot yaw per tick (* = crosshair on target): " + aimLog);
+            System.out.println("[KrakenTest] Aimbot crosshair on the moving target in " + onTarget + "/30 ticks");
+            ctx.runOnClient(c -> ModuleManager.get().get(dev.kraken.module.combat.Aimbot.class).setEnabled(false));
 
             // --- HUD: every element on ---
             ctx.runOnClient(c -> {

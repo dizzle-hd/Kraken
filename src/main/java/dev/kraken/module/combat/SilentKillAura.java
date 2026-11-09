@@ -35,11 +35,10 @@ public class SilentKillAura extends KillAuraBase {
 
     @Override
     public void onPreTick() {
-        targets.clear();
         current = null;
-        if (paused()) { rotating = false; return; }
+        if (paused()) { targets.clear(); rotating = false; return; }
 
-        targets.addAll(TargetUtil.find(filter(), range.get(), fov.getFloat(), throughWalls.isOn(), sort.get()));
+        findTargets(throughWalls.isOn());
         if (targets.isEmpty()) { rotating = false; return; }
         current = targets.get(0);
 
@@ -48,9 +47,12 @@ public class SilentKillAura extends KillAuraBase {
             pitch = RotationManager.getServerPitch();
             rotating = true;
         }
-        Vec3 eyes = mc.player.getEyePosition();
-        float[] wanted = RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, current));
-        float[] next = RotationUtil.limit(yaw, pitch, wanted, turnSpeed.getFloat());
+        float[] wanted = aimAt(current, yaw, pitch, 1f, !throughWalls.isOn());
+        // ease-out (60 % of the remaining angle per tick), capped by the turn speed
+        float dYaw = net.minecraft.util.Mth.wrapDegrees(wanted[0] - yaw), dPitch = wanted[1] - pitch;
+        float dist = (float) Math.sqrt(dYaw * dYaw + dPitch * dPitch);
+        float step = Math.min(turnSpeed.getFloat(), Math.max(dist * 0.6f, Math.min(dist, 4f)));
+        float[] next = RotationUtil.limit(yaw, pitch, wanted, step);
         yaw = next[0];
         pitch = next[1];
         RotationManager.request(yaw, pitch, 10);
@@ -63,8 +65,13 @@ public class SilentKillAura extends KillAuraBase {
         if (mc.player.getAttackStrengthScale(0.5f) < cooldown.get()) return;
         Vec3 eyes = mc.player.getEyePosition();
         if (eyes.distanceTo(RotationUtil.closestPoint(eyes, current)) > range.get()) return;
-        float[] wanted = RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, current));
-        if (RotationUtil.angleDifference(RotationManager.getServerYaw(), RotationManager.getServerPitch(), wanted) > aimTolerance.get()) return;
+        float sYaw = RotationManager.getServerYaw(), sPitch = RotationManager.getServerPitch();
+        // hit when the server rotation really points at the hitbox, or is at least close enough
+        boolean onTarget = RotationUtil.rayHits(eyes, sYaw, sPitch, current.getBoundingBox().inflate(current.getPickRadius()), range.get());
+        if (!onTarget) {
+            float[] wanted = aimAt(current, sYaw, sPitch, 1f, false);
+            if (RotationUtil.angleDifference(sYaw, sPitch, wanted) > aimTolerance.get()) return;
+        }
         attack(current);
     }
 }

@@ -3,6 +3,7 @@ package dev.kraken.module;
 import dev.kraken.module.client.Hud;
 import dev.kraken.module.client.HudEditor;
 import dev.kraken.module.client.Notifications;
+import dev.kraken.module.combat.Aimbot;
 import dev.kraken.module.combat.BlatantKillAura;
 import dev.kraken.module.combat.SilentAim;
 import dev.kraken.module.combat.SilentKillAura;
@@ -32,6 +33,7 @@ public final class ModuleManager {
         register(new SilentAim());
         register(new SilentKillAura());
         register(new BlatantKillAura());
+        register(new Aimbot());
         // SMP
         register(new XRay());
         register(new BaseFinder());

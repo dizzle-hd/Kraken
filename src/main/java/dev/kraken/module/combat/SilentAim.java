@@ -11,6 +11,7 @@ import dev.kraken.util.TargetUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
 import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -46,7 +47,10 @@ public class SilentAim extends Module {
 
         LivingEntity target = targets.get(0);
         Vec3 eyes = mc.player.getEyePosition();
-        float[] rot = RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, target));
+        // least rotation away from the crosshair, at the position the target will have on the server
+        AABB area = RotationUtil.aimArea(RotationUtil.predictedBox(target, 1f, 1), "Auto");
+        Vec3 point = RotationUtil.bestAimPoint(eyes, mc.player.getYRot(), mc.player.getXRot(), area, !throughWalls.isOn());
+        float[] rot = RotationUtil.rotationsTo(eyes, point);
 
         // Tell the server we look at the target, then hit it.
         mc.getConnection().send(new ServerboundMovePlayerPacket.Rot(rot[0], rot[1], mc.player.onGround(), mc.player.horizontalCollision));

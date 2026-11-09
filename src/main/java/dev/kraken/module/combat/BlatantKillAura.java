@@ -8,7 +8,6 @@ import dev.kraken.util.RotationUtil;
 import dev.kraken.util.TargetUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -42,18 +41,15 @@ public class BlatantKillAura extends KillAuraBase {
 
     @Override
     public void onPreTick() {
-        targets.clear();
-        if (paused()) return;
-        targets.addAll(TargetUtil.find(filter(), range.get(), fov.getFloat(), throughWalls.isOn(), sort.get()));
+        if (paused()) { targets.clear(); return; }
+        findTargets(throughWalls.isOn());
         if (targets.isEmpty()) return;
 
-        Vec3 eyes = mc.player.getEyePosition();
-        float[] rot = RotationUtil.rotationsTo(eyes, RotationUtil.aimPoint(eyes, targets.get(0)));
-        switch (rotation.get()) {
-            case "Kamera" -> {} // handled every frame in onFrame(): the camera glides instead of snapping
-            case "Silent" -> RotationManager.request(rot[0], rot[1], 20);
-            default -> {}
+        if (rotation.is("Silent")) {
+            float[] rot = aimAt(targets.get(0), RotationManager.getServerYaw(), RotationManager.getServerPitch(), 1f, !throughWalls.isOn());
+            RotationManager.request(rot[0], rot[1], 20);
         }
+        // "Kamera" is handled every frame in onFrame(): the camera glides instead of snapping
     }
 
     private long lastFrame;
@@ -61,7 +57,7 @@ public class BlatantKillAura extends KillAuraBase {
     /**
      * Every rendered frame: turn the camera a bit towards the target. The step shrinks as the view
      * gets closer (exponential ease-out), is limited to a maximum angular speed and uses the
-     * interpolated positions of this frame, so the motion is smooth at any frame rate.
+     * interpolated + predicted position of the target, so the motion is smooth at any frame rate.
      */
     @Override
     public void onFrame() {
@@ -73,26 +69,11 @@ public class BlatantKillAura extends KillAuraBase {
         if (!target.isAlive()) return;
 
         float pt = mc.getDeltaTracker().getGameTimeDeltaPartialTick(false);
-        Vec3 eyes = mc.player.getEyePosition(pt);
-        // aim point at this frame's interpolated position of the target
-        Vec3 lerp = target.getPosition(pt).subtract(target.position());
-        Vec3 aim = RotationUtil.aimPoint(eyes, target).add(lerp);
-        float[] want = RotationUtil.rotationsTo(eyes, aim);
-
-        float dYaw = net.minecraft.util.Mth.wrapDegrees(want[0] - mc.player.getYRot());
-        float dPitch = want[1] - mc.player.getXRot();
-        // exponential approach: fast when far away, gently slowing down near the target
-        float speed = 30f / smoothness.getFloat();
-        float k = 1f - (float) Math.exp(-speed * dt);
-        float stepYaw = dYaw * k, stepPitch = dPitch * k;
-        float limit = maxTurn.getFloat() * dt;
-        float len = (float) Math.sqrt(stepYaw * stepYaw + stepPitch * stepPitch);
-        if (len > limit && len > 1e-4f) {
-            stepYaw *= limit / len;
-            stepPitch *= limit / len;
-        }
+        float yaw = mc.player.getYRot(), pitch = mc.player.getXRot();
+        float[] want = aimAt(target, yaw, pitch, pt, !throughWalls.isOn());
+        float[] step = RotationUtil.smoothStep(yaw, pitch, want, 30f / smoothness.getFloat(), maxTurn.getFloat(), dt);
         // Entity#turn moves rotation and previous rotation together, like mouse input: no jitter
-        mc.player.turn(stepYaw / 0.15, stepPitch / 0.15);
+        mc.player.turn(step[0] / 0.15, step[1] / 0.15);
     }
 
     @Override
