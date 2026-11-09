@@ -58,6 +58,8 @@ public class RadialScreen extends Screen {
 
     private static final float TAU = (float) (Math.PI * 2);
     private static final int MAX_PER_PAGE = 9;
+    // orientation of the PiP model space (verified with screenshots in the client game test)
+    private static final float YAW_SIGN = 1f, PITCH_SIGN = 1f;
 
     // ---- navigation state ------------------------------------------------------------------------
     private enum Level { CATEGORIES, MODULES, SETTINGS }
@@ -77,6 +79,8 @@ public class RadialScreen extends Screen {
     private final float[] activeAnim = new float[MAX_PER_PAGE + 8];
     private final float[] valueAnim = new float[MAX_PER_PAGE + 8];
     private float centerHover;
+    private float headYaw, headPitch;           // current (smoothed) head rotation, degrees
+    private boolean headInit;
 
     // ---- interaction -----------------------------------------------------------------------------
     private NumberSetting dragging;
@@ -423,8 +427,19 @@ public class RadialScreen extends Screen {
         if (level == Level.CATEGORIES) {
             ItemStack head = head();
             if (head != null && cSize > 0.5f) {
-                float yaw = 180f - 28f + (float) Math.sin(time * 0.9f) * 22f;
-                models.add(new WheelModelsRenderState.Model(head, cx, cy - R * 0.075f, cSize, yaw, 14f));
+                // the head always looks at the mouse cursor (like the player in the inventory)
+                float hx = cx, hy = cy - R * 0.075f;
+                float dx = mouseX - hx, dy = mouseY - hy;
+                float reach = R * 0.9f;
+                float targetYaw = (float) Math.toDegrees(Math.atan(dx / reach)) * 0.6f;
+                float targetPitch = (float) Math.toDegrees(Math.atan(dy / reach)) * 0.45f;
+                targetYaw = Math.max(-45f, Math.min(45f, targetYaw));
+                targetPitch = Math.max(-28f, Math.min(28f, targetPitch));
+                if (!headInit) { headYaw = targetYaw; headPitch = targetPitch; headInit = true; }
+                float follow = Math.min(1f, dt * 12f);
+                headYaw += (targetYaw - headYaw) * follow;
+                headPitch += (targetPitch - headPitch) * follow;
+                models.add(new WheelModelsRenderState.Model(head, hx, hy, cSize, 180f + YAW_SIGN * headYaw, PITCH_SIGN * headPitch));
             }
         } else {
             ItemStack icon = level == Level.MODULES ? category.getIcon() : module.getIcon();

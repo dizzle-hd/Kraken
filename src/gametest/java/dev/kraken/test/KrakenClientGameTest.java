@@ -22,6 +22,16 @@ public class KrakenClientGameTest implements FabricClientGameTest {
             ctx.waitForScreen(RadialScreen.class);
             ctx.waitTicks(20);
             ctx.takeScreenshot("01-wheel");
+            // the head follows the cursor: look to the top-right, then to the bottom-left
+            ctx.getInput().setCursorPos(ctx.computeOnClient(c -> c.getWindow().getWidth() * 0.92), ctx.computeOnClient(c -> c.getWindow().getHeight() * 0.08));
+            ctx.waitTicks(10);
+            ctx.takeScreenshot("01b-head-top-right");
+            ctx.getInput().setCursorPos(ctx.computeOnClient(c -> c.getWindow().getWidth() * 0.08), ctx.computeOnClient(c -> c.getWindow().getHeight() * 0.92));
+            ctx.waitTicks(10);
+            ctx.takeScreenshot("01c-head-bottom-left");
+            ctx.getInput().setCursorPos(ctx.computeOnClient(c -> c.getWindow().getWidth() * 0.62), ctx.computeOnClient(c -> c.getWindow().getHeight() * 0.62));
+            ctx.waitTicks(10);
+            ctx.takeScreenshot("01d-head-combat");
 
             // hover + click "Combat" (segment 1 of 3 → 120° clockwise from the top)
             clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_LEFT, false);
