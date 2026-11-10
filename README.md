@@ -113,12 +113,25 @@ Alles, was nur deine Ansicht verändert.
 - **Zoom** – zoomt auf eigener Taste heran (Standard `C`, im Rad unter „Zoom-Taste“ änderbar). Modus Halten/Umschalten, Stärke 1,5–50×, Mausrad zoomt beim Zoomen weiter, weiches Ein-/Auszoomen, langsamere Maus.
 - **Freecam** – Kamera löst sich vom Spieler und fliegt frei (WASD, Leertaste, Shift, Sprint = schneller), auch durch Blöcke. Dein Spieler bleibt stehen und ist sichtbar; Tempo einstellbar.
 
+### Visuals *(experimentell)*
+Optik-Effekte im Nautilus-Ringdesign. Alles ist **experimentell**: kann mit Shadern/Ressourcenpaketen anders aussehen, etwas FPS kosten und sich noch stark ändern. Jeder Effekt ist einzeln schaltbar; erscheinen nicht in der Modulliste.
+- **Hotbar** *(standardmäßig an)* – Glas-Hotbar mit quadratischen Slots und gleitender Auswahl in der HUD-Farbe; statt Herzen und Keulen **Ringe**: Leben (Absorption als goldener Außenring, Rüstung innen, Farbe bei Gift/Wither/Frost, pulsiert bei wenig Leben), Hunger (Sättigung innen), Luft unter Wasser; XP als Leiste mit Level im Ring. Zahl in jedem Ring. Ersetzt die Vanilla-Leisten (die Ortungsleiste nur, wenn „XP-Leiste“ an ist; das Pferde-Sprungbarometer bleibt).
+- **Himmel** *(standardmäßig an)* – leuchtender **Himmelsring** quer über den Himmel (das Markenzeichen, dreht sich langsam), Polarlicht im Norden und Sternschnuppen in der Nacht, mehr Sterne, Himmel und Sonnenauf-/-untergang in der HUD-Farbe getönt. Nur Oberwelt; liegt hinter Blöcken und Wolken.
+- **Lichtpartikel** – leuchtende Lichter schweben um dich, steigen auf, schwanken und funkeln (HUD-Farbe, Regenbogen, Glühwürmchen, Weiß).
+- **Schwerthieb** – jeder Schlag mit Schwert, Axt, Speer, Streitkolben oder Dreizack schneidet eine leuchtende Sichel durch die Luft (abwechselnd links/rechts, leicht gekippt); Krits mit größerem Schnitt, Ring und Funken.
+- **Treffereffekte** – Treffer sprühen Funken mit einem Ring zu dir hin (Krits in Gold); getötete Ziele lösen sich in aufsteigende Ringe und eine Lichtsäule auf.
+- **Sprungeffekte** – Ring beim Abspringen, Druckwelle mit Funken beim Landen (größer, je tiefer der Fall); optional bei anderen Spielern.
+- **Elytra-Spuren** – leuchtende Bänder von beiden Flügelspitzen, Windstreifen rauschen vorbei (mehr, je schneller).
+- **Laufspur** – leuchtende Punkte hinter deinen Füßen beim Sprinten.
+- **Ringaura** – zwei gegenläufig drehende Ringe und kreisende Lichter um deine Füße.
+- **Totem-Effekt** – goldene und grüne Ringe schießen an Spielern hoch, die ein Totem verbrauchen, dazu Funkenregen.
+
 ### Client
 Einstellungen des Clients selbst – erscheinen nicht in der Modulliste.
 - **HUD** – Nautilus-Logo (sanft schaukelnde Nautilus-Muschel) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
 - **HUD-Editor** – Klick im Rad öffnet den Editor: Elemente ziehen (rasten an Rändern, Mitte und anderen Elementen ein), Rechts-Klick blendet aus, Chips im Panel blenden ein/aus, „Zurücksetzen“ stellt das Standard-Layout her.
 - **HUD-Elemente** – Logo, Modulliste, Koordinaten (inkl. Nether/Oberwelt), FPS, Ping, TPS, Geschwindigkeit, Richtung, Uhrzeit, Benachrichtigungen, dazu:
-  - **Ziel** – Name, Distanz, Lebensbalken (Absorption in Gold), Rüstung und Totem-Pops deines Ziels (Fadenkreuz oder zuletzt geschlagen).
+  - **Ziel** – runder 3D-Kopf deines Ziels (Spieler oder Mob) in einer Glas-Scheibe, das Leben als **Ring** darum (grün → rot, blitzt bei Schaden, Absorption als goldener Außenring) mit der HP-Zahl als Plakette; daneben Name, HP, Distanz, Rüstung und Totem-Pops (Ziel = Fadenkreuz oder zuletzt geschlagen; Freunde grün umrandet).
   - **Smash-Vorschau** – beim Fallen mit Streitkolben in der Hotbar: Fallhöhe und der Schaden, den ein Smash jetzt machen würde (aufs Ziel nach Rüstung).
   - **Rüstung** – Haltbarkeit von Kopf, Brust, Hose, Schuhen und Waffe in Prozent (im HUD-Editor einschalten).
   - **Rüstungs-HUD** – Icons von Rüstung, Haupt- und Zweithand über der Hotbar, darunter Haltbarkeit in % (grün/gelb/rot) bzw. Anzahl.

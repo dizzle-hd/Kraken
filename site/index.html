@@ -61,6 +61,17 @@
             if you run into problems, please test without Sodium.</div>
         </div>
 
+        <div class="alpha-note visuals-note" role="note">
+          <svg class="warn" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8.5" fill="none" stroke="#b58bff" stroke-width="2.4"/>
+            <circle cx="12" cy="12" r="3.2" fill="#e3d4ff"/>
+          </svg>
+          <div><strong>Visuals are experimental.</strong> The new <em>Visuals</em> category – glass hotbar with ring
+            gauges, animated sky with the Nautilus ring, sword slashes, hit, jump and elytra effects, glowing particles –
+            is still experimental: it may look different with shaders or resource packs, cost some FPS and change a lot.
+            Every effect can be switched off on its own.</div>
+        </div>
+
         <div class="download glass" id="download">
           <a class="btn-download is-loading" id="dl-button" href="#">
             <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16" /></svg>
@@ -76,6 +87,7 @@
           <li>Fabric API</li>
           <li>Java 25</li>
           <li class="chip-warn">Sodium: experimental, no XRay</li>
+          <li class="chip-exp">Visuals: experimental</li>
         </ul>
       </div>
 
@@ -120,13 +132,14 @@
       <h2>Modules</h2>
       <p class="note top" id="module-hint" hidden>Click a module to see what it does, its presets and every setting with its default value.</p>
       <div class="grid modules" id="module-grid">
-        <div class="mod glass"><h4>Combat</h4><ul><li>TriggerBot</li><li>SilentAim</li><li>Aimbot</li></ul></div>
-        <div class="mod glass"><h4>Crystal</h4><ul><li>AutoCrystal</li><li>AnchorMacro</li><li>SafeAnchor</li><li>AutoTotem</li><li>Surround</li><li>PopCounter</li></ul></div>
-        <div class="mod glass"><h4>Spear</h4><ul><li>SpearSwitch</li></ul></div>
+        <div class="mod glass"><h4>Combat</h4><ul><li>TriggerBot</li><li>SilentAim</li><li>Aimbot</li><li>SpearSwitch</li><li>AutoTotem</li><li>PopCounter</li></ul></div>
+        <div class="mod glass"><h4>Crystal</h4><ul><li>AutoCrystal</li><li>AnchorMacro</li><li>SafeAnchor</li><li>Surround</li><li>HoleESP</li><li>HoleSnap</li></ul></div>
         <div class="mod glass"><h4>Mace</h4><ul><li>MaceSwap</li><li>AutoSmash</li><li>StunSlam</li><li>WindBoost</li></ul></div>
-        <div class="mod glass"><h4>Player</h4><ul><li>AutoSprint</li><li>AutoEat</li></ul></div>
-        <div class="mod glass"><h4>SMP</h4><ul><li>XRay</li><li>BaseFinder</li></ul></div>
-        <div class="mod glass"><h4>Client</h4><ul><li>HUD</li><li>HUD editor</li><li>Notifications</li><li>Zoom</li><li>Freecam</li></ul></div>
+        <div class="mod glass"><h4>Player</h4><ul><li>AutoSprint</li><li>AutoEat</li><li>AutoTool</li><li>AutoArmor</li><li>ArmorAlert</li></ul></div>
+        <div class="mod glass"><h4>SMP</h4><ul><li>XRay</li><li>BaseFinder</li><li>Waypoints</li></ul></div>
+        <div class="mod glass"><h4>Render</h4><ul><li>PlayerESP</li><li>Nametags</li><li>Fullbright</li><li>Crosshair</li><li>Zoom</li><li>Freecam</li></ul></div>
+        <div class="mod glass mod-exp"><h4>Visuals <span class="badge-exp">experimental</span></h4><ul><li>Hotbar</li><li>Sky</li><li>Glow particles</li><li>Sword slash</li><li>Hit effects</li><li>Jump effects</li><li>Elytra trails</li><li>Run trail</li><li>Ring aura</li><li>Totem effect</li></ul></div>
+        <div class="mod glass"><h4>Client</h4><ul><li>HUD</li><li>HUD editor</li><li>Notifications</li><li>Setup</li><li>Friends</li><li>AutoReconnect</li></ul></div>
       </div>
     </section>
 

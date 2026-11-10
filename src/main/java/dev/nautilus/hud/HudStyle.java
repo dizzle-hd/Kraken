@@ -63,6 +63,19 @@ public final class HudStyle {
         return RAINBOW.equals(c) ? rainbow(rainbowOffset) : colorOf(c);
     }
 
+    /** {@code color} with its hue turned by {@code shift} (0-1, full circle) – e.g. a matching second colour for gradients. */
+    public static int hueShift(int color, float shift) {
+        float r = ((color >> 16) & 0xFF) / 255f, g = ((color >> 8) & 0xFF) / 255f, b = (color & 0xFF) / 255f;
+        float max = Math.max(r, Math.max(g, b)), min = Math.min(r, Math.min(g, b)), delta = max - min;
+        if (delta < 1e-4f) return color; // grey / white: no hue to turn
+        float h = max == r ? ((g - b) / delta) % 6f : max == g ? (b - r) / delta + 2f : (r - g) / delta + 4f;
+        h = ((h / 6f + shift) % 1f + 1f) % 1f;
+        return (color & 0xFF000000) | (net.minecraft.util.Mth.hsvToRgb(h, delta / max, max) & 0xFFFFFF);
+    }
+
+    /** Second theme colour: the accent turned a bit around the colour wheel. */
+    public static int accent2() { return hueShift(accent(), 0.12f); }
+
     /** Accent with the given alpha (0-255). */
     public static int accent(int alpha) { return (alpha << 24) | (accent() & 0xFFFFFF); }
 

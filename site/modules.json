@@ -2,31 +2,43 @@
  "categories": [
   {
    "id": "CLIENT",
-   "name": "Client"
+   "name": "Client",
+   "experimental": false
   },
   {
    "id": "COMBAT",
-   "name": "Combat"
+   "name": "Combat",
+   "experimental": false
   },
   {
    "id": "SMP",
-   "name": "SMP"
+   "name": "SMP",
+   "experimental": false
   },
   {
    "id": "CRYSTAL",
-   "name": "Crystal"
+   "name": "Crystal",
+   "experimental": false
   },
   {
    "id": "RENDER",
-   "name": "Render"
+   "name": "Render",
+   "experimental": false
+  },
+  {
+   "id": "VISUALS",
+   "name": "Visuals",
+   "experimental": true
   },
   {
    "id": "MACE",
-   "name": "Mace"
+   "name": "Mace",
+   "experimental": false
   },
   {
    "id": "PLAYER",
-   "name": "Player"
+   "name": "Player",
+   "experimental": false
   }
  ],
  "modules": [
@@ -2339,6 +2351,296 @@
      "default": true
     }
    ],
+   "presets": []
+  },
+  {
+   "id": "Hotbar",
+   "name": "Hotbar",
+   "category": "VISUALS",
+   "description": "Glas-Hotbar mit quadratischen Slots und Ring-Anzeigen für Leben, Hunger, Luft und XP – im Nautilus-Ringdesign.",
+   "settings": [
+    {
+     "name": "Ringe",
+     "desc": "Leben, Hunger und Luft als Ringe statt Herzen und Keulen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "XP-Leiste",
+     "desc": "Eigene XP-Leiste mit Level im Ring (ersetzt auch die Ortungsleiste)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Slot-Nummern",
+     "desc": "Kleine Nummern 1–9 in den Slots",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Sky",
+   "name": "Himmel",
+   "category": "VISUALS",
+   "description": "Lebendiger Himmel: leuchtender Nautilus-Ring, Polarlicht, Sternschnuppen, mehr Sterne und Tönung in der HUD-Farbe.",
+   "settings": [
+    {
+     "name": "Himmelsring",
+     "desc": "Das Nautilus-Markenzeichen: ein leuchtender Ring quer über den Himmel",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Polarlicht",
+     "desc": "Wehende Lichtvorhänge im Norden – nachts",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Sternschnuppen",
+     "desc": "Ab und zu eine Sternschnuppe – nachts",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Himmelsfarbe",
+     "desc": "Wie stark der Himmel in der HUD-Farbe getönt wird (0 = Vanilla)",
+     "type": "number",
+     "default": 25,
+     "min": 0,
+     "max": 100,
+     "step": 5
+    },
+    {
+     "name": "Sterne",
+     "desc": "Mehr Sterne: schon in der Dämmerung und heller (0 = Vanilla)",
+     "type": "number",
+     "default": 50,
+     "min": 0,
+     "max": 100,
+     "step": 10
+    },
+    {
+     "name": "Stärke",
+     "desc": "Deckkraft von Ring, Polarlicht und Sternschnuppen",
+     "type": "number",
+     "default": 70,
+     "min": 10,
+     "max": 100,
+     "step": 5
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "GlowParticles",
+   "name": "Lichtpartikel",
+   "category": "VISUALS",
+   "description": "Leuchtende Lichter schweben um dich herum, steigen langsam auf, schwanken und funkeln – wie Glühwürmchen.",
+   "settings": [
+    {
+     "name": "Anzahl",
+     "desc": "Wie viele Lichter gleichzeitig schweben",
+     "type": "number",
+     "default": 60,
+     "min": 10,
+     "max": 250,
+     "step": 10
+    },
+    {
+     "name": "Radius",
+     "desc": "Bereich um dich in Blöcken",
+     "type": "number",
+     "default": 10,
+     "min": 4,
+     "max": 24,
+     "step": 1
+    },
+    {
+     "name": "Größe",
+     "desc": "Größe der Lichter",
+     "type": "number",
+     "default": 1,
+     "min": 0.4,
+     "max": 3,
+     "step": 0.1
+    },
+    {
+     "name": "Farben",
+     "desc": "Farbe der Lichter",
+     "type": "mode",
+     "default": "HUD-Farbe",
+     "modes": [
+      "HUD-Farbe",
+      "Regenbogen",
+      "Glühwürmchen",
+      "Weiß"
+     ]
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "SwordFx",
+   "name": "Schwerthieb",
+   "category": "VISUALS",
+   "description": "Jeder Schlag schneidet eine leuchtende Sichel durch die Luft – abwechselnd links/rechts, Krits mit Funken.",
+   "settings": [
+    {
+     "name": "Größe",
+     "desc": "Radius des Luftschnitts in Blöcken",
+     "type": "number",
+     "default": 1.6,
+     "min": 0.8,
+     "max": 3,
+     "step": 0.1
+    },
+    {
+     "name": "Alle Items",
+     "desc": "Auch ohne Waffe (sonst nur Schwert, Axt, Speer, Streitkolben, Dreizack)",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Krit-Funken",
+     "desc": "Größerer Schnitt mit Funken bei kritischen Treffern",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "HitFx",
+   "name": "Treffereffekte",
+   "category": "VISUALS",
+   "description": "Treffer sprühen leuchtende Funken mit einem Ring (Krits in Gold), Kills lösen sich in aufsteigende Ringe und eine Lichtsäule auf.",
+   "settings": [
+    {
+     "name": "Funken",
+     "desc": "Funken pro Treffer",
+     "type": "number",
+     "default": 12,
+     "min": 4,
+     "max": 40,
+     "step": 2
+    },
+    {
+     "name": "Trefferring",
+     "desc": "Ring, der sich am Treffpunkt zu dir hin öffnet",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Kill-Effekt",
+     "desc": "Getötete Ziele lösen sich in aufsteigende Ringe und eine Lichtsäule auf",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "JumpFx",
+   "name": "Sprungeffekte",
+   "category": "VISUALS",
+   "description": "Leuchtender Ring beim Springen, Druckwelle mit Funken beim Landen – je höher der Fall, desto größer.",
+   "settings": [
+    {
+     "name": "Sprung",
+     "desc": "Ring an den Füßen beim Abspringen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Landung",
+     "desc": "Druckwelle und Funken beim Landen (stärker, je tiefer der Fall)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Andere Spieler",
+     "desc": "Auch bei anderen Spielern in der Nähe",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "ElytraFx",
+   "name": "Elytra-Spuren",
+   "category": "VISUALS",
+   "description": "Beim Elytra-Flug ziehen beide Flügelspitzen leuchtende Windbänder hinter sich her, Windstreifen rauschen vorbei.",
+   "settings": [
+    {
+     "name": "Flügelspuren",
+     "desc": "Leuchtende Bänder von beiden Flügelspitzen (in der 3. Person sichtbar)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Windlinien",
+     "desc": "Windstreifen, die an dir vorbeirauschen – je schneller, desto mehr",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Länge",
+     "desc": "Wie lange die Spuren bleiben (Sekunden)",
+     "type": "number",
+     "default": 1.2,
+     "min": 0.3,
+     "max": 3,
+     "step": 0.1
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "TrailFx",
+   "name": "Laufspur",
+   "category": "VISUALS",
+   "description": "Beim Laufen bleibt eine Spur aus leuchtenden Punkten hinter deinen Füßen, die langsam aufsteigt und verblasst.",
+   "settings": [
+    {
+     "name": "Nur Sprinten",
+     "desc": "Nur beim Sprinten (sonst bei jeder Bewegung)",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "RingAura",
+   "name": "Ringaura",
+   "category": "VISUALS",
+   "description": "Das Nautilus-Markenzeichen um deine Füße: zwei gegenläufig drehende Ringe und kreisende Lichter.",
+   "settings": [
+    {
+     "name": "Nur 3. Person",
+     "desc": "Nur zeigen, wenn die Kamera nicht in deinem Kopf ist",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Lichter",
+     "desc": "Drei Lichter kreisen um dich",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "PopFx",
+   "name": "Totem-Effekt",
+   "category": "VISUALS",
+   "description": "Wenn jemand ein Totem verbraucht: goldene und grüne Ringe schießen an ihm hoch, dazu ein Funkenregen.",
+   "settings": [],
    "presets": []
   },
   {

@@ -58,7 +58,7 @@ public class ModuleListElement extends HudElement {
     private List<Module> computeShown(boolean editor) {
         List<Module> list = new ArrayList<>();
         for (Module m : ModuleManager.get().getModules()) {
-            if (m.getCategory() == Category.CLIENT) continue;
+            if (m.getCategory() == Category.CLIENT || m.getCategory() == Category.VISUALS) continue; // settings / cosmetics
             if (editor ? true : anim.getOrDefault(m, 0f) > 0.001f) list.add(m);
         }
         if (editor) {
@@ -102,7 +102,7 @@ public class ModuleListElement extends HudElement {
 
     private void animate(float dt) {
         for (Module m : ModuleManager.get().getModules()) {
-            if (m.getCategory() == Category.CLIENT) continue;
+            if (m.getCategory() == Category.CLIENT || m.getCategory() == Category.VISUALS) continue; // settings / cosmetics
             float a = anim.getOrDefault(m, 0f);
             float target = m.isEnabled() ? 1f : 0f;
             a += (target - a) * Math.min(1f, dt * 12f);

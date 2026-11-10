@@ -27,6 +27,7 @@ public final class CombatTracker {
 
     /** Every attack of the local player (from the attack hook). */
     public static void onAttack(Entity target) {
+        dev.nautilus.module.visuals.HitFx.onHit(target);
         if (target instanceof LivingEntity living) {
             lastTarget = living;
             lastAttack = System.currentTimeMillis();
@@ -50,6 +51,7 @@ public final class CombatTracker {
     /** A totem of the player popped (entity event 35); returns the new count. */
     public static int onPop(Player p) {
         checkLevel(p.level());
+        dev.nautilus.module.visuals.PopFx.onPop(p);
         return pops.merge(p.getUUID(), 1, Integer::sum);
     }
 

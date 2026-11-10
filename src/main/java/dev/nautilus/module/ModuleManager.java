@@ -91,6 +91,17 @@ public final class ModuleManager {
         register(new Crosshair());
         register(new Zoom());
         register(new Freecam());
+        // Visuals (experimental)
+        register(new dev.nautilus.module.visuals.Hotbar());
+        register(new dev.nautilus.module.visuals.Sky());
+        register(new dev.nautilus.module.visuals.GlowParticles());
+        register(new dev.nautilus.module.visuals.SwordFx());
+        register(new dev.nautilus.module.visuals.HitFx());
+        register(new dev.nautilus.module.visuals.JumpFx());
+        register(new dev.nautilus.module.visuals.ElytraFx());
+        register(new dev.nautilus.module.visuals.TrailFx());
+        register(new dev.nautilus.module.visuals.RingAura());
+        register(new dev.nautilus.module.visuals.PopFx());
         // Client (settings of the client itself – not shown in the module list)
         register(new Hud());
         register(new HudEditor());

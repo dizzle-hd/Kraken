@@ -101,7 +101,8 @@ def parse_class(path):
 
 def main():
     cat_text = (SRC / "module/Category.java").read_text(encoding="utf-8")
-    categories = [{"id": m.group(1), "name": m.group(2)} for m in re.finditer(r"^\s*(\w+)\(" + STRING, cat_text, re.M)]
+    categories = [{"id": m.group(1), "name": m.group(2), "experimental": m.group(3) is not None}
+                  for m in re.finditer(r"^\s*(\w+)\(" + STRING + r"[^)\n]*?(,\s*true)?\)", cat_text, re.M)]
 
     classes = {p.stem: p for p in (SRC / "module").rglob("*.java")}
     mm = (SRC / "module/ModuleManager.java").read_text(encoding="utf-8")

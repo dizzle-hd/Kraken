@@ -69,8 +69,8 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
 
-            // hover + click "Combat" (segment 1 of 7 → 51° clockwise from the top)
-            clickWheel(ctx, 51, InputConstants.MOUSE_BUTTON_LEFT, false);
+            // hover + click "Combat" (segment 1 of 8 → 45° clockwise from the top)
+            clickWheel(ctx, 45, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(15);
             ctx.takeScreenshot("02-combat");
 
@@ -86,10 +86,10 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
             ctx.takeScreenshot("04-enabled");
 
-            // back to the main wheel, open SMP (index 2 of 7 → 103°) and its BaseFinder settings
+            // back to the main wheel, open SMP (index 2 of 8 → 90°) and its BaseFinder settings
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
-            clickWheel(ctx, 103, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 90, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
             clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_RIGHT, true); // BaseFinder = index 1 of 3 (XRay, BaseFinder, Waypoints)
             ctx.waitTicks(15);
@@ -247,7 +247,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.getInput().pressKey(InputConstants.KEY_RSHIFT);
             ctx.waitForScreen(RadialScreen.class);
             ctx.waitTicks(20);
-            clickWheel(ctx, 51, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 45, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(15);
             clickWheel(ctx, 0, InputConstants.MOUSE_BUTTON_RIGHT, false);
             ctx.waitTicks(15);

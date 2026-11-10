@@ -35,6 +35,15 @@ public class NautilusClient implements ClientModInitializer {
     private static final Render3D RENDER_3D = new Render3D();
     private static boolean onboardingShown;
 
+    /** Draws {@code ours} instead of a vanilla HUD element while {@code active} says so, otherwise the vanilla one. */
+    private static void replaceVanilla(Identifier id, java.util.function.BooleanSupplier active,
+                                       java.util.function.Consumer<net.minecraft.client.gui.GuiGraphicsExtractor> ours) {
+        HudElementRegistry.replaceElement(id, vanilla -> (graphics, deltaTracker) -> {
+            if (active.getAsBoolean()) ours.accept(graphics);
+            else vanilla.extractRenderState(graphics, deltaTracker);
+        });
+    }
+
     @Override
     public void onInitializeClient() {
         ModuleManager.get().init();
@@ -87,10 +96,12 @@ public class NautilusClient implements ClientModInitializer {
 
         LevelRenderEvents.COLLECT_SUBMITS.register(context -> {
             RENDER_3D.begin();
+            dev.nautilus.fx.Fx.get().begin();
             for (Module m : ModuleManager.get().getModules()) {
                 if (m.isEnabled()) m.onRender3D(context, RENDER_3D);
             }
             RENDER_3D.end(context);
+            dev.nautilus.fx.Fx.get().end(context);
         });
 
         // 2D world overlays of the modules (nametags, waypoints) – below the HUD, hidden with F1
@@ -107,6 +118,20 @@ public class NautilusClient implements ClientModInitializer {
                 });
 
         dev.nautilus.module.client.AutoReconnect.register();
+
+        // Hotbar module: glass hotbar + ring gauges instead of the vanilla hotbar, hearts, food, armor, air and XP
+        replaceVanilla(net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.HOTBAR,
+                dev.nautilus.module.visuals.Hotbar::replacesHotbar, dev.nautilus.module.visuals.Hotbar::renderHotbar);
+        for (Identifier id : new Identifier[]{net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.HEALTH_BAR,
+                net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.FOOD_BAR,
+                net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.ARMOR_BAR,
+                net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.AIR_BAR}) {
+            replaceVanilla(id, dev.nautilus.module.visuals.Hotbar::replacesStatus, g -> {});
+        }
+        for (Identifier id : new Identifier[]{net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.INFO_BAR,
+                net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.EXPERIENCE_LEVEL}) {
+            replaceVanilla(id, dev.nautilus.module.visuals.Hotbar::replacesXp, g -> {});
+        }
 
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "hud"), (graphics, deltaTracker) -> {
             Minecraft mc = Minecraft.getInstance();

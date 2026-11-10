@@ -153,7 +153,7 @@ public class RadialScreen extends Screen {
                 for (Category c : Category.values()) {
                     boolean any = false;
                     for (Module m : ModuleManager.get().getModules(c)) any |= m.isEnabled() && c != Category.CLIENT;
-                    list.add(new Entry(c.getDisplayName(), c.getIcon(), c.getDisplayName() + " öffnen", any, c, null, null, false));
+                    list.add(new Entry(c.getDisplayName(), c.getIcon(), c.getDisplayName() + " öffnen" + (c.isExperimental() ? " · experimentell" : ""), any, c, null, null, false));
                 }
             }
             case MODULES -> {

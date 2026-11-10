@@ -75,7 +75,7 @@
     const [summary, highlights] = INFO[m.id] || [m.description, []];
     body.innerHTML = `
       <div class="md-head">
-        <span class="md-cat">${esc(cat ? cat.name : m.category)}</span>
+        <span class="md-cat">${esc(cat ? cat.name : m.category)}${cat && cat.experimental ? " · experimental" : ""}</span>
         <h3 id="md-title">${esc(m.name)}</h3>
       </div>
       <p class="md-summary">${esc(summary)}</p>
@@ -123,12 +123,13 @@
 
   // the static list in index.html stays as a fallback; with the data every module becomes a button
   function buildGrid() {
-    const order = ["COMBAT", "CRYSTAL", "SPEAR", "MACE", "PLAYER", "SMP", "CLIENT"];
+    const order = ["COMBAT", "CRYSTAL", "MACE", "PLAYER", "SMP", "RENDER", "VISUALS", "CLIENT"];
     const cats = [...data.categories].sort((a, b) => (order.indexOf(a.id) + 99) % 99 - (order.indexOf(b.id) + 99) % 99);
     grid.innerHTML = cats.map((c) => {
       const mods = data.modules.filter((m) => m.category === c.id);
       if (!mods.length) return "";
-      return `<div class="mod glass reveal in"><h4>${esc(c.name)}</h4><ul>${mods
+      const badge = c.experimental ? ` <span class="badge-exp" title="Experimental – may change, cost FPS or not work everywhere yet">experimental</span>` : "";
+      return `<div class="mod glass reveal in${c.experimental ? " mod-exp" : ""}"><h4>${esc(c.name)}${badge}</h4><ul>${mods
         .map((m) => `<li><button type="button" class="mod-btn" data-id="${esc(m.id)}">${esc(m.name)}</button></li>`).join("")}</ul></div>`;
     }).join("");
     grid.querySelectorAll(".mod-btn").forEach((b) => b.addEventListener("click", () => open(b.dataset.id)));

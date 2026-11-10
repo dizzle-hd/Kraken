@@ -351,3 +351,10 @@ footer .copyright { color: var(--text); font-weight: 700; }
   .md-head h3 { font-size: 1.4rem; }
   .preset { flex-wrap: wrap; }
 }
+
+/* experimental category (Visuals) */
+.badge-exp { display: inline-block; margin-left: .4em; padding: .1em .55em; border-radius: 999px; font-size: .62em; font-weight: 700;
+  letter-spacing: .03em; vertical-align: middle; color: #f1e8ff; background: rgba(160, 110, 255, .28); border: 1px solid rgba(190, 150, 255, .55); }
+.mod-exp { border-color: rgba(181, 139, 255, .45) !important; box-shadow: 0 0 22px rgba(160, 110, 255, .18); }
+.visuals-note { border-color: rgba(181, 139, 255, .5); background: rgba(120, 80, 200, .14); }
+.chips .chip-exp { color: #e3d4ff; border-color: rgba(181, 139, 255, .55); background: rgba(160, 110, 255, .16); }
