@@ -52,7 +52,7 @@ Alles wird in `config/nautilusclient.json` gespeichert (eine alte `config/kraken
 
 ## Presets
 
-Combat- und Crystal-Module haben im Einstellungs-Panel **oben eine Preset-Leiste** (z. B. Legit / Normal / Rage) mit einer Ampel für das geschätzte Bann-Risiko: 🟢 niedrig · 🟡 mittel · 🔴 hoch. Klick lädt das Preset, das aktive ist markiert. Die Ampel ist eine grobe Einschätzung (Tempo, Regelmäßigkeit, Reichweite) – keine Garantie gegen Anti-Cheats.
+Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset-Leiste** (z. B. Legit / Normal / Rage) mit einer Ampel für das geschätzte Bann-Risiko: 🟢 niedrig · 🟡 mittel · 🔴 hoch. Klick lädt das Preset, das aktive ist markiert. Die Ampel ist eine grobe Einschätzung (Tempo, Regelmäßigkeit, Reichweite) – keine Garantie gegen Anti-Cheats.
 
 ## Module
 
@@ -73,6 +73,12 @@ Combat- und Crystal-Module haben im Einstellungs-Panel **oben eine Preset-Leiste
 
 ### Spear
 - **SpearSwitch** – Lunge im Dauerfeuer: du hältst einen leeren (oder anderen) Slot, pro Stoß wird im selben Tick kurz auf den Speer gewechselt, zugestochen und zurückgewechselt – so zählt nur der kurze Cooldown der leeren Hand. Auslöser: an/aus per Modul-Taste, Halten einer eigenen Lunge-Taste oder solange die Angriffstaste gedrückt ist. Intervall, Zufall, Park-Slot, nur Speere mit Lunge, Hunger-Schutz. Lunge wirkt nur zu Fuß (nicht reitend, nicht mit Elytra, nicht im Wasser) und ab 7 Hunger.
+
+### Mace
+- **MaceSwap** – du behältst Schwert (oder etwas anderes) in der Hand: sobald du beim Fallen zuschlägst (Smash ab 1,5 Blöcken), geht der Schlag im selben Tick mit dem Streitkolben raus, danach bist du wieder auf deinem Slot. Gilt für eigene Klicks und alle Combat-Module. Bei mehreren Streitkolben wird der beste fürs Ziel gewählt (Dichte bei hohem Fall, Bresche gegen Rüstung) oder der bevorzugte (Dichte/Bresche/Windstoß). Min. Fallhöhe, auch ohne Fall, nur Spieler, Zurückwechseln.
+- **AutoSmash** – schlägt beim Fallen auf ein Ziel automatisch zu, ein Smash pro Fall. Timing „Spät“ wartet auf den letzten Tick vor dem Aufprall bzw. bevor das Ziel aus der Reichweite fällt (Smash-Schaden wächst mit jedem Block). Zielen per Fadenkreuz oder Silent, Reichweite, Min. Fallhöhe, nur mit Streitkolben (in der Hand oder über MaceSwap).
+- **StunSlam** – blockt das Ziel mit einem Schild, kommt im selben Tick zuerst ein Axt-Schlag (Schild 5 s aus), dann dein eigentlicher Schlag – mit MaceSwap der Streitkolben-Smash. Optional nur beim Fallen und nur, wenn der Schild zu dir zeigt.
+- **WindBoost** – springt und wirft im selben Tick eine Windkugel senkrecht nach unten (nur für den Server, die Kamera bleibt) und katapultiert dich für einen Smash hoch. Auslöser „Einmal“ (Modul-Taste = ein Boost) oder „Taste“ (eigene Boost-Taste), Zweithand wird zuerst genutzt.
 
 ### Player
 - **AutoSprint** – hält beim Vorwärtslaufen automatisch die Sprint-Taste.

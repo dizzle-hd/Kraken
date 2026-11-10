@@ -44,6 +44,11 @@ public final class ModuleManager {
         register(new dev.nautilus.module.crystal.Surround());
         // Spear
         register(new dev.nautilus.module.spear.SpearSwitch());
+        // Mace
+        register(new dev.nautilus.module.mace.MaceSwap());
+        register(new dev.nautilus.module.mace.AutoSmash());
+        register(new dev.nautilus.module.mace.StunSlam());
+        register(new dev.nautilus.module.mace.WindBoost());
         // Player
         register(new dev.nautilus.module.player.AutoSprint());
         register(new dev.nautilus.module.player.AutoEat());

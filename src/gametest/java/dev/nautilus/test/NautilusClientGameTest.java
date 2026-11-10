@@ -59,8 +59,8 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
 
-            // hover + click "Combat" (segment 1 of 3 → 120° clockwise from the top)
-            clickWheel(ctx, 60, InputConstants.MOUSE_BUTTON_LEFT, false);
+            // hover + click "Combat" (segment 1 of 7 → 51° clockwise from the top)
+            clickWheel(ctx, 51, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(15);
             ctx.takeScreenshot("02-combat");
 
@@ -76,10 +76,10 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
             ctx.takeScreenshot("04-enabled");
 
-            // back to the main wheel, open SMP (index 2 of 5 → 144°) and its BaseFinder settings
+            // back to the main wheel, open SMP (index 2 of 7 → 103°) and its BaseFinder settings
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
-            clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 103, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
             clickWheel(ctx, 180, InputConstants.MOUSE_BUTTON_RIGHT, true);
             ctx.waitTicks(15);
@@ -237,6 +237,9 @@ public class NautilusClientGameTest implements FabricClientGameTest {
 
             // --- Crystal PvP ---
             crystalTests(ctx, sp);
+
+            // --- Mace: MaceSwap + AutoSmash while falling onto a zombie, WindBoost ---
+            maceTests(ctx, sp);
 
             // --- HUD: every element on ---
             ctx.runOnClient(c -> {
@@ -524,6 +527,70 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(false);
         });
         srv.runCommand("kill @e[type=!minecraft:player]");
+    }
+
+    private static void maceTests(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        var mm = ModuleManager.get();
+        var srv = sp.getServer();
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("clear @a");
+        srv.runCommand("item replace entity @a hotbar.0 with minecraft:iron_sword");
+        srv.runCommand("item replace entity @a hotbar.1 with minecraft:mace");
+        srv.runCommand("item replace entity @a hotbar.2 with minecraft:wind_charge 16");
+        srv.runCommand("execute at @a run fill ~-6 ~ ~-6 ~6 ~12 ~6 minecraft:air");
+        ctx.runOnClient(c -> { c.player.getInventory().setSelectedSlot(0); c.player.setYRot(0); c.player.setXRot(60); c.player.setDeltaMovement(0, 0, 0); });
+        ctx.waitTicks(10);
+
+        // MaceSwap + AutoSmash: sword in the hand, fall 8 blocks next to a zombie
+        java.util.UUID z = spawnZombie(sp, 0, 1, 1000f);
+        ctx.waitTicks(5);
+        ctx.runOnClient(c -> {
+            mm.get(dev.nautilus.module.mace.MaceSwap.class).setEnabled(true);
+            var as = mm.get(dev.nautilus.module.mace.AutoSmash.class);
+            set(as, "Monster", true);
+            set(as, "Zielen", "Silent");
+            set(as, "Min. Fallhöhe", 3.0);
+            as.setEnabled(true);
+        });
+        srv.runCommand("execute at @a run tp @a ~ ~8 ~");
+        ctx.runOnClient(c -> c.player.setDeltaMovement(0, 0, 0));
+        StringBuilder mlog = new StringBuilder();
+        float lastHp = 1000f;
+        for (int i = 0; i < 40; i++) {
+            ctx.waitTick();
+            String st = ctx.computeOnClient(c -> String.format(java.util.Locale.ROOT, "%.1f/s%d", c.player.fallDistance, c.player.getInventory().getSelectedSlot()));
+            float hp = srv.computeOnServer(server -> {
+                var e = server.getPlayerList().getPlayers().get(0).level().getEntity(z);
+                return e instanceof net.minecraft.world.entity.LivingEntity l ? l.getHealth() : -1f;
+            });
+            if (hp < lastHp - 0.01f) mlog.append("HIT@").append(i).append('(').append(st).append(String.format(java.util.Locale.ROOT, " -%.1f) ", lastHp - hp));
+            else if (i % 5 == 0) mlog.append('t').append(i).append(':').append(st).append(' ');
+            lastHp = hp;
+        }
+        int slotAfter = ctx.computeOnClient(c -> c.player.getInventory().getSelectedSlot());
+        ctx.takeScreenshot("17-mace-smash");
+        System.out.println("[NautilusTest] Mace smash (sword held, MaceSwap + AutoSmash): " + mlog + "| zombie " + zombieState(sp, z) + ", slot after " + slotAfter);
+        ctx.runOnClient(c -> {
+            mm.get(dev.nautilus.module.mace.AutoSmash.class).setEnabled(false);
+            mm.get(dev.nautilus.module.mace.MaceSwap.class).setEnabled(false);
+        });
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        ctx.waitTicks(10);
+
+        // WindBoost: one press of the module key -> jump + wind charge down
+        double y0 = ctx.computeOnClient(c -> c.player.getY());
+        int charges = count(ctx, net.minecraft.world.item.Items.WIND_CHARGE);
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.mace.WindBoost.class).setEnabled(true));
+        double maxY = y0;
+        for (int i = 0; i < 30; i++) {
+            ctx.waitTick();
+            maxY = Math.max(maxY, ctx.computeOnClient(c -> c.player.getY()));
+        }
+        float pitch = ctx.computeOnClient(c -> c.player.getXRot());
+        System.out.println("[NautilusTest] WindBoost: rose " + String.format(java.util.Locale.ROOT, "%.2f", maxY - y0) + " blocks, wind charges "
+                + charges + " -> " + count(ctx, net.minecraft.world.item.Items.WIND_CHARGE) + ", camera pitch " + pitch + " (60 = untouched), module on: "
+                + ctx.computeOnClient(c -> mm.get(dev.nautilus.module.mace.WindBoost.class).isEnabled()));
+        ctx.waitTicks(40);
     }
 
     /** Spawns a zombie without AI next to the player on the server and returns its UUID. */

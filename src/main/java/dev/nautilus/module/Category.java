@@ -11,6 +11,7 @@ public enum Category {
     SMP("SMP", Items.SPYGLASS),
     CRYSTAL("Crystal", Items.END_CRYSTAL),
     SPEAR("Spear", Items.IRON_SPEAR),
+    MACE("Mace", Items.MACE),
     PLAYER("Player", Items.PLAYER_HEAD);
 
     private final String displayName;

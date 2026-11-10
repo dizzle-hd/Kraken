@@ -17,6 +17,7 @@
     "LightmapRenderStateExtractorMixin",
     "LocalPlayerMixin",
     "MinecraftMixin",
+    "MultiPlayerGameModeMixin",
     "MouseHandlerMixin"
   ],
   "injectors": {
