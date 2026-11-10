@@ -43,6 +43,7 @@ public class AnchorMacro extends Module {
     private final BoolSetting useSafe = add(new BoolSetting("SafeAnchor nutzen", "Vor dem Sprengen einen Schutzblock setzen (wenn SafeAnchor an ist)", true));
     private final NumberSetting maxSelf = add(new NumberSetting("Max. Eigenschaden", "Nicht sprengen, wenn du mehr Schaden bekommen würdest (Herzen ×2)", 10, 0, 36, 1));
     private final BoolSetting antiSuicide = add(new BoolSetting("Anti-Selbstmord", "Nie sprengen, wenn dich die Explosion töten würde", true));
+    private final BoolSetting confirm = add(new BoolSetting("Auf Bestätigung warten", "An = erst laden/sprengen, wenn der Server Anker und Ladung bestätigt hat (sicherer). Aus = ohne Warten – schneller, aber höheres Flag-Risiko", true));
     private final BoolSetting switchBack = add(new BoolSetting("Zurückwechseln", "Am Ende wieder den vorherigen Slot halten", true));
 
     private enum Step { IDLE, CHARGE, SHIELD, EXPLODE }
@@ -57,11 +58,11 @@ public class AnchorMacro extends Module {
         super("AnchorMacro", "Anker halten + auf einen Block schauen = setzt, lädt und sprengt Anker in Schleife. Kombinierbar mit SafeAnchor.",
                 Category.CRYSTAL, Items.RESPAWN_ANCHOR);
         preset("Legit", LOW, "Menschliches Tempo mit zufälligen Pausen",
-                "Verzögerung", 3, "Zufall", 2);
+                "Verzögerung", 3, "Zufall", 2, "Auf Bestätigung warten", true);
         preset("Normal", MEDIUM, "Schnell mit etwas Zufall",
-                "Verzögerung", 1, "Zufall", 1);
+                "Verzögerung", 1, "Zufall", 1, "Auf Bestätigung warten", true);
         preset("Rage", HIGH, "So schnell wie möglich",
-                "Verzögerung", 0, "Zufall", 0);
+                "Verzögerung", 0, "Zufall", 0, "Auf Bestätigung warten", false);
     }
 
     boolean busy() {
@@ -123,9 +124,11 @@ public class AnchorMacro extends Module {
             clicks = 0;
             timeout = 40;
             step = Step.CHARGE;
-            // wait a tick for the server to confirm the anchor before charging it
-            wait = Math.max(1, delay.getInt());
-            return;
+            if (confirm.isOn()) {
+                // wait a tick for the server to confirm the anchor before charging it
+                wait = Math.max(1, delay.getInt());
+                return;
+            }
         }
 
         if (step == Step.IDLE) {
@@ -157,7 +160,7 @@ public class AnchorMacro extends Module {
                 if (charge >= want || clicks >= want) {
                     step = Step.SHIELD;
                     // wait for the server to confirm the charge before going on
-                    if (charge == 0) { wait = 1; return; }
+                    if (charge == 0 && confirm.isOn()) { wait = 1; return; }
                 } else {
                     int slot = InvUtil.hotbar(Items.GLOWSTONE);
                     if (slot < 0) { finish(); return; }
@@ -170,7 +173,7 @@ public class AnchorMacro extends Module {
             }
             case SHIELD -> {
                 if (!explode.isOn()) { finish(); return; }
-                if (charge == 0) return; // charge not confirmed yet
+                if (charge == 0 && confirm.isOn()) return; // charge not confirmed yet
                 SafeAnchor safe = ModuleManager.get().get(SafeAnchor.class);
                 if (useSafe.isOn() && safe != null && safe.isEnabled() && safe.missingShield(anchor) != null) {
                     if (safe.protect(anchor)) { pause(); return; }

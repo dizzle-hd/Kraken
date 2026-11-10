@@ -50,7 +50,7 @@ public class AutoCrystal extends Module {
     private final NumberSetting breakDelay = add(new NumberSetting("Zerstör-Verzögerung", "Ticks zwischen zwei Schlägen", 0, 0, 10, 1));
     private final NumberSetting perTick = add(new NumberSetting("Pro Tick", "Wie viele Kristalle pro Tick platziert/zerstört werden", 1, 1, 3, 1));
     private final BoolSetting instant = add(new BoolSetting("Sofort zerstören", "Kristall-Spam: Kristall im selben Moment zerstören, in dem er erscheint", true));
-    private final BoolSetting refill = add(new BoolSetting("Ohne Bestätigung", "Nicht warten, bis der Server den alten Kristall entfernt hat, sondern sofort nachsetzen – schneller, aber höheres Flag-Risiko", false));
+    private final BoolSetting confirm = add(new BoolSetting("Auf Bestätigung warten", "An = den nächsten Kristall erst setzen, wenn der Server den alten entfernt hat (sicherer). Aus = sofort nachsetzen – schneller, aber höheres Flag-Risiko", true));
     private final BoolSetting ownOnly = add(new BoolSetting("Nur eigene", "Nur Kristalle zerstören, die du selbst platziert hast", false));
     // --- damage
     private final NumberSetting minDamage = add(new NumberSetting("Min. Schaden", "Mindestschaden am Ziel (Herzen ×2)", 6, 0, 36, 0.5).visibleWhen(this::targetMode));
@@ -87,11 +87,11 @@ public class AutoCrystal extends Module {
         super("AutoCrystal", "Kristall halten + auf Obsidian schauen = sofort durchcrystallen. Modus Ziel: sucht Gegner und den besten Platz selbst.",
                 Category.CRYSTAL, Items.END_CRYSTAL);
         preset("Legit", LOW, "Fadenkreuz, kleine Pausen, kein Sofort-Zerstören",
-                "Modus", "Fadenkreuz", "Platzier-Verzögerung", 2, "Zerstör-Verzögerung", 2, "Pro Tick", 1, "Sofort zerstören", false);
+                "Modus", "Fadenkreuz", "Platzier-Verzögerung", 2, "Zerstör-Verzögerung", 2, "Pro Tick", 1, "Sofort zerstören", false, "Auf Bestätigung warten", true);
         preset("Normal", MEDIUM, "Fadenkreuz, Kristall-Spam mit kurzer Pause",
-                "Modus", "Fadenkreuz", "Platzier-Verzögerung", 1, "Zerstör-Verzögerung", 0, "Pro Tick", 1, "Sofort zerstören", true);
+                "Modus", "Fadenkreuz", "Platzier-Verzögerung", 1, "Zerstör-Verzögerung", 0, "Pro Tick", 1, "Sofort zerstören", true, "Auf Bestätigung warten", true);
         preset("Rage", HIGH, "Sucht selbst Ziele, keine Pausen, mehrere pro Tick, durch Wände",
-                "Modus", "Ziel", "Platzier-Verzögerung", 0, "Zerstör-Verzögerung", 0, "Pro Tick", 2, "Sofort zerstören", true, "Durch Wände", true);
+                "Modus", "Ziel", "Platzier-Verzögerung", 0, "Zerstör-Verzögerung", 0, "Pro Tick", 2, "Sofort zerstören", true, "Durch Wände", true, "Auf Bestätigung warten", false);
     }
 
     @Override
@@ -305,8 +305,8 @@ public class AutoCrystal extends Module {
         AttackUtil.attack(c);
         breakWait = breakDelay.getInt();
         // default: wait for the server to remove the crystal (onCrystalRemoved places the next one)
-        if (!refill.isOn() || !place.isOn() || hand == null) return;
-        // "Ohne Bestätigung": forget it on the client right away and place the next one immediately
+        if (confirm.isOn() || !place.isOn() || hand == null) return;
+        // not waiting for the server: forget it on the client right away and place the next one immediately
         mc.level.removeEntity(c.getId(), Entity.RemovalReason.KILLED);
         placeOn(base, hand);
     }
