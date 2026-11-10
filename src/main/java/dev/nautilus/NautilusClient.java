@@ -103,7 +103,7 @@ public class NautilusClient implements ClientModInitializer {
         // custom crosshair (Client → Fadenkreuz) instead of the vanilla one
         HudElementRegistry.replaceElement(net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.CROSSHAIR,
                 vanilla -> (graphics, deltaTracker) -> {
-                    if (!dev.nautilus.module.client.Crosshair.render(graphics)) vanilla.extractRenderState(graphics, deltaTracker);
+                    if (!dev.nautilus.module.render.Crosshair.render(graphics)) vanilla.extractRenderState(graphics, deltaTracker);
                 });
 
         dev.nautilus.module.client.AutoReconnect.register();

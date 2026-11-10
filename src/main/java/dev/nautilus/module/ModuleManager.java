@@ -2,23 +2,21 @@ package dev.nautilus.module;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.nautilus.module.client.AutoReconnect;
-import dev.nautilus.module.client.Crosshair;
-import dev.nautilus.module.client.Freecam;
 import dev.nautilus.module.client.FriendsModule;
 import dev.nautilus.module.client.Hud;
 import dev.nautilus.module.client.HudEditor;
 import dev.nautilus.module.client.Notifications;
 import dev.nautilus.module.client.Setup;
-import dev.nautilus.module.client.Zoom;
 import dev.nautilus.module.combat.Aimbot;
+import dev.nautilus.module.combat.AutoTotem;
+import dev.nautilus.module.combat.PopCounter;
 import dev.nautilus.module.combat.SilentAim;
+import dev.nautilus.module.combat.SpearSwitch;
 import dev.nautilus.module.combat.TriggerBot;
 import dev.nautilus.module.crystal.AnchorMacro;
 import dev.nautilus.module.crystal.AutoCrystal;
-import dev.nautilus.module.crystal.AutoTotem;
 import dev.nautilus.module.crystal.HoleESP;
 import dev.nautilus.module.crystal.HoleSnap;
-import dev.nautilus.module.crystal.PopCounter;
 import dev.nautilus.module.crystal.SafeAnchor;
 import dev.nautilus.module.crystal.Surround;
 import dev.nautilus.module.mace.AutoSmash;
@@ -30,13 +28,15 @@ import dev.nautilus.module.player.AutoArmor;
 import dev.nautilus.module.player.AutoEat;
 import dev.nautilus.module.player.AutoSprint;
 import dev.nautilus.module.player.AutoTool;
-import dev.nautilus.module.player.Fullbright;
+import dev.nautilus.module.render.Crosshair;
+import dev.nautilus.module.render.Freecam;
+import dev.nautilus.module.render.Fullbright;
+import dev.nautilus.module.render.Nametags;
+import dev.nautilus.module.render.PlayerESP;
+import dev.nautilus.module.render.Zoom;
 import dev.nautilus.module.smp.BaseFinder;
-import dev.nautilus.module.smp.Nametags;
-import dev.nautilus.module.smp.PlayerESP;
 import dev.nautilus.module.smp.Waypoints;
 import dev.nautilus.module.smp.XRay;
-import dev.nautilus.module.spear.SpearSwitch;
 import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
@@ -55,21 +55,20 @@ public final class ModuleManager {
 
     /** Registers every module; inside a category the order here is the order in the wheel. */
     public void init() {
-        // Combat
+        // Combat (general PvP)
         register(new TriggerBot());
         register(new SilentAim());
         register(new Aimbot());
+        register(new SpearSwitch());
+        register(new AutoTotem());
+        register(new PopCounter());
         // Crystal PvP
         register(new AutoCrystal());
         register(new AnchorMacro());
         register(new SafeAnchor());
-        register(new AutoTotem());
         register(new Surround());
-        register(new PopCounter());
         register(new HoleESP());
         register(new HoleSnap());
-        // Spear
-        register(new SpearSwitch());
         // Mace
         register(new MaceSwap());
         register(new AutoSmash());
@@ -81,22 +80,23 @@ public final class ModuleManager {
         register(new AutoTool());
         register(new AutoArmor());
         register(new ArmorAlert());
-        register(new Fullbright());
         // SMP
         register(new XRay());
         register(new BaseFinder());
+        register(new Waypoints());
+        // Render
         register(new PlayerESP());
         register(new Nametags());
-        register(new Waypoints());
-        // Client
-        register(new Hud());
-        register(new Notifications());
-        register(new HudEditor());
-        register(new Setup());
+        register(new Fullbright());
+        register(new Crosshair());
         register(new Zoom());
         register(new Freecam());
+        // Client (settings of the client itself – not shown in the module list)
+        register(new Hud());
+        register(new HudEditor());
+        register(new Notifications());
+        register(new Setup());
         register(new FriendsModule());
-        register(new Crosshair());
         register(new AutoReconnect());
     }
 

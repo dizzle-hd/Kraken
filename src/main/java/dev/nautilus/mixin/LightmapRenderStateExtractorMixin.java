@@ -13,6 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LightmapRenderStateExtractorMixin {
     @Inject(method = "extract", at = @At("TAIL"))
     private void nautilus$fullbright(LightmapRenderState renderState, float partialTicks, CallbackInfo ci) {
-        if (XRay.fullbright() || dev.nautilus.module.player.Fullbright.active()) renderState.nightVisionEffectIntensity = 1.0f;
+        if (XRay.fullbright() || dev.nautilus.module.render.Fullbright.active()) renderState.nightVisionEffectIntensity = 1.0f;
     }
 }

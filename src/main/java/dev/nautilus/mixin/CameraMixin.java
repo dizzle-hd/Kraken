@@ -1,7 +1,7 @@
 package dev.nautilus.mixin;
 
-import dev.nautilus.module.client.Freecam;
-import dev.nautilus.module.client.Zoom;
+import dev.nautilus.module.render.Freecam;
+import dev.nautilus.module.render.Zoom;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.world.phys.Vec3;

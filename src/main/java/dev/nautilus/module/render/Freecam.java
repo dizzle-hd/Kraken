@@ -1,4 +1,4 @@
-package dev.nautilus.module.client;
+package dev.nautilus.module.render;
 
 import dev.nautilus.module.Category;
 import dev.nautilus.module.Module;
@@ -27,7 +27,7 @@ public class Freecam extends Module {
     private Level world;
 
     public Freecam() {
-        super("Freecam", "Kamera löst sich vom Spieler und fliegt frei – auch durch Blöcke. Dein Spieler bleibt stehen.", Category.CLIENT, Items.ENDER_EYE);
+        super("Freecam", "Kamera löst sich vom Spieler und fliegt frei – auch durch Blöcke. Dein Spieler bleibt stehen.", Category.RENDER, Items.ENDER_EYE);
         instance = this;
     }
 

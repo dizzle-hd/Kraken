@@ -52,7 +52,7 @@ public abstract class ClientPacketListenerMixin {
         if (id != 35 && id != 3) return;
         var mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.level == null || !(packet.getEntity(mc.level) instanceof net.minecraft.world.entity.player.Player p)) return;
-        var counter = ModuleManager.get().get(dev.nautilus.module.crystal.PopCounter.class);
+        var counter = ModuleManager.get().get(dev.nautilus.module.combat.PopCounter.class);
         boolean on = counter != null && counter.isEnabled();
         if (id == 35) {
             int n = dev.nautilus.util.CombatTracker.onPop(p);

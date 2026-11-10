@@ -17,8 +17,8 @@
    "name": "Crystal"
   },
   {
-   "id": "SPEAR",
-   "name": "Spear"
+   "id": "RENDER",
+   "name": "Render"
   },
   {
    "id": "MACE",
@@ -465,6 +465,253 @@
    ]
   },
   {
+   "id": "SpearSwitch",
+   "name": "SpearSwitch",
+   "category": "COMBAT",
+   "description": "Lunge im Dauerfeuer: wechselt pro Stoß kurz auf den Speer und zurück. Per Modul-Taste an/aus.",
+   "settings": [
+    {
+     "name": "Auslöser",
+     "desc": "An = lunget, solange das Modul an ist (per Modul-Taste toggeln), Halten = nur solange die Lunge-Taste gedrückt ist, Angriff = solange die Angriffstaste gedrückt ist",
+     "type": "mode",
+     "default": "An",
+     "modes": [
+      "An",
+      "Halten",
+      "Angriff"
+     ]
+    },
+    {
+     "name": "Lunge-Taste",
+     "desc": "Taste für den Auslöser 'Halten'",
+     "type": "key",
+     "conditional": true
+    },
+    {
+     "name": "Intervall",
+     "desc": "Ticks zwischen zwei Lunges (leere Hand: 5 = voll aufgeladen)",
+     "type": "number",
+     "default": 5,
+     "min": 1,
+     "max": 20,
+     "step": 1
+    },
+    {
+     "name": "Zufall",
+     "desc": "Zufällige Extra-Ticks pro Lunge",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 4,
+     "step": 1
+    },
+    {
+     "name": "Parken auf",
+     "desc": "Welcher Slot zwischen den Lunges gehalten wird",
+     "type": "mode",
+     "default": "Leerer Slot",
+     "modes": [
+      "Leerer Slot",
+      "Vorheriger Slot"
+     ]
+    },
+    {
+     "name": "Nur mit Lunge",
+     "desc": "Nur Speere mit der Lunge-Verzauberung benutzen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Hunger-Schutz",
+     "desc": "Pausieren unter 7 Hunger (dort wirkt Lunge nicht)",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Volle Aufladung der leeren Hand + Zufall",
+     "values": {
+      "Intervall": 6,
+      "Zufall": 2
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Alle 5 Ticks, wenig Zufall",
+     "values": {
+      "Intervall": 5,
+      "Zufall": 1
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "So schnell wie möglich",
+     "values": {
+      "Intervall": 3,
+      "Zufall": 0
+     }
+    }
+   ]
+  },
+  {
+   "id": "AutoTotem",
+   "name": "AutoTotem",
+   "category": "COMBAT",
+   "description": "Legt automatisch ein Totem in die Zweithand – öffnet dazu das Inventar und drückt die Zweithand-Taste (F).",
+   "settings": [
+    {
+     "name": "Modus",
+     "desc": "Immer = Totem bleibt immer in der Zweithand, Leben = nur unter der Leben-Grenze",
+     "type": "mode",
+     "default": "Immer",
+     "modes": [
+      "Immer",
+      "Leben"
+     ]
+    },
+    {
+     "name": "Leben-Grenze",
+     "desc": "Unter diesem Leben (inkl. Absorption) kommt das Totem in die Zweithand",
+     "type": "number",
+     "default": 12,
+     "min": 1,
+     "max": 36,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Sonst",
+     "desc": "Was über der Grenze in die Zweithand kommt",
+     "type": "mode",
+     "default": "Kristall",
+     "modes": [
+      "Kristall",
+      "Goldapfel",
+      "Nichts"
+     ],
+     "conditional": true
+    },
+    {
+     "name": "Inventar öffnen",
+     "desc": "Inventar öffnen und das Totem mit der Zweithand-Taste (F) tauschen – wie per Hand. Aus = ohne sichtbares Inventar",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Öffnen-Verzögerung",
+     "desc": "Ticks zwischen Inventar öffnen und Taste drücken",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 10,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Schließen-Verzögerung",
+     "desc": "Ticks zwischen Taste drücken und Inventar schließen",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 10,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Zufall",
+     "desc": "Zufällige Extra-Ticks pro Schritt",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 5,
+     "step": 1
+    },
+    {
+     "name": "Verzögerung",
+     "desc": "Ticks Pause nach einem Wechsel",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 20,
+     "step": 1
+    },
+    {
+     "name": "Im Inventar",
+     "desc": "Auch wechseln, während du dein Inventar selbst offen hast",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Inventar öffnen, F drücken, mit menschlichen Pausen",
+     "values": {
+      "Inventar öffnen": true,
+      "Öffnen-Verzögerung": 2,
+      "Schließen-Verzögerung": 2,
+      "Zufall": 2,
+      "Verzögerung": 2
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Inventar öffnen, schnell",
+     "values": {
+      "Inventar öffnen": true,
+      "Öffnen-Verzögerung": 1,
+      "Schließen-Verzögerung": 1,
+      "Zufall": 1,
+      "Verzögerung": 0
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Unsichtbar ohne Inventar, sofort",
+     "values": {
+      "Inventar öffnen": false,
+      "Zufall": 0,
+      "Verzögerung": 0
+     }
+    }
+   ]
+  },
+  {
+   "id": "PopCounter",
+   "name": "PopCounter",
+   "category": "COMBAT",
+   "description": "Zählt Totem-Pops anderer Spieler und meldet, nach wie vielen Pops jemand stirbt.",
+   "settings": [
+    {
+     "name": "Eigene Pops",
+     "desc": "Auch deine eigenen Totem-Pops melden",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tode melden",
+     "desc": "Melden, wenn ein Spieler nach Pops stirbt",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Nur in der Nähe",
+     "desc": "Nur Spieler innerhalb von 32 Blöcken melden",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "AutoCrystal",
    "name": "AutoCrystal",
    "category": "CRYSTAL",
@@ -903,132 +1150,6 @@
    "presets": []
   },
   {
-   "id": "AutoTotem",
-   "name": "AutoTotem",
-   "category": "CRYSTAL",
-   "description": "Legt automatisch ein Totem in die Zweithand – öffnet dazu das Inventar und drückt die Zweithand-Taste (F).",
-   "settings": [
-    {
-     "name": "Modus",
-     "desc": "Immer = Totem bleibt immer in der Zweithand, Leben = nur unter der Leben-Grenze",
-     "type": "mode",
-     "default": "Immer",
-     "modes": [
-      "Immer",
-      "Leben"
-     ]
-    },
-    {
-     "name": "Leben-Grenze",
-     "desc": "Unter diesem Leben (inkl. Absorption) kommt das Totem in die Zweithand",
-     "type": "number",
-     "default": 12,
-     "min": 1,
-     "max": 36,
-     "step": 1,
-     "conditional": true
-    },
-    {
-     "name": "Sonst",
-     "desc": "Was über der Grenze in die Zweithand kommt",
-     "type": "mode",
-     "default": "Kristall",
-     "modes": [
-      "Kristall",
-      "Goldapfel",
-      "Nichts"
-     ],
-     "conditional": true
-    },
-    {
-     "name": "Inventar öffnen",
-     "desc": "Inventar öffnen und das Totem mit der Zweithand-Taste (F) tauschen – wie per Hand. Aus = ohne sichtbares Inventar",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Öffnen-Verzögerung",
-     "desc": "Ticks zwischen Inventar öffnen und Taste drücken",
-     "type": "number",
-     "default": 1,
-     "min": 0,
-     "max": 10,
-     "step": 1,
-     "conditional": true
-    },
-    {
-     "name": "Schließen-Verzögerung",
-     "desc": "Ticks zwischen Taste drücken und Inventar schließen",
-     "type": "number",
-     "default": 1,
-     "min": 0,
-     "max": 10,
-     "step": 1,
-     "conditional": true
-    },
-    {
-     "name": "Zufall",
-     "desc": "Zufällige Extra-Ticks pro Schritt",
-     "type": "number",
-     "default": 0,
-     "min": 0,
-     "max": 5,
-     "step": 1
-    },
-    {
-     "name": "Verzögerung",
-     "desc": "Ticks Pause nach einem Wechsel",
-     "type": "number",
-     "default": 0,
-     "min": 0,
-     "max": 20,
-     "step": 1
-    },
-    {
-     "name": "Im Inventar",
-     "desc": "Auch wechseln, während du dein Inventar selbst offen hast",
-     "type": "bool",
-     "default": true
-    }
-   ],
-   "presets": [
-    {
-     "name": "Legit",
-     "risk": 0,
-     "note": "Inventar öffnen, F drücken, mit menschlichen Pausen",
-     "values": {
-      "Inventar öffnen": true,
-      "Öffnen-Verzögerung": 2,
-      "Schließen-Verzögerung": 2,
-      "Zufall": 2,
-      "Verzögerung": 2
-     }
-    },
-    {
-     "name": "Normal",
-     "risk": 1,
-     "note": "Inventar öffnen, schnell",
-     "values": {
-      "Inventar öffnen": true,
-      "Öffnen-Verzögerung": 1,
-      "Schließen-Verzögerung": 1,
-      "Zufall": 1,
-      "Verzögerung": 0
-     }
-    },
-    {
-     "name": "Rage",
-     "risk": 2,
-     "note": "Unsichtbar ohne Inventar, sofort",
-     "values": {
-      "Inventar öffnen": false,
-      "Zufall": 0,
-      "Verzögerung": 0
-     }
-    }
-   ]
-  },
-  {
    "id": "Surround",
    "name": "Surround",
    "category": "CRYSTAL",
@@ -1179,33 +1300,6 @@
    ]
   },
   {
-   "id": "PopCounter",
-   "name": "PopCounter",
-   "category": "CRYSTAL",
-   "description": "Zählt Totem-Pops anderer Spieler und meldet, nach wie vielen Pops jemand stirbt.",
-   "settings": [
-    {
-     "name": "Eigene Pops",
-     "desc": "Auch deine eigenen Totem-Pops melden",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Tode melden",
-     "desc": "Melden, wenn ein Spieler nach Pops stirbt",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Nur in der Nähe",
-     "desc": "Nur Spieler innerhalb von 32 Blöcken melden",
-     "type": "bool",
-     "default": false
-    }
-   ],
-   "presets": []
-  },
-  {
    "id": "HoleESP",
    "name": "HoleESP",
    "category": "CRYSTAL",
@@ -1285,100 +1379,6 @@
     }
    ],
    "presets": []
-  },
-  {
-   "id": "SpearSwitch",
-   "name": "SpearSwitch",
-   "category": "SPEAR",
-   "description": "Lunge im Dauerfeuer: wechselt pro Stoß kurz auf den Speer und zurück. Per Modul-Taste an/aus.",
-   "settings": [
-    {
-     "name": "Auslöser",
-     "desc": "An = lunget, solange das Modul an ist (per Modul-Taste toggeln), Halten = nur solange die Lunge-Taste gedrückt ist, Angriff = solange die Angriffstaste gedrückt ist",
-     "type": "mode",
-     "default": "An",
-     "modes": [
-      "An",
-      "Halten",
-      "Angriff"
-     ]
-    },
-    {
-     "name": "Lunge-Taste",
-     "desc": "Taste für den Auslöser 'Halten'",
-     "type": "key",
-     "conditional": true
-    },
-    {
-     "name": "Intervall",
-     "desc": "Ticks zwischen zwei Lunges (leere Hand: 5 = voll aufgeladen)",
-     "type": "number",
-     "default": 5,
-     "min": 1,
-     "max": 20,
-     "step": 1
-    },
-    {
-     "name": "Zufall",
-     "desc": "Zufällige Extra-Ticks pro Lunge",
-     "type": "number",
-     "default": 0,
-     "min": 0,
-     "max": 4,
-     "step": 1
-    },
-    {
-     "name": "Parken auf",
-     "desc": "Welcher Slot zwischen den Lunges gehalten wird",
-     "type": "mode",
-     "default": "Leerer Slot",
-     "modes": [
-      "Leerer Slot",
-      "Vorheriger Slot"
-     ]
-    },
-    {
-     "name": "Nur mit Lunge",
-     "desc": "Nur Speere mit der Lunge-Verzauberung benutzen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Hunger-Schutz",
-     "desc": "Pausieren unter 7 Hunger (dort wirkt Lunge nicht)",
-     "type": "bool",
-     "default": true
-    }
-   ],
-   "presets": [
-    {
-     "name": "Legit",
-     "risk": 0,
-     "note": "Volle Aufladung der leeren Hand + Zufall",
-     "values": {
-      "Intervall": 6,
-      "Zufall": 2
-     }
-    },
-    {
-     "name": "Normal",
-     "risk": 1,
-     "note": "Alle 5 Ticks, wenig Zufall",
-     "values": {
-      "Intervall": 5,
-      "Zufall": 1
-     }
-    },
-    {
-     "name": "Rage",
-     "risk": 2,
-     "note": "So schnell wie möglich",
-     "values": {
-      "Intervall": 3,
-      "Zufall": 0
-     }
-    }
-   ]
   },
   {
    "id": "MaceSwap",
@@ -1779,14 +1779,6 @@
    "presets": []
   },
   {
-   "id": "Fullbright",
-   "name": "Fullbright",
-   "category": "PLAYER",
-   "description": "Macht alles hell wie mit Nachtsicht – nur bei dir, der Server merkt nichts.",
-   "settings": [],
-   "presets": []
-  },
-  {
    "id": "XRay",
    "name": "XRay",
    "category": "SMP",
@@ -2021,9 +2013,55 @@
    "presets": []
   },
   {
+   "id": "Waypoints",
+   "name": "Waypoints",
+   "category": "SMP",
+   "description": "Wegpunkte pro Server und Dimension mit Entfernung, durch Wände sichtbar. Tasten zum Setzen/Löschen, automatischer Todespunkt.",
+   "settings": [
+    {
+     "name": "Setzen-Taste",
+     "desc": "Setzt einen Wegpunkt an deiner Position",
+     "type": "key"
+    },
+    {
+     "name": "Löschen-Taste",
+     "desc": "Löscht den nächsten Wegpunkt (in dieser Dimension)",
+     "type": "key"
+    },
+    {
+     "name": "Todespunkte",
+     "desc": "Setzt automatisch einen Wegpunkt, wo du stirbst (die letzten 3)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Strahl",
+     "desc": "Senkrechter Strahl und Box am Wegpunkt",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Max. Distanz",
+     "desc": "Weiter entfernte Wegpunkte werden ausgeblendet (0 = alle)",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 10000,
+     "step": 250
+    },
+    {
+     "name": "Alle löschen",
+     "desc": "Einschalten löscht alle Wegpunkte dieses Servers (springt danach wieder auf aus)",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "PlayerESP",
    "name": "PlayerESP",
-   "category": "SMP",
+   "category": "RENDER",
    "description": "Zeigt andere Spieler als Box durch Wände – Farbe nach HUD-Farbe, Leben oder Distanz.",
    "settings": [
     {
@@ -2064,7 +2102,7 @@
   {
    "id": "Nametags",
    "name": "Nametags",
-   "category": "SMP",
+   "category": "RENDER",
    "description": "Zeigt über Spielern ein Glas-Schild mit Name, Leben, Distanz, Pops und Rüstung – auch durch Wände.",
    "settings": [
     {
@@ -2125,223 +2163,17 @@
    "presets": []
   },
   {
-   "id": "Waypoints",
-   "name": "Waypoints",
-   "category": "SMP",
-   "description": "Wegpunkte pro Server und Dimension mit Entfernung, durch Wände sichtbar. Tasten zum Setzen/Löschen, automatischer Todespunkt.",
-   "settings": [
-    {
-     "name": "Setzen-Taste",
-     "desc": "Setzt einen Wegpunkt an deiner Position",
-     "type": "key"
-    },
-    {
-     "name": "Löschen-Taste",
-     "desc": "Löscht den nächsten Wegpunkt (in dieser Dimension)",
-     "type": "key"
-    },
-    {
-     "name": "Todespunkte",
-     "desc": "Setzt automatisch einen Wegpunkt, wo du stirbst (die letzten 3)",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Strahl",
-     "desc": "Senkrechter Strahl und Box am Wegpunkt",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Max. Distanz",
-     "desc": "Weiter entfernte Wegpunkte werden ausgeblendet (0 = alle)",
-     "type": "number",
-     "default": 0,
-     "min": 0,
-     "max": 10000,
-     "step": 250
-    },
-    {
-     "name": "Alle löschen",
-     "desc": "Einschalten löscht alle Wegpunkte dieses Servers (springt danach wieder auf aus)",
-     "type": "bool",
-     "default": false
-    }
-   ],
-   "presets": []
-  },
-  {
-   "id": "Hud",
-   "name": "HUD",
-   "category": "CLIENT",
-   "description": "Zeigt die HUD-Elemente (Logo, Module, Koordinaten, FPS, …). Anordnen im HUD-Editor.",
-   "settings": [
-    {
-     "name": "Liquid Glass",
-     "desc": "Echtes Flüssigglas (Unschärfe + Lichtbrechung) für Rad und HUD. Aus = leichteres, einfaches Glas, bessere FPS",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Rad-Größe",
-     "desc": "Größe des Rads in Prozent",
-     "type": "number",
-     "default": 100,
-     "min": 60,
-     "max": 140,
-     "step": 5
-    },
-    {
-     "name": "HUD-Farbe",
-     "desc": "Akzentfarbe des ganzen Clients: Rad, Einstellungen, HUD, Logo und Glas-Tönung (Regenbogen = wechselt langsam durch alle Farben)",
-     "type": "mode",
-     "default": null,
-     "modes": [
-      null
-     ]
-    }
-   ],
-   "presets": []
-  },
-  {
-   "id": "Notifications",
-   "name": "Notifications",
-   "category": "CLIENT",
-   "description": "Zeigt im HUD an, wenn ein Modul an- oder ausgeschaltet wird.",
+   "id": "Fullbright",
+   "name": "Fullbright",
+   "category": "RENDER",
+   "description": "Macht alles hell wie mit Nachtsicht – nur bei dir, der Server merkt nichts.",
    "settings": [],
-   "presets": []
-  },
-  {
-   "id": "HudEditor",
-   "name": "HUD-Editor",
-   "category": "CLIENT",
-   "description": "HUD-Elemente verschieben, ein- und ausblenden.",
-   "settings": [],
-   "presets": []
-  },
-  {
-   "id": "Setup",
-   "name": "Einrichtung",
-   "category": "CLIENT",
-   "description": "Ersteinrichtung erneut öffnen: Rad-Taste, Rad-Größe, Liquid Glass, Hinweise.",
-   "settings": [],
-   "presets": []
-  },
-  {
-   "id": "Zoom",
-   "name": "Zoom",
-   "category": "CLIENT",
-   "description": "Zoomt auf Tastendruck heran (Standard: C) – Taste, Stärke und Modus im Rad einstellbar.",
-   "settings": [
-    {
-     "name": "Zoom-Taste",
-     "desc": "Taste zum Zoomen (Rechtsklick im Feld = entfernen)",
-     "type": "key"
-    },
-    {
-     "name": "Modus",
-     "desc": "Halten = zoomt solange die Taste gedrückt ist, Umschalten = ein Druck an, ein Druck aus",
-     "type": "mode",
-     "default": "Halten",
-     "modes": [
-      "Halten",
-      "Umschalten"
-     ]
-    },
-    {
-     "name": "Stärke",
-     "desc": "Vergrößerung (3 = dreifach)",
-     "type": "number",
-     "default": 4,
-     "min": 1.5,
-     "max": 50,
-     "step": 0.5
-    },
-    {
-     "name": "Mausrad",
-     "desc": "Beim Zoomen mit dem Mausrad näher/weiter zoomen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Weich",
-     "desc": "Weiches Ein- und Auszoomen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Langsame Maus",
-     "desc": "Maus beim Zoomen entsprechend langsamer",
-     "type": "bool",
-     "default": true
-    }
-   ],
-   "presets": []
-  },
-  {
-   "id": "Freecam",
-   "name": "Freecam",
-   "category": "CLIENT",
-   "description": "Kamera löst sich vom Spieler und fliegt frei – auch durch Blöcke. Dein Spieler bleibt stehen.",
-   "settings": [
-    {
-     "name": "Tempo",
-     "desc": "Fluggeschwindigkeit in Blöcken pro Sekunde",
-     "type": "number",
-     "default": 12,
-     "min": 1,
-     "max": 60,
-     "step": 1
-    },
-    {
-     "name": "Sprint-Faktor",
-     "desc": "Wie viel schneller mit gedrückter Sprint-Taste",
-     "type": "number",
-     "default": 3,
-     "min": 1,
-     "max": 10,
-     "step": 0.5
-    },
-    {
-     "name": "Blickrichtung",
-     "desc": "Vorwärts fliegt in Blickrichtung (auch hoch/runter), aus = nur waagerecht",
-     "type": "bool",
-     "default": true
-    }
-   ],
-   "presets": []
-  },
-  {
-   "id": "FriendsModule",
-   "name": "Freunde",
-   "category": "CLIENT",
-   "description": "Freundesliste: Mittelklick auf einen Spieler = Freund an/aus. Freunde werden von Combat-Modulen nicht angegriffen und grün markiert.",
-   "settings": [
-    {
-     "name": "Schützen",
-     "desc": "Combat-, Crystal- und Mace-Module greifen Freunde nie an",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Mittelklick",
-     "desc": "Mittelklick auf einen Spieler fügt ihn hinzu bzw. entfernt ihn",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Alle entfernen",
-     "desc": "Einschalten leert die Freundesliste (springt danach wieder auf aus)",
-     "type": "bool",
-     "default": false
-    }
-   ],
    "presets": []
   },
   {
    "id": "Crosshair",
    "name": "Fadenkreuz",
-   "category": "CLIENT",
+   "category": "RENDER",
    "description": "Eigenes Fadenkreuz statt dem von Minecraft: Stil, Größe, Abstand, Dicke, Farbe, Umrandung und Cooldown-Anzeige.",
    "settings": [
     {
@@ -2421,6 +2253,174 @@
      "desc": "Kleiner Balken mit der Angriffs-Abklingzeit unter dem Fadenkreuz",
      "type": "bool",
      "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Zoom",
+   "name": "Zoom",
+   "category": "RENDER",
+   "description": "Zoomt auf Tastendruck heran (Standard: C) – Taste, Stärke und Modus im Rad einstellbar.",
+   "settings": [
+    {
+     "name": "Zoom-Taste",
+     "desc": "Taste zum Zoomen (Rechtsklick im Feld = entfernen)",
+     "type": "key"
+    },
+    {
+     "name": "Modus",
+     "desc": "Halten = zoomt solange die Taste gedrückt ist, Umschalten = ein Druck an, ein Druck aus",
+     "type": "mode",
+     "default": "Halten",
+     "modes": [
+      "Halten",
+      "Umschalten"
+     ]
+    },
+    {
+     "name": "Stärke",
+     "desc": "Vergrößerung (3 = dreifach)",
+     "type": "number",
+     "default": 4,
+     "min": 1.5,
+     "max": 50,
+     "step": 0.5
+    },
+    {
+     "name": "Mausrad",
+     "desc": "Beim Zoomen mit dem Mausrad näher/weiter zoomen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Weich",
+     "desc": "Weiches Ein- und Auszoomen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Langsame Maus",
+     "desc": "Maus beim Zoomen entsprechend langsamer",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Freecam",
+   "name": "Freecam",
+   "category": "RENDER",
+   "description": "Kamera löst sich vom Spieler und fliegt frei – auch durch Blöcke. Dein Spieler bleibt stehen.",
+   "settings": [
+    {
+     "name": "Tempo",
+     "desc": "Fluggeschwindigkeit in Blöcken pro Sekunde",
+     "type": "number",
+     "default": 12,
+     "min": 1,
+     "max": 60,
+     "step": 1
+    },
+    {
+     "name": "Sprint-Faktor",
+     "desc": "Wie viel schneller mit gedrückter Sprint-Taste",
+     "type": "number",
+     "default": 3,
+     "min": 1,
+     "max": 10,
+     "step": 0.5
+    },
+    {
+     "name": "Blickrichtung",
+     "desc": "Vorwärts fliegt in Blickrichtung (auch hoch/runter), aus = nur waagerecht",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Hud",
+   "name": "HUD",
+   "category": "CLIENT",
+   "description": "Zeigt die HUD-Elemente (Logo, Module, Koordinaten, FPS, …). Anordnen im HUD-Editor.",
+   "settings": [
+    {
+     "name": "Liquid Glass",
+     "desc": "Echtes Flüssigglas (Unschärfe + Lichtbrechung) für Rad und HUD. Aus = leichteres, einfaches Glas, bessere FPS",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Rad-Größe",
+     "desc": "Größe des Rads in Prozent",
+     "type": "number",
+     "default": 100,
+     "min": 60,
+     "max": 140,
+     "step": 5
+    },
+    {
+     "name": "HUD-Farbe",
+     "desc": "Akzentfarbe des ganzen Clients: Rad, Einstellungen, HUD, Logo und Glas-Tönung (Regenbogen = wechselt langsam durch alle Farben)",
+     "type": "mode",
+     "default": null,
+     "modes": [
+      null
+     ]
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "HudEditor",
+   "name": "HUD-Editor",
+   "category": "CLIENT",
+   "description": "HUD-Elemente verschieben, ein- und ausblenden.",
+   "settings": [],
+   "presets": []
+  },
+  {
+   "id": "Notifications",
+   "name": "Notifications",
+   "category": "CLIENT",
+   "description": "Zeigt im HUD an, wenn ein Modul an- oder ausgeschaltet wird.",
+   "settings": [],
+   "presets": []
+  },
+  {
+   "id": "Setup",
+   "name": "Einrichtung",
+   "category": "CLIENT",
+   "description": "Ersteinrichtung erneut öffnen: Rad-Taste, Rad-Größe, Liquid Glass, Hinweise.",
+   "settings": [],
+   "presets": []
+  },
+  {
+   "id": "FriendsModule",
+   "name": "Freunde",
+   "category": "CLIENT",
+   "description": "Freundesliste: Mittelklick auf einen Spieler = Freund an/aus. Freunde werden von Combat-Modulen nicht angegriffen und grün markiert.",
+   "settings": [
+    {
+     "name": "Schützen",
+     "desc": "Combat-, Crystal- und Mace-Module greifen Freunde nie an",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Mittelklick",
+     "desc": "Mittelklick auf einen Spieler fügt ihn hinzu bzw. entfernt ihn",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Alle entfernen",
+     "desc": "Einschalten leert die Freundesliste (springt danach wieder auf aus)",
+     "type": "bool",
+     "default": false
     }
    ],
    "presets": []

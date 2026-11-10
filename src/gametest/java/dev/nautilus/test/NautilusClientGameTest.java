@@ -79,10 +79,10 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(15);
             ctx.takeScreenshot("03-settings");
 
-            // close the settings panel, then left click a module to enable it (SilentAim = index 1 of 3 → 120°)
+            // close the settings panel, then left click a module to enable it (SilentAim = index 1 of 6 → 60°)
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
-            clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 60, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
             ctx.takeScreenshot("04-enabled");
 
@@ -91,7 +91,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
             clickWheel(ctx, 103, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
-            clickWheel(ctx, 72, InputConstants.MOUSE_BUTTON_RIGHT, true); // BaseFinder = index 1 of 5 (XRay, BaseFinder, PlayerESP, Nametags, Waypoints)
+            clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_RIGHT, true); // BaseFinder = index 1 of 3 (XRay, BaseFinder, Waypoints)
             ctx.waitTicks(15);
             ctx.takeScreenshot("05-basefinder");
             // second settings page
@@ -181,7 +181,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
 
             // --- Freecam: the camera flies away, the player stays ---
             double[] fc = ctx.computeOnClient(c -> {
-                ModuleManager.get().get(dev.nautilus.module.client.Freecam.class).setEnabled(true);
+                ModuleManager.get().get(dev.nautilus.module.render.Freecam.class).setEnabled(true);
                 return new double[]{c.player.getX(), c.player.getZ()};
             });
             ctx.getInput().holdKey(InputConstants.KEY_W);
@@ -192,7 +192,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
                     "player moved %.2f, camera is %.2f away from the player",
                     Math.hypot(c.player.getX() - fc[0], c.player.getZ() - fc[1]),
                     c.gameRenderer.mainCamera().position().distanceTo(c.player.getEyePosition()))));
-            ctx.runOnClient(c -> ModuleManager.get().get(dev.nautilus.module.client.Freecam.class).setEnabled(false));
+            ctx.runOnClient(c -> ModuleManager.get().get(dev.nautilus.module.render.Freecam.class).setEnabled(false));
 
             // --- Zoom: hold C ---
             ctx.getInput().holdKey(InputConstants.KEY_C);
@@ -229,7 +229,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
                 var mm = ModuleManager.get();
                 mm.get(dev.nautilus.module.mace.MaceSwap.class).loadEnabled(true);
                 mm.get(dev.nautilus.module.player.AutoSprint.class).loadEnabled(true);
-                mm.get(dev.nautilus.module.crystal.PopCounter.class).loadEnabled(true);
+                mm.get(dev.nautilus.module.combat.PopCounter.class).loadEnabled(true);
                 c.player.setYRot(0);
                 c.player.setXRot(15);
             });
@@ -290,7 +290,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
                 var mm = ModuleManager.get();
                 mm.get(dev.nautilus.module.mace.MaceSwap.class).loadEnabled(false);
                 mm.get(dev.nautilus.module.player.AutoSprint.class).loadEnabled(false);
-                mm.get(dev.nautilus.module.crystal.PopCounter.class).loadEnabled(false);
+                mm.get(dev.nautilus.module.combat.PopCounter.class).loadEnabled(false);
             });
 
             // --- first-start setup: all three pages ---
@@ -392,7 +392,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         ctx.waitTicks(10);
 
         // AutoTotem
-        ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(true));
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.combat.AutoTotem.class).setEnabled(true));
         StringBuilder totemLog = new StringBuilder();
         for (int i = 0; i < 8; i++) {
             ctx.waitTick();
@@ -548,7 +548,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         System.out.println("[NautilusTest] Surround: solid blocks around the feet " + around);
         ctx.runOnClient(c -> {
             mm.get(dev.nautilus.module.crystal.Surround.class).setEnabled(false);
-            mm.get(dev.nautilus.module.crystal.AutoTotem.class).setEnabled(false);
+            mm.get(dev.nautilus.module.combat.AutoTotem.class).setEnabled(false);
         });
         srv.runCommand("kill @e[type=!minecraft:player]");
     }
@@ -641,7 +641,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         System.out.println("[NautilusTest] Packet order control (one punch packet sent post on purpose, expect post=1): " + ctx.computeOnClient(c -> PacketLog.stop()));
 
         // PopCounter: pop your own totem (the server sends entity event 35)
-        ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.PopCounter.class).setEnabled(true));
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.combat.PopCounter.class).setEnabled(true));
         srv.runCommand("effect clear @a minecraft:resistance"); // from the crystal tests: the hit must be lethal
         srv.runCommand("item replace entity @a weapon.offhand with minecraft:totem_of_undying");
         ctx.waitTicks(5);
@@ -653,7 +653,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
                 + ", totem still in off hand " + ctx.computeOnClient(c -> c.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING))
                 + ", toasts " + ctx.computeOnClient(c -> dev.nautilus.hud.Notifications.active().stream().map(t -> t.title() + ": " + t.message()).toList())
                 + ", player alive " + ctx.computeOnClient(c -> c.player.isAlive()));
-        ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.PopCounter.class).setEnabled(false));
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.combat.PopCounter.class).setEnabled(false));
         ctx.waitTicks(40);
     }
 

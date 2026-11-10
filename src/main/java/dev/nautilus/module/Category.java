@@ -10,7 +10,7 @@ public enum Category {
     COMBAT("Combat", Items.DIAMOND_SWORD),
     SMP("SMP", Items.SPYGLASS),
     CRYSTAL("Crystal", Items.END_CRYSTAL),
-    SPEAR("Spear", Items.IRON_SPEAR),
+    RENDER("Render", Items.ENDER_EYE),
     MACE("Mace", Items.MACE),
     PLAYER("Player", Items.PLAYER_HEAD);
 

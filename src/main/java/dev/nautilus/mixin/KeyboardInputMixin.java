@@ -1,6 +1,6 @@
 package dev.nautilus.mixin;
 
-import dev.nautilus.module.client.Freecam;
+import dev.nautilus.module.render.Freecam;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.world.entity.player.Input;

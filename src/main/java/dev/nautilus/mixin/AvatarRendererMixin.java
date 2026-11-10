@@ -1,7 +1,7 @@
 package dev.nautilus.mixin;
 
 import dev.nautilus.module.ModuleManager;
-import dev.nautilus.module.smp.Nametags;
+import dev.nautilus.module.render.Nametags;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.world.entity.Avatar;
 import org.spongepowered.asm.mixin.Mixin;

@@ -62,22 +62,21 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
 ## Module
 
 ### Combat
+Allgemeines PvP – gilt für Schwert, Speer, Streitkolben und Kristalle.
 - **TriggerBot** – schlägt zu, sobald dein Fadenkreuz auf einem Ziel liegt (Abklingzeit, Zufallsverzögerung, Nur-Krits).
 - **SilentAim** – Klicks, die danebengehen würden, werden auf das nächste Ziel im FOV-Kegel umgeleitet. Die Rotation geht nur an den Server.
 - **Aimbot** – zieht dein Fadenkreuz weich (pro Frame, Ease-Out + Max. Drehung) auf das beste Ziel im FOV. Zielt auf den Punkt mit der kleinsten Drehung (wählbar Kopf/Brust/Beine), hält bewegte Ziele vor (Vorhersage), bleibt beim aktuellen Ziel (Ziel-Lock), optional nur beim Klicken oder nur horizontal. Ziele hinter Wänden werden über mehrere sichtbare Hitbox-Punkte erkannt.
+- **SpearSwitch** – Lunge im Dauerfeuer: du hältst einen leeren (oder anderen) Slot, pro Stoß wird im selben Tick kurz auf den Speer gewechselt, zugestochen und zurückgewechselt – so zählt nur der kurze Cooldown der leeren Hand. Auslöser: an/aus per Modul-Taste, Halten einer eigenen Lunge-Taste oder solange die Angriffstaste gedrückt ist. Intervall, Zufall, Park-Slot, nur Speere mit Lunge, Hunger-Schutz. Lunge wirkt nur zu Fuß (nicht reitend, nicht mit Elytra, nicht im Wasser) und ab 7 Hunger.
+- **AutoTotem** – hält ein Totem in der Zweithand (immer oder unter einer Leben-Grenze, darüber Kristall/Goldapfel).
+- **PopCounter** – zählt die Totem-Pops anderer Spieler (Glas-Toast pro Pop) und meldet, nach wie vielen Pops jemand stirbt; die Zahl steht auch im Ziel-HUD. Liest nur, was der Server schickt – sendet nichts.
 
 ### Crystal
 - **AutoCrystal** – platziert End-Kristalle auf Obsidian/Bedrock dort, wo sie dem Ziel am meisten schaden, und zerstört sie – auf Wunsch im selben Moment, in dem sie erscheinen (Kristall-Spam). Schaden wird wie in Vanilla berechnet (Abstand, Deckung, Rüstung, Schutz-Verzauberungen, Resistenz). Einstellbar: Ziele, Reichweiten, Verzögerungen, Kristalle pro Tick, Min. Schaden, Max. Eigenschaden, Anti-Selbstmord, Face-Place, Auto-Wechsel, Silent-Rotation, Nur eigene Kristalle, Anzeige.
 - **AnchorMacro** – lädt den anvisierten Respawn-Anker mit Glowstone und sprengt ihn mit einem anderen Item (Auslöser: neue Anker / immer / Makro-Taste; Ladungen, Verzögerung + Zufall, Spreng-Item, Max. Eigenschaden, Anti-Selbstmord, Zurückwechseln). Im Nether aus (dort setzen Anker den Spawn).
 - **SafeAnchor** – setzt vor der Explosion einen Schutzblock zwischen dich und den Anker (Glowstone/Obsidian/beliebig, zu dir oder zusätzlich oben). Alleine nutzbar oder kombiniert mit AnchorMacro.
-- **AutoTotem** – hält ein Totem in der Zweithand (immer oder unter einer Leben-Grenze, darüber Kristall/Goldapfel).
 - **Surround** – umgibt deine Füße mit Obsidian (Zentrieren, Stützblöcke, doppelte Höhe, aus beim Weggehen).
 - **HoleESP** – markiert sichere Löcher (Boden und alle vier Seiten aus Bedrock/Obsidian, darüber 3 Blöcke frei) in deiner Nähe: reiner Bedrock grün, gemischt in der HUD-Farbe. Reichweite, Höhe, nur Bedrock, flach oder als Block. Liest nur die Welt – sendet nichts.
 - **HoleSnap** – zieht dich ins nächste sichere Loch und schaltet sich danach selbst aus (am besten auf eine Taste). Reichweite, Tempo, nur Bedrock, Timeout.
-- **PopCounter** – zählt die Totem-Pops anderer Spieler (Glas-Toast pro Pop) und meldet, nach wie vielen Pops jemand stirbt; die Zahl steht auch im Ziel-HUD. Liest nur, was der Server schickt – sendet nichts.
-
-### Spear
-- **SpearSwitch** – Lunge im Dauerfeuer: du hältst einen leeren (oder anderen) Slot, pro Stoß wird im selben Tick kurz auf den Speer gewechselt, zugestochen und zurückgewechselt – so zählt nur der kurze Cooldown der leeren Hand. Auslöser: an/aus per Modul-Taste, Halten einer eigenen Lunge-Taste oder solange die Angriffstaste gedrückt ist. Intervall, Zufall, Park-Slot, nur Speere mit Lunge, Hunger-Schutz. Lunge wirkt nur zu Fuß (nicht reitend, nicht mit Elytra, nicht im Wasser) und ab 7 Hunger.
 
 ### Mace
 - **MaceSwap** – du behältst Schwert (oder etwas anderes) in der Hand: sobald du beim Fallen zuschlägst (Smash ab 1,5 Blöcken), geht der Schlag im selben Tick mit dem Streitkolben raus, danach bist du wieder auf deinem Slot. Gilt für eigene Klicks und alle Combat-Module. Bei mehreren Streitkolben wird der beste fürs Ziel gewählt (Dichte bei hohem Fall, Bresche gegen Rüstung) oder der bevorzugte (Dichte/Bresche/Windstoß). Min. Fallhöhe, auch ohne Fall, nur Spieler, Zurückwechseln.
@@ -87,11 +86,10 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
 
 ### Player
 - **AutoSprint** – hält beim Vorwärtslaufen automatisch die Sprint-Taste.
-- **AutoArmor** – zieht die beste Rüstung aus dem Inventar an (Rüstung, Härte, Schutz; optional Explosionsschutz bevorzugt). Behält eine getragene Elytra, nimmt nie verfluchte Teile, nur im eigenen Inventar.
-- **AutoTool** – nimmt beim Abbauen das schnellste Werkzeug aus der Hotbar und wechselt danach zurück; fast kaputte Werkzeuge werden geschont, mit Schwert/Streitkolben in der Hand wird nicht gewechselt.
-- **Fullbright** – alles hell wie mit Nachtsicht, nur bei dir (sendet nichts).
-- **ArmorAlert** – Glas-Toast, sobald ein Rüstungsteil unter eine Grenze (%) fällt oder nur noch wenige Totems im Inventar sind. Liest nur – sendet nichts.
 - **AutoEat** – isst automatisch, wenn der Hunger unter die Grenze fällt (Lunge kostet viel Hunger), optional mit Goldäpfeln, nicht während du angreifst.
+- **AutoTool** – nimmt beim Abbauen das schnellste Werkzeug aus der Hotbar und wechselt danach zurück; fast kaputte Werkzeuge werden geschont, mit Schwert/Streitkolben in der Hand wird nicht gewechselt.
+- **AutoArmor** – zieht die beste Rüstung aus dem Inventar an (Rüstung, Härte, Schutz; optional Explosionsschutz bevorzugt). Behält eine getragene Elytra, nimmt nie verfluchte Teile, nur im eigenen Inventar.
+- **ArmorAlert** – Glas-Toast, sobald ein Rüstungsteil unter eine Grenze (%) fällt oder nur noch wenige Totems im Inventar sind. Liest nur – sendet nichts.
 
 ### SMP
 - **XRay** – blendet alles außer ausgewählten Erzen/Kisten aus, optional Fullbright. *(Funktioniert nicht mit Sodium – schaltet sich dort automatisch ab.)*
@@ -104,11 +102,20 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
   - **Kelp-Wachstum**: Kelp, das bis zur Oberfläche gewachsen ist.
   - **Objekte**: Rahmen, Rüstungsständer, benannte/gezähmte Tiere, Kistenloren.
   - Chat-Meldungen und Tracer.
-- **Nametags** – Glas-Schilder über Spielern, auch durch Wände: Name (Freunde grün), Leben, Distanz, Ping, Totem-Pops und Rüstung/Items als Icons. Ersetzt die Vanilla-Namen.
 - **Waypoints** – Wegpunkte pro Server und Dimension mit Entfernung und Strahl. Eigene Tasten zum Setzen und Löschen (nächster Wegpunkt), automatischer Todespunkt (die letzten 3).
+
+### Render
+Alles, was nur deine Ansicht verändert.
 - **PlayerESP** – Boxen um andere Spieler durch Wände, Farbe nach HUD-Farbe, Leben oder Distanz; optional Tracer und unsichtbare Spieler.
+- **Nametags** – Glas-Schilder über Spielern, auch durch Wände: Name (Freunde grün), Leben, Distanz, Ping, Totem-Pops und Rüstung/Items als Icons. Ersetzt die Vanilla-Namen.
+- **Fullbright** – alles hell wie mit Nachtsicht, nur bei dir (sendet nichts).
+- **Fadenkreuz** – eigenes Fadenkreuz: Kreuz, Kreuz + Punkt, Punkt, Kreis oder T; Größe, Abstand, Dicke, Farbe (auch HUD-Farbe), Umrandung, rot auf Zielen, dynamisch beim Laufen, Cooldown-Balken.
+- **Zoom** – zoomt auf eigener Taste heran (Standard `C`, im Rad unter „Zoom-Taste“ änderbar). Modus Halten/Umschalten, Stärke 1,5–50×, Mausrad zoomt beim Zoomen weiter, weiches Ein-/Auszoomen, langsamere Maus.
+- **Freecam** – Kamera löst sich vom Spieler und fliegt frei (WASD, Leertaste, Shift, Sprint = schneller), auch durch Blöcke. Dein Spieler bleibt stehen und ist sichtbar; Tempo einstellbar.
 
 ### Client
+Einstellungen des Clients selbst – erscheinen nicht in der Modulliste.
+- **HUD** – Nautilus-Logo (sanft schaukelnde Nautilus-Muschel) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
 - **HUD-Editor** – Klick im Rad öffnet den Editor: Elemente ziehen (rasten an Rändern, Mitte und anderen Elementen ein), Rechts-Klick blendet aus, Chips im Panel blenden ein/aus, „Zurücksetzen“ stellt das Standard-Layout her.
 - **HUD-Elemente** – Logo, Modulliste, Koordinaten (inkl. Nether/Oberwelt), FPS, Ping, TPS, Geschwindigkeit, Richtung, Uhrzeit, Benachrichtigungen, dazu:
   - **Ziel** – Name, Distanz, Lebensbalken (Absorption in Gold), Rüstung und Totem-Pops deines Ziels (Fadenkreuz oder zuletzt geschlagen).
@@ -122,13 +129,9 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
   - **CPS**, **Server** (IP), **Tag** (Spieltag) und **Todespunkt** (Koordinaten deines letzten Todes, mit Entfernung).
 - **HUD-Farbe** – Orange, Rot, Pink, Lila, Blau, Türkis, Grün, Gold, Weiß oder Regenbogen: färbt den ganzen Client: Rad (aktive Module, Bögen, Glas-Tönung, Mitte), Einstellungs-Panel, Suche, Logo, Modulliste, Beschriftungen, Einrichtung und Editor. Einstellbar in der Einrichtung (mit Live-Vorschau) und im Rad unter Client → HUD.
 - **Benachrichtigungen** – Modul an/aus und BaseFinder-Funde erscheinen als Glas-Toasts im HUD statt im Chat.
-- **HUD** – Nautilus-Logo (sanft schaukelnde Nautilus-Muschel) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
-- **Freunde** – Mittelklick auf einen Spieler = Freund an/aus. Combat-, Crystal- und Mace-Module greifen Freunde nicht an, ESP/Nametags zeigen sie grün. Liste wird gespeichert.
-- **Fadenkreuz** – eigenes Fadenkreuz: Kreuz, Kreuz + Punkt, Punkt, Kreis oder T; Größe, Abstand, Dicke, Farbe (auch HUD-Farbe), Umrandung, rot auf Zielen, dynamisch beim Laufen, Cooldown-Balken.
-- **AutoReconnect** – verbindet nach einem Kick neu (Countdown auf dem Trenn-Bildschirm, Verzögerung, max. Versuche; Zurück bricht ab).
 - **Notifications** – Chat-Meldung beim An-/Ausschalten.
-- **Zoom** – zoomt auf eigener Taste heran (Standard `C`, im Rad unter „Zoom-Taste“ änderbar). Modus Halten/Umschalten, Stärke 1,5–50×, Mausrad zoomt beim Zoomen weiter, weiches Ein-/Auszoomen, langsamere Maus.
-- **Freecam** – Kamera löst sich vom Spieler und fliegt frei (WASD, Leertaste, Shift, Sprint = schneller), auch durch Blöcke. Dein Spieler bleibt stehen und ist sichtbar; Tempo einstellbar.
+- **Freunde** – Mittelklick auf einen Spieler = Freund an/aus. Combat-, Crystal- und Mace-Module greifen Freunde nicht an, ESP/Nametags zeigen sie grün. Liste wird gespeichert.
+- **AutoReconnect** – verbindet nach einem Kick neu (Countdown auf dem Trenn-Bildschirm, Verzögerung, max. Versuche; Zurück bricht ab).
 
 ## Bauen
 

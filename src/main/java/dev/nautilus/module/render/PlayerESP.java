@@ -1,4 +1,4 @@
-package dev.nautilus.module.smp;
+package dev.nautilus.module.render;
 
 import dev.nautilus.hud.HudStyle;
 import dev.nautilus.module.Category;
@@ -23,7 +23,7 @@ public class PlayerESP extends Module {
     private int count;
 
     public PlayerESP() {
-        super("PlayerESP", "Zeigt andere Spieler als Box durch Wände – Farbe nach HUD-Farbe, Leben oder Distanz.", Category.SMP, Items.ENDER_EYE);
+        super("PlayerESP", "Zeigt andere Spieler als Box durch Wände – Farbe nach HUD-Farbe, Leben oder Distanz.", Category.RENDER, Items.GLOW_INK_SAC);
     }
 
     private int color(Player p, double dist) {

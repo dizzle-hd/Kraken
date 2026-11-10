@@ -1,4 +1,4 @@
-package dev.nautilus.module.spear;
+package dev.nautilus.module.combat;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.nautilus.module.Category;
@@ -40,7 +40,7 @@ public class SpearSwitch extends Module {
 
     public SpearSwitch() {
         super("SpearSwitch", "Lunge im Dauerfeuer: wechselt pro Stoß kurz auf den Speer und zurück. Per Modul-Taste an/aus.",
-                Category.SPEAR, Items.IRON_SPEAR);
+                Category.COMBAT, Items.IRON_SPEAR);
         preset("Legit", LOW, "Volle Aufladung der leeren Hand + Zufall", "Intervall", 6, "Zufall", 2);
         preset("Normal", MEDIUM, "Alle 5 Ticks, wenig Zufall", "Intervall", 5, "Zufall", 1);
         preset("Rage", HIGH, "So schnell wie möglich", "Intervall", 3, "Zufall", 0);

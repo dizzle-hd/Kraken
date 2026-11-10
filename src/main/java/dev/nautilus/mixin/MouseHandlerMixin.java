@@ -3,7 +3,7 @@ package dev.nautilus.mixin;
 import dev.nautilus.module.ModuleManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
-import dev.nautilus.module.client.Zoom;
+import dev.nautilus.module.render.Zoom;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;

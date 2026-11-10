@@ -1,4 +1,4 @@
-package dev.nautilus.module.client;
+package dev.nautilus.module.render;
 
 import dev.nautilus.gui.Shapes;
 import dev.nautilus.hud.HudStyle;
@@ -29,7 +29,7 @@ public class Crosshair extends Module {
 
     public Crosshair() {
         super("Fadenkreuz", "Eigenes Fadenkreuz statt dem von Minecraft: Stil, Größe, Abstand, Dicke, Farbe, Umrandung und Cooldown-Anzeige.",
-                Category.CLIENT, Items.TARGET);
+                Category.RENDER, Items.TARGET);
     }
 
     private int baseColor() {

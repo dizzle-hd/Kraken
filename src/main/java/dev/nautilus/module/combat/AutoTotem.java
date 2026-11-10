@@ -1,4 +1,4 @@
-package dev.nautilus.module.crystal;
+package dev.nautilus.module.combat;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.nautilus.mixin.AbstractContainerScreenAccessor;
@@ -43,7 +43,7 @@ public class AutoTotem extends Module {
 
     public AutoTotem() {
         super("AutoTotem", "Legt automatisch ein Totem in die Zweithand – öffnet dazu das Inventar und drückt die Zweithand-Taste (F).",
-                Category.CRYSTAL, Items.TOTEM_OF_UNDYING);
+                Category.COMBAT, Items.TOTEM_OF_UNDYING);
         preset("Legit", LOW, "Inventar öffnen, F drücken, mit menschlichen Pausen",
                 "Inventar öffnen", true, "Öffnen-Verzögerung", 2, "Schließen-Verzögerung", 2, "Zufall", 2, "Verzögerung", 2);
         preset("Normal", MEDIUM, "Inventar öffnen, schnell",

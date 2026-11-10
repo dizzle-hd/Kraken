@@ -1,4 +1,4 @@
-package dev.nautilus.module.crystal;
+package dev.nautilus.module.combat;
 
 import dev.nautilus.hud.HudStyle;
 import dev.nautilus.hud.Notifications;
@@ -23,7 +23,7 @@ public class PopCounter extends Module {
 
     public PopCounter() {
         super("PopCounter", "Zählt Totem-Pops anderer Spieler und meldet, nach wie vielen Pops jemand stirbt.",
-                Category.CRYSTAL, Items.TOTEM_OF_UNDYING);
+                Category.COMBAT, Items.TOTEM_OF_UNDYING);
     }
 
     @Override

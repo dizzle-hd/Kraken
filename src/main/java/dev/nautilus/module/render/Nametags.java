@@ -1,4 +1,4 @@
-package dev.nautilus.module.smp;
+package dev.nautilus.module.render;
 
 import dev.nautilus.gui.Shapes;
 import dev.nautilus.hud.HudStyle;
@@ -37,7 +37,7 @@ public class Nametags extends Module {
             EquipmentSlot.FEET, EquipmentSlot.OFFHAND};
 
     public Nametags() {
-        super("Nametags", "Zeigt über Spielern ein Glas-Schild mit Name, Leben, Distanz, Pops und Rüstung – auch durch Wände.", Category.SMP, Items.NAME_TAG);
+        super("Nametags", "Zeigt über Spielern ein Glas-Schild mit Name, Leben, Distanz, Pops und Rüstung – auch durch Wände.", Category.RENDER, Items.NAME_TAG);
     }
 
     private static int ping(Player p) {

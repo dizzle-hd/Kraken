@@ -1,6 +1,6 @@
 package dev.nautilus.mixin;
 
-import dev.nautilus.module.client.Freecam;
+import dev.nautilus.module.render.Freecam;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;

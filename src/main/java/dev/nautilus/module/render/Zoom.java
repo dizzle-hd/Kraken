@@ -1,4 +1,4 @@
-package dev.nautilus.module.client;
+package dev.nautilus.module.render;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.nautilus.module.Category;
@@ -29,7 +29,7 @@ public class Zoom extends Module {
     private static Zoom instance;
 
     public Zoom() {
-        super("Zoom", "Zoomt auf Tastendruck heran (Standard: C) – Taste, Stärke und Modus im Rad einstellbar.", Category.CLIENT, Items.SPYGLASS);
+        super("Zoom", "Zoomt auf Tastendruck heran (Standard: C) – Taste, Stärke und Modus im Rad einstellbar.", Category.RENDER, Items.SPYGLASS);
         instance = this;
         loadEnabled(true); // on by default: only the zoom key does something
     }
