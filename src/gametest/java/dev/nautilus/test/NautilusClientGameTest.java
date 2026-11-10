@@ -635,10 +635,12 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         srv.runCommand("effect clear @a minecraft:resistance"); // from the crystal tests: the hit must be lethal
         srv.runCommand("item replace entity @a weapon.offhand with minecraft:totem_of_undying");
         ctx.waitTicks(5);
-        srv.runCommand("damage @a 1000 minecraft:generic");
+        int popsBefore = ctx.computeOnClient(c -> dev.nautilus.util.CombatTracker.pops(c.player));
+        srv.runCommand("damage @p 1000 minecraft:generic"); // /damage takes exactly one target
         ctx.waitTicks(10);
         ctx.takeScreenshot("17c-popcounter");
-        System.out.println("[NautilusTest] PopCounter: own pops " + ctx.computeOnClient(c -> dev.nautilus.util.CombatTracker.pops(c.player))
+        System.out.println("[NautilusTest] PopCounter: own pops " + popsBefore + " -> " + ctx.computeOnClient(c -> dev.nautilus.util.CombatTracker.pops(c.player))
+                + ", totem still in off hand " + ctx.computeOnClient(c -> c.player.getOffhandItem().is(net.minecraft.world.item.Items.TOTEM_OF_UNDYING))
                 + ", toasts " + ctx.computeOnClient(c -> dev.nautilus.hud.Notifications.active().stream().map(t -> t.title() + ": " + t.message()).toList())
                 + ", player alive " + ctx.computeOnClient(c -> c.player.isAlive()));
         ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.PopCounter.class).setEnabled(false));
