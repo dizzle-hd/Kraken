@@ -8,7 +8,6 @@ import dev.nautilus.setting.KeySetting;
 import dev.nautilus.setting.ModeSetting;
 import dev.nautilus.util.InvUtil;
 import dev.nautilus.util.RotationManager;
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -78,9 +77,9 @@ public class WindBoost extends Module {
         var swing = stack.getInteractAnimation();
         if (jump.isOn() && p.onGround()) p.jumpFromGround();
 
-        // look straight down only for the server: rotation packet + the rotation inside the use packet
+        // look straight down only for the server: the use packet carries the rotation (the server snaps to
+        // it), and this tick's movement packet keeps it – no extra rotation packet, everything pre-tick
         float pitch = p.getXRot();
-        mc.getConnection().send(new ServerboundMovePlayerPacket.Rot(p.getYRot(), 90f, p.onGround(), p.horizontalCollision));
         p.setXRot(90f);
         try {
             mc.gameMode.useItem(p, hand);

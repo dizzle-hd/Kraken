@@ -5,7 +5,14 @@
   "name": "Nautilus Client GameTest",
   "environment": "client",
   "entrypoints": {
-    "fabric-client-gametest": ["dev.nautilus.test.NautilusClientGameTest"]
+    "fabric-client-gametest": [
+      "dev.nautilus.test.NautilusClientGameTest"
+    ]
   },
-  "depends": { "nautilusclient": "*" }
+  "depends": {
+    "nautilusclient": "*"
+  },
+  "mixins": [
+    "nautilusclient-gametest.mixins.json"
+  ]
 }

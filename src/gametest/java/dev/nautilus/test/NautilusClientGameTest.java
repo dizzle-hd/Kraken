@@ -529,8 +529,23 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         srv.runCommand("kill @e[type=!minecraft:player]");
     }
 
+    private static boolean packetHook;
+    private static volatile boolean postControl;
+
     private static void maceTests(ClientGameTestContext ctx, TestSingleplayerContext sp) {
         var mm = ModuleManager.get();
+        if (!packetHook) {
+            packetHook = true;
+            // registered after the client's own END_CLIENT_TICK hook, so this runs last in every tick
+            net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(c -> {
+                if (postControl && c.player != null) {
+                    postControl = false;
+                    // control: a punch packet sent here comes after the movement packet = "post"
+                    c.player.connection.send(net.minecraft.network.protocol.game.ServerboundPunchPacket.INSTANCE);
+                }
+                PacketLog.endTick();
+            });
+        }
         var srv = sp.getServer();
         srv.runCommand("kill @e[type=!minecraft:player]");
         srv.runCommand("clear @a");
@@ -544,6 +559,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         // MaceSwap + AutoSmash: sword in the hand, fall 8 blocks next to a zombie
         java.util.UUID z = spawnZombie(sp, 0, 1, 1000f);
         ctx.waitTicks(5);
+        ctx.runOnClient(c -> PacketLog.start());
         ctx.runOnClient(c -> {
             mm.get(dev.nautilus.module.mace.MaceSwap.class).setEnabled(true);
             var as = mm.get(dev.nautilus.module.mace.AutoSmash.class);
@@ -590,6 +606,14 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         System.out.println("[NautilusTest] WindBoost: rose " + String.format(java.util.Locale.ROOT, "%.2f", maxY - y0) + " blocks, wind charges "
                 + charges + " -> " + count(ctx, net.minecraft.world.item.Items.WIND_CHARGE) + ", camera pitch " + pitch + " (60 = untouched), module on: "
                 + ctx.computeOnClient(c -> mm.get(dev.nautilus.module.mace.WindBoost.class).isEnabled()));
+        System.out.println("[NautilusTest] Mace packet order (MaceSwap, AutoSmash, WindBoost): " + ctx.computeOnClient(c -> PacketLog.stop()));
+
+        // control: the check really finds a packet sent after the movement packet
+        ctx.runOnClient(c -> PacketLog.start());
+        ctx.waitTicks(2);
+        postControl = true;
+        ctx.waitTicks(3);
+        System.out.println("[NautilusTest] Packet order control (one punch packet sent post on purpose, expect post=1): " + ctx.computeOnClient(c -> PacketLog.stop()));
         ctx.waitTicks(40);
     }
 
