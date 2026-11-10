@@ -80,7 +80,21 @@ public final class HudStyle {
     public static int label() { return Shapes.lerp(accent(), 0xFFFFFFFF, 0.55f); }
 
     /** Dark tint of the glass, in the hue of the accent (keeps the text readable). */
-    private static int tint(int alpha) { return (alpha << 24) | (Shapes.lerp(accent(), 0xFF000000, 0.86f) & 0xFFFFFF); }
+    private static int tint(int alpha) { return shade(alpha, 0.86f); }
+
+    // ---- derived theme colours: everything that used to be hard-wired orange/brown -------------
+
+    /** The accent darkened towards black by {@code dark} (0 = accent, 1 = black), with the given alpha (0-255). */
+    public static int shade(int alpha, float dark) { return (alpha << 24) | (Shapes.lerp(accent(), 0xFF000000, dark) & 0xFFFFFF); }
+
+    /** White tinted towards the accent by {@code amount} (0 = white, 1 = accent), with the given alpha (0-255). */
+    public static int tintedWhite(int alpha, float amount) { return (alpha << 24) | (Shapes.lerp(0xFFFFFFFF, accent(), amount) & 0xFFFFFF); }
+
+    /** Dark, semi-transparent panel background (settings panel, editor, onboarding) in the accent's hue. */
+    public static int panel(int alpha) { return shade(alpha, 0.9f); }
+
+    /** Values next to settings ("12.5", "Kopf", …): a light pastel of the accent. */
+    public static int value() { return tintedWhite(0xFF, 0.37f); }
 
     public static void pill(GuiGraphicsExtractor ctx, Shapes s, float x1, float y1, float x2, float y2, float alpha) {
         float r = Math.min((y2 - y1) / 2f, 7f);

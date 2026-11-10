@@ -13,6 +13,7 @@ import dev.nautilus.module.combat.TriggerBot;
 import dev.nautilus.module.crystal.AnchorMacro;
 import dev.nautilus.module.crystal.AutoCrystal;
 import dev.nautilus.module.crystal.AutoTotem;
+import dev.nautilus.module.crystal.HoleESP;
 import dev.nautilus.module.crystal.PopCounter;
 import dev.nautilus.module.crystal.SafeAnchor;
 import dev.nautilus.module.crystal.Surround;
@@ -20,9 +21,12 @@ import dev.nautilus.module.mace.AutoSmash;
 import dev.nautilus.module.mace.MaceSwap;
 import dev.nautilus.module.mace.StunSlam;
 import dev.nautilus.module.mace.WindBoost;
+import dev.nautilus.module.player.ArmorAlert;
 import dev.nautilus.module.player.AutoEat;
 import dev.nautilus.module.player.AutoSprint;
+import dev.nautilus.module.player.AutoTool;
 import dev.nautilus.module.smp.BaseFinder;
+import dev.nautilus.module.smp.PlayerESP;
 import dev.nautilus.module.smp.XRay;
 import dev.nautilus.module.spear.SpearSwitch;
 import net.minecraft.client.Minecraft;
@@ -54,6 +58,7 @@ public final class ModuleManager {
         register(new AutoTotem());
         register(new Surround());
         register(new PopCounter());
+        register(new HoleESP());
         // Spear
         register(new SpearSwitch());
         // Mace
@@ -64,9 +69,12 @@ public final class ModuleManager {
         // Player
         register(new AutoSprint());
         register(new AutoEat());
+        register(new AutoTool());
+        register(new ArmorAlert());
         // SMP
         register(new XRay());
         register(new BaseFinder());
+        register(new PlayerESP());
         // Client
         register(new Hud());
         register(new Notifications());

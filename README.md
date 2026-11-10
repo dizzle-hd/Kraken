@@ -47,7 +47,7 @@ Beim ersten Betreten einer Welt öffnet sich die **Einrichtung**: Hinweise (Alph
 | Modul an/aus | Links-Klick auf ein Modul |
 | Einstellungen eines Moduls | Rechts-Klick auf ein Modul – das Rad gleitet nach links, rechts öffnet sich ein Einstellungs-Panel |
 | Schalter / Modus ändern | Klick auf das Segment (Rechts-Klick = Modus rückwärts) |
-| Zahlenwert | Am orangen Bogen ziehen oder über dem Segment scrollen |
+| Zahlenwert | Am farbigen Bogen ziehen oder über dem Segment scrollen |
 | Mehr Einstellungen | Scrollen außerhalb eines Zahlen-Segments blättert die Seite um |
 | Zurück | Klick auf die Mitte oder `ESC` |
 | Modul-Taste setzen | In den Einstellungen auf „Taste“ klicken, Taste drücken (`Backspace` = entfernen) |
@@ -71,6 +71,7 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
 - **SafeAnchor** – setzt vor der Explosion einen Schutzblock zwischen dich und den Anker (Glowstone/Obsidian/beliebig, zu dir oder zusätzlich oben). Alleine nutzbar oder kombiniert mit AnchorMacro.
 - **AutoTotem** – hält ein Totem in der Zweithand (immer oder unter einer Leben-Grenze, darüber Kristall/Goldapfel).
 - **Surround** – umgibt deine Füße mit Obsidian (Zentrieren, Stützblöcke, doppelte Höhe, aus beim Weggehen).
+- **HoleESP** – markiert sichere Löcher (Boden und alle vier Seiten aus Bedrock/Obsidian, darüber 3 Blöcke frei) in deiner Nähe: reiner Bedrock grün, gemischt in der HUD-Farbe. Reichweite, Höhe, nur Bedrock, flach oder als Block. Liest nur die Welt – sendet nichts.
 - **PopCounter** – zählt die Totem-Pops anderer Spieler (Glas-Toast pro Pop) und meldet, nach wie vielen Pops jemand stirbt; die Zahl steht auch im Ziel-HUD. Liest nur, was der Server schickt – sendet nichts.
 
 ### Spear
@@ -84,6 +85,8 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
 
 ### Player
 - **AutoSprint** – hält beim Vorwärtslaufen automatisch die Sprint-Taste.
+- **AutoTool** – nimmt beim Abbauen das schnellste Werkzeug aus der Hotbar und wechselt danach zurück; fast kaputte Werkzeuge werden geschont, mit Schwert/Streitkolben in der Hand wird nicht gewechselt.
+- **ArmorAlert** – Glas-Toast, sobald ein Rüstungsteil unter eine Grenze (%) fällt oder nur noch wenige Totems im Inventar sind. Liest nur – sendet nichts.
 - **AutoEat** – isst automatisch, wenn der Hunger unter die Grenze fällt (Lunge kostet viel Hunger), optional mit Goldäpfeln, nicht während du angreifst.
 
 ### SMP
@@ -97,6 +100,7 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
   - **Kelp-Wachstum**: Kelp, das bis zur Oberfläche gewachsen ist.
   - **Objekte**: Rahmen, Rüstungsständer, benannte/gezähmte Tiere, Kistenloren.
   - Chat-Meldungen und Tracer.
+- **PlayerESP** – Boxen um andere Spieler durch Wände, Farbe nach HUD-Farbe, Leben oder Distanz; optional Tracer und unsichtbare Spieler.
 
 ### Client
 - **HUD-Editor** – Klick im Rad öffnet den Editor: Elemente ziehen (rasten an Rändern, Mitte und anderen Elementen ein), Rechts-Klick blendet aus, Chips im Panel blenden ein/aus, „Zurücksetzen“ stellt das Standard-Layout her.
@@ -104,7 +108,7 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
   - **Ziel** – Name, Distanz, Lebensbalken (Absorption in Gold), Rüstung und Totem-Pops deines Ziels (Fadenkreuz oder zuletzt geschlagen).
   - **Smash-Vorschau** – beim Fallen mit Streitkolben in der Hotbar: Fallhöhe und der Schaden, den ein Smash jetzt machen würde (aufs Ziel nach Rüstung).
   - **Rüstung** – Haltbarkeit von Kopf, Brust, Hose, Schuhen und Waffe in Prozent (im HUD-Editor einschalten).
-- **HUD-Farbe** – Orange, Rot, Pink, Lila, Blau, Türkis, Grün, Gold, Weiß oder Regenbogen: färbt Logo, Modulliste, Beschriftungen, Glas-Tönung und Editor. Einstellbar in der Einrichtung (mit Live-Vorschau) und im Rad unter Client → HUD.
+- **HUD-Farbe** – Orange, Rot, Pink, Lila, Blau, Türkis, Grün, Gold, Weiß oder Regenbogen: färbt den ganzen Client: Rad (aktive Module, Bögen, Glas-Tönung, Mitte), Einstellungs-Panel, Suche, Logo, Modulliste, Beschriftungen, Einrichtung und Editor. Einstellbar in der Einrichtung (mit Live-Vorschau) und im Rad unter Client → HUD.
 - **Benachrichtigungen** – Modul an/aus und BaseFinder-Funde erscheinen als Glas-Toasts im HUD statt im Chat.
 - **HUD** – Nautilus-Logo (sanft schaukelnde Nautilus-Muschel) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
 - **Notifications** – Chat-Meldung beim An-/Ausschalten.

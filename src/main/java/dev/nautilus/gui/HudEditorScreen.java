@@ -132,7 +132,7 @@ public class HudEditorScreen extends Screen {
         float px = width / 2f - pw / 2f, py = height / 2f - ph / 2f;
 
         Shapes s = new Shapes();
-        s.roundRect(px, py, px + pw, py + ph, 10f, 0x8C1A0805); // stronger tint: the editor panel must stay readable
+        s.roundRect(px, py, px + pw, py + ph, 10f, dev.nautilus.hud.HudStyle.panel(0x8C)); // stronger tint: the editor panel must stay readable
         HudStyle.pill(ctx, s, px, py, px + pw, py + ph, 1f);
         List<Runnable> text = new ArrayList<>();
         text.add(() -> HudStyle.text(ctx, title, width / 2f - tw / 2f, py + 12f + 4f, 1.1f, HudStyle.TEXT, true));

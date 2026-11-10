@@ -396,7 +396,7 @@ public class AutoCrystal extends Module {
     @Override
     public void onRender3D(LevelRenderContext context, Render3D r) {
         if (!render.isOn() || renderPos == null || System.currentTimeMillis() > renderUntil) return;
-        r.box(new AABB(renderPos), 0xFFFF5A2A);
+        r.box(new AABB(renderPos), dev.nautilus.hud.HudStyle.accent(0xFF));
     }
 
     @Override

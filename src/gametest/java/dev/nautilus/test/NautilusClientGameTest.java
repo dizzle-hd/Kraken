@@ -81,7 +81,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
             clickWheel(ctx, 103, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
-            clickWheel(ctx, 180, InputConstants.MOUSE_BUTTON_RIGHT, true);
+            clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_RIGHT, true); // BaseFinder = index 1 of 3 (XRay, BaseFinder, PlayerESP)
             ctx.waitTicks(15);
             ctx.takeScreenshot("05-basefinder");
             // second settings page
@@ -227,6 +227,17 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.runOnClient(c -> hudColor.set("Blau"));
             ctx.waitTicks(5);
             ctx.takeScreenshot("09b-hud-blue");
+            // the wheel follows the HUD colour too (accent, glass tint, panels) – not only the HUD
+            ctx.getInput().pressKey(InputConstants.KEY_RSHIFT);
+            ctx.waitForScreen(RadialScreen.class);
+            ctx.waitTicks(20);
+            clickWheel(ctx, 51, InputConstants.MOUSE_BUTTON_LEFT, false);
+            ctx.waitTicks(15);
+            clickWheel(ctx, 0, InputConstants.MOUSE_BUTTON_RIGHT, false);
+            ctx.waitTicks(15);
+            ctx.takeScreenshot("09d-wheel-blue");
+            ctx.setScreen(() -> null);
+            ctx.waitTicks(5);
             ctx.runOnClient(c -> hudColor.set("Regenbogen"));
             ctx.waitTicks(5);
             ctx.takeScreenshot("09c-hud-rainbow");

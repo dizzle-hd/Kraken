@@ -11,7 +11,7 @@ public class Hud extends Module {
     public final dev.nautilus.setting.NumberSetting wheelSize = add(new dev.nautilus.setting.NumberSetting("Rad-Größe",
             "Größe des Rads in Prozent", 100, 60, 140, 5));
     public final dev.nautilus.setting.ModeSetting color = add(new dev.nautilus.setting.ModeSetting("HUD-Farbe",
-            "Akzentfarbe von HUD, Logo und Glas-Tönung (Regenbogen = wechselt langsam durch alle Farben)",
+            "Akzentfarbe des ganzen Clients: Rad, Einstellungen, HUD, Logo und Glas-Tönung (Regenbogen = wechselt langsam durch alle Farben)",
             dev.nautilus.hud.HudStyle.COLOR_NAMES[0], dev.nautilus.hud.HudStyle.COLOR_NAMES));
 
     public Hud() {

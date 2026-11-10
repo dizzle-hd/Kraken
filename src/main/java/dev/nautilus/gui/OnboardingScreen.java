@@ -126,12 +126,12 @@ public class OnboardingScreen extends Screen {
         ph = Math.min(ph, height - 16f);
         float py = height / 2f - ph / 2f;
 
-        s.roundRect(px, py, px + pw, py + ph, 12f, 0x8C1A0805);
+        s.roundRect(px, py, px + pw, py + ph, 12f, dev.nautilus.hud.HudStyle.panel(0x8C));
         HudStyle.pill(ctx, s, px, py, px + pw, py + ph, 1f);
 
         // header: logo, title, page dots
         float t = (System.currentTimeMillis() % 600000L) / 1000f;
-        NautilusLogo.draw(s, px + 22f, py + 22f, 20f, t, HudStyle.accent(), 0xFFFFFFFF, 0xFF2A0E08);
+        NautilusLogo.draw(s, px + 22f, py + 22f, 20f, t, HudStyle.accent(), 0xFFFFFFFF, dev.nautilus.hud.HudStyle.shade(0xFF, 0.84f));
         String title = switch (page) {
             case 0 -> "Willkommen bei Nautilus Client";
             case 1 -> "Einstellungen";

@@ -3,6 +3,7 @@ package dev.nautilus.gui;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.nautilus.NautilusClient;
 import dev.nautilus.config.ConfigManager;
+import dev.nautilus.hud.HudStyle;
 import dev.nautilus.module.Category;
 import dev.nautilus.module.Module;
 import dev.nautilus.module.ModuleManager;
@@ -37,20 +38,26 @@ import java.util.List;
  */
 public class RadialScreen extends Screen {
     // ---- palette ---------------------------------------------------------------------------------
-    private static final int ACCENT = 0xFFFF5A2A;
-    private static final int TINT = 0x382A0E06;
-    private static final int GLASS_IN = 0x0CFFE2D6;
-    private static final int GLASS_OUT = 0x17FFE2D6;
-    private static final int GLASS_HOVER_IN = 0x1AFFE2D6;
-    private static final int GLASS_HOVER_OUT = 0x2AFFE2D6;
-    private static final int GLASS_ON_IN = 0x2CFF6A3A;
-    private static final int GLASS_ON_OUT = 0x48FF6A3A;
+    // Colours that follow the HUD colour (Client → HUD → "HUD-Farbe"); recomputed every frame in
+    // refreshPalette() so the whole wheel – not just the HUD – changes colour (incl. "Regenbogen").
+    private static int ACCENT, TINT, GLASS_IN, GLASS_OUT, GLASS_HOVER_IN, GLASS_HOVER_OUT, GLASS_ON_IN, GLASS_ON_OUT, VALUE;
     private static final int RIM = 0x22FFFFFF;
     private static final int RIM_HOVER = 0x5CFFFFFF;
     private static final int SHINE = 0x12FFFFFF;
     private static final int TEXT = 0xFFF6ECE8;
     private static final int TEXT_DIM = 0xB4F0D8D0;
-    private static final int VALUE = 0xFFFFC2AE;
+
+    private static void refreshPalette() {
+        ACCENT = HudStyle.accent();
+        TINT = HudStyle.shade(0x38, 0.84f);
+        GLASS_IN = HudStyle.tintedWhite(0x0C, 0.18f);
+        GLASS_OUT = HudStyle.tintedWhite(0x17, 0.18f);
+        GLASS_HOVER_IN = HudStyle.tintedWhite(0x1A, 0.18f);
+        GLASS_HOVER_OUT = HudStyle.tintedWhite(0x2A, 0.18f);
+        GLASS_ON_IN = HudStyle.accentHot(0x2C);
+        GLASS_ON_OUT = HudStyle.accentHot(0x48);
+        VALUE = HudStyle.value();
+    }
 
     private static final FontDescription CLEAN = new FontDescription.Resource(Identifier.fromNamespaceAndPath(NautilusClient.MOD_ID, "clean"));
     private static final FontDescription CLEAN_BOLD = new FontDescription.Resource(Identifier.fromNamespaceAndPath(NautilusClient.MOD_ID, "clean_bold"));
@@ -416,6 +423,7 @@ public class RadialScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
+        refreshPalette();
         super.extractRenderState(ctx, mouseX, mouseY, delta);
         long now = System.currentTimeMillis();
         if (closingAt >= 0 && now - closingAt > 170) {
@@ -484,7 +492,7 @@ public class RadialScreen extends Screen {
                         Shapes.alpha(0x16FFFFFF, h * alpha), Shapes.alpha(0x26FFFFFF, h * alpha));
                 if (act > 0.01f) {
                     over.roundedSector(cx, cy, rIn, rOut, a0, a1, gap, corner,
-                            Shapes.alpha(0x3CFF5A2A, act * alpha), Shapes.alpha(0x5AFF5A2A, act * alpha));
+                            Shapes.alpha(HudStyle.accent(0x3C), act * alpha), Shapes.alpha(HudStyle.accent(0x5A), act * alpha));
                     over.roundedSectorOutline(cx, cy, rIn, rOut, a0, a1, gap, corner, Math.max(1f, R * 0.008f),
                             Shapes.alpha(ACCENT, act * alpha * 0.9f));
                 }
@@ -510,9 +518,9 @@ public class RadialScreen extends Screen {
         Shapes c = new Shapes();
         if (LiquidGlass.enabled()) {
             LiquidGlass.circle(ctx, cx, cy, discR, 1f);
-            c.circle(cx, cy, discR, Shapes.lerp(0x1E200805, 0x34301008, centerHover), 0x281A0805);
+            c.circle(cx, cy, discR, Shapes.lerp(HudStyle.shade(0x1E, 0.88f), HudStyle.shade(0x34, 0.81f), centerHover), HudStyle.panel(0x28));
         } else {
-            c.circle(cx, cy, discR, Shapes.lerp(0x46200805, 0x60301008, centerHover), 0x5A2A0C06);
+            c.circle(cx, cy, discR, Shapes.lerp(HudStyle.shade(0x46, 0.88f), HudStyle.shade(0x60, 0.81f), centerHover), HudStyle.shade(0x5A, 0.84f));
             c.ring(cx, cy, discR, Math.max(1f, R * 0.005f), 0x26FFFFFF);
         }
         c.ring(cx, cy, ringR, R * 0.03f, 0x10FFFFFF); // faint track
@@ -699,9 +707,9 @@ public class RadialScreen extends Screen {
         Shapes bg = new Shapes();
         if (LiquidGlass.enabled()) {
             LiquidGlass.roundRect(ctx, x1, y1, x2, y2, 12f, a);
-            bg.roundRect(x1, y1, x2, y2, 12f, Shapes.alpha(0x8C1A0805, a));
+            bg.roundRect(x1, y1, x2, y2, 12f, Shapes.alpha(HudStyle.panel(0x8C), a));
         } else {
-            bg.roundRect(x1, y1, x2, y2, 12f, Shapes.alpha(0xE01A0805, a));
+            bg.roundRect(x1, y1, x2, y2, 12f, Shapes.alpha(HudStyle.panel(0xE0), a));
         }
         bg.roundRectRim(x1, y1, x2, y2, 12f, 0.8f, Shapes.alpha(0x40FFFFFF, a));
         bg.submit(ctx);
@@ -816,13 +824,13 @@ public class RadialScreen extends Screen {
                 text.add(() -> leftText(ctx, v, (c1 + cRight) / 2f - textWidth(v, true) * vs / 2f, my, vs, Shapes.alpha(VALUE, a), true));
                 // HUD colour: a swatch next to the name
                 if (st == ModuleManager.get().get(dev.nautilus.module.client.Hud.class).color) {
-                    s.circle((c1 + cRight) / 2f - textWidth(v, true) * vs / 2f - 6f, my, 3f, Shapes.alpha(dev.nautilus.hud.HudStyle.colorOf(v), a));
+                    s.circle((c1 + cRight) / 2f - textWidth(v, true) * vs / 2f - 6f, my, 3f, Shapes.alpha(HudStyle.colorOf(v), a));
                 }
                 panelHits.add(new PanelHit(c1, ry, cRight, ry + rowH, "mode", st, null));
             } else if (st instanceof KeySetting key) {
                 String v = key == listening ? "Taste drücken …" : key.display();
                 float kw = Math.max(44f, textWidth(v, true) * 0.78f + 16f);
-                s.roundRect(cRight - kw, my - 7f, cRight, my + 7f, 7f, Shapes.alpha(key == listening ? 0xCCFF5A2A : 0x22FFFFFF, a));
+                s.roundRect(cRight - kw, my - 7f, cRight, my + 7f, 7f, Shapes.alpha(key == listening ? HudStyle.accent(0xCC) : 0x22FFFFFF, a));
                 s.roundRectRim(cRight - kw, my - 7f, cRight, my + 7f, 7f, 0.6f, Shapes.alpha(0x40FFFFFF, a));
                 text.add(() -> leftText(ctx, v, cRight - kw / 2f - textWidth(v, true) * 0.39f, my, 0.78f, white, true));
                 panelHits.add(new PanelHit(cRight - kw, ry, cRight, ry + rowH, "key", st, null));
@@ -917,9 +925,9 @@ public class RadialScreen extends Screen {
             int rc = RISK_COLORS[p.risk()];
             if (LiquidGlass.enabled()) {
                 LiquidGlass.roundRect(ctx, cx1, y1, cx2, y2, ph / 2f, appear);
-                bar.roundRect(cx1, y1, cx2, y2, ph / 2f, Shapes.alpha(active ? (rc & 0xFFFFFF) | 0x55000000 : hot ? 0x40FFFFFF : 0x302A0E06, appear));
+                bar.roundRect(cx1, y1, cx2, y2, ph / 2f, Shapes.alpha(active ? (rc & 0xFFFFFF) | 0x55000000 : hot ? 0x40FFFFFF : HudStyle.shade(0x30, 0.84f), appear));
             } else {
-                bar.roundRect(cx1, y1, cx2, y2, ph / 2f, Shapes.alpha(active ? (rc & 0xFFFFFF) | 0x99000000 : hot ? 0xC0402010 : 0xB02A0E06, appear));
+                bar.roundRect(cx1, y1, cx2, y2, ph / 2f, Shapes.alpha(active ? (rc & 0xFFFFFF) | 0x99000000 : hot ? HudStyle.shade(0xC0, 0.75f) : HudStyle.shade(0xB0, 0.84f), appear));
             }
             bar.roundRectRim(cx1, y1, cx2, y2, ph / 2f, 0.8f, Shapes.alpha(active ? rc : hot ? 0x80FFFFFF : 0x40FFFFFF, appear));
             // traffic light: red / yellow / green, the risk of this preset is lit
@@ -958,11 +966,11 @@ public class RadialScreen extends Screen {
         Shapes bar = new Shapes();
         if (LiquidGlass.enabled()) {
             LiquidGlass.roundRect(ctx, x1, y1, x2, y2, ph / 2f, appear);
-            bar.roundRect(x1, y1, x2, y2, ph / 2f, Shapes.alpha(active ? 0x40FF5A2A : 0x302A0E06, appear));
+            bar.roundRect(x1, y1, x2, y2, ph / 2f, Shapes.alpha(active ? HudStyle.accent(0x40) : HudStyle.shade(0x30, 0.84f), appear));
         } else {
-            bar.roundRect(x1, y1, x2, y2, ph / 2f, Shapes.alpha(active ? 0xC0401408 : 0xB02A0E06, appear));
+            bar.roundRect(x1, y1, x2, y2, ph / 2f, Shapes.alpha(active ? HudStyle.shade(0xC0, 0.75f) : HudStyle.shade(0xB0, 0.84f), appear));
         }
-        bar.roundRectRim(x1, y1, x2, y2, ph / 2f, 0.8f, Shapes.alpha(active ? 0xCCFF6A3A : 0x40FFFFFF, appear));
+        bar.roundRectRim(x1, y1, x2, y2, ph / 2f, 0.8f, Shapes.alpha(active ? HudStyle.accentHot(0xCC) : 0x40FFFFFF, appear));
         // magnifier
         float mx = x1 + 10f, my = (y1 + y2) / 2f - 0.5f;
         bar.ring(mx, my, 3f, 1.2f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
@@ -1022,10 +1030,10 @@ public class RadialScreen extends Screen {
         float maxW = 2f * (float) Math.sqrt(Math.max(0f, (discR - 3f) * (discR - 3f) - dy * dy));
         if (w > maxW) { float f = maxW / w; s *= f; tw *= f; w = maxW; h = 9f * s + 4f; }
         Shapes p = new Shapes();
-        p.roundRect(cx - w / 2f, y - h / 2f, cx + w / 2f, y + h / 2f, h / 2f, Shapes.alpha(0x40FF5A2A, appear));
-        p.roundRectRim(cx - w / 2f, y - h / 2f, cx + w / 2f, y + h / 2f, h / 2f, 0.8f, Shapes.alpha(0xCCFF6A3A, appear));
+        p.roundRect(cx - w / 2f, y - h / 2f, cx + w / 2f, y + h / 2f, h / 2f, Shapes.alpha(HudStyle.accent(0x40), appear));
+        p.roundRectRim(cx - w / 2f, y - h / 2f, cx + w / 2f, y + h / 2f, h / 2f, 0.8f, Shapes.alpha(HudStyle.accentHot(0xCC), appear));
         p.submit(ctx);
-        text(ctx, text, cx, y, s, Shapes.alpha(0xFFFFE0D4, appear), true);
+        text(ctx, text, cx, y, s, Shapes.alpha(HudStyle.tintedWhite(0xFF, 0.18f), appear), true);
     }
 
     // ---- setting widgets ------------------------------------------------------------------------
@@ -1117,12 +1125,12 @@ public class RadialScreen extends Screen {
         Shapes pill = new Shapes();
         if (LiquidGlass.enabled()) {
             LiquidGlass.roundRect(ctx, width / 2f - pw / 2f, py - ph / 2f, width / 2f + pw / 2f, py + ph / 2f, ph / 2f, close);
-            pill.roundRect(width / 2f - pw / 2f, py - ph / 2f, width / 2f + pw / 2f, py + ph / 2f, ph / 2f, Shapes.alpha(0x302A0E06, close));
+            pill.roundRect(width / 2f - pw / 2f, py - ph / 2f, width / 2f + pw / 2f, py + ph / 2f, ph / 2f, Shapes.alpha(HudStyle.shade(0x30, 0.84f), close));
         } else {
-            pill.roundRect(width / 2f - pw / 2f, py - ph / 2f, width / 2f + pw / 2f, py + ph / 2f, ph / 2f, Shapes.alpha(0xB02A0E06, close));
+            pill.roundRect(width / 2f - pw / 2f, py - ph / 2f, width / 2f + pw / 2f, py + ph / 2f, ph / 2f, Shapes.alpha(HudStyle.shade(0xB0, 0.84f), close));
         }
         pill.submit(ctx);
-        text(ctx, hint, width / 2f, py, s, Shapes.alpha(0xFFF6ECE8, close), false);
+        text(ctx, hint, width / 2f, py, s, Shapes.alpha(TEXT, close), false);
     }
 
     // =============================================================================================

@@ -1206,6 +1206,45 @@
    "presets": []
   },
   {
+   "id": "HoleESP",
+   "name": "HoleESP",
+   "category": "CRYSTAL",
+   "description": "Zeigt sichere Löcher aus Bedrock (grün) oder Obsidian (Akzentfarbe) in deiner Nähe – darin treffen dich Kristalle nur von oben.",
+   "settings": [
+    {
+     "name": "Reichweite",
+     "desc": "Suchradius um dich in Blöcken",
+     "type": "number",
+     "default": 8,
+     "min": 3,
+     "max": 16,
+     "step": 1
+    },
+    {
+     "name": "Höhe",
+     "desc": "Wie viele Blöcke über/unter dir gesucht wird",
+     "type": "number",
+     "default": 4,
+     "min": 1,
+     "max": 8,
+     "step": 1
+    },
+    {
+     "name": "Nur Bedrock",
+     "desc": "Nur Löcher aus reinem Bedrock zeigen (unzerstörbar)",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Flach",
+     "desc": "Nur den Boden markieren statt eines ganzen Blocks",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "SpearSwitch",
    "name": "SpearSwitch",
    "category": "SPEAR",
@@ -1593,6 +1632,75 @@
    "presets": []
   },
   {
+   "id": "AutoTool",
+   "name": "AutoTool",
+   "category": "PLAYER",
+   "description": "Nimmt beim Abbauen automatisch das schnellste Werkzeug aus der Hotbar und wechselt danach zurück.",
+   "settings": [
+    {
+     "name": "Zurückwechseln",
+     "desc": "Nach dem Abbauen wieder den vorherigen Slot halten",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Werkzeug schonen",
+     "desc": "Fast kaputte Werkzeuge nicht benutzen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Min. Haltbarkeit",
+     "desc": "Werkzeuge mit weniger Resthaltbarkeit werden übersprungen",
+     "type": "number",
+     "default": 10,
+     "min": 1,
+     "max": 100,
+     "step": 1
+    },
+    {
+     "name": "Nicht mit Schwert",
+     "desc": "Nicht wechseln, solange du ein Schwert oder einen Streitkolben hältst",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "ArmorAlert",
+   "name": "ArmorAlert",
+   "category": "PLAYER",
+   "description": "Warnt per Benachrichtigung, wenn deine Rüstung fast kaputt ist oder dir die Totems ausgehen.",
+   "settings": [
+    {
+     "name": "Grenze %",
+     "desc": "Warnen, sobald ein Rüstungsteil unter diesen Wert fällt",
+     "type": "number",
+     "default": 20,
+     "min": 5,
+     "max": 60,
+     "step": 5
+    },
+    {
+     "name": "Totem-Warnung",
+     "desc": "Auch warnen, wenn nur noch wenige Totems im Inventar sind",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Min. Totems",
+     "desc": "Ab dieser Anzahl (inkl. Zweithand) wird gewarnt",
+     "type": "number",
+     "default": 2,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "XRay",
    "name": "XRay",
    "category": "SMP",
@@ -1827,6 +1935,47 @@
    "presets": []
   },
   {
+   "id": "PlayerESP",
+   "name": "PlayerESP",
+   "category": "SMP",
+   "description": "Zeigt andere Spieler als Box durch Wände – Farbe nach HUD-Farbe, Leben oder Distanz.",
+   "settings": [
+    {
+     "name": "Reichweite",
+     "desc": "Maximale Entfernung in Blöcken",
+     "type": "number",
+     "default": 128,
+     "min": 16,
+     "max": 512,
+     "step": 16
+    },
+    {
+     "name": "Farbe",
+     "desc": "Akzent = HUD-Farbe, Leben = grün → rot, Distanz = nah rot, fern grün",
+     "type": "mode",
+     "default": "Akzent",
+     "modes": [
+      "Akzent",
+      "Leben",
+      "Distanz"
+     ]
+    },
+    {
+     "name": "Tracer",
+     "desc": "Linie von der Bildschirmmitte zu jedem Spieler",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Unsichtbare",
+     "desc": "Auch unsichtbare Spieler anzeigen",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "Hud",
    "name": "HUD",
    "category": "CLIENT",
@@ -1849,7 +1998,7 @@
     },
     {
      "name": "HUD-Farbe",
-     "desc": "Akzentfarbe von HUD, Logo und Glas-Tönung (Regenbogen = wechselt langsam durch alle Farben)",
+     "desc": "Akzentfarbe des ganzen Clients: Rad, Einstellungen, HUD, Logo und Glas-Tönung (Regenbogen = wechselt langsam durch alle Farben)",
      "type": "mode",
      "default": null,
      "modes": [
