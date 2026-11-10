@@ -36,12 +36,16 @@ public final class ModuleManager {
         register(new SilentKillAura());
         register(new BlatantKillAura());
         register(new Aimbot());
+        register(new dev.nautilus.module.combat.AutoSprint());
         // Crystal PvP
         register(new dev.nautilus.module.crystal.AutoCrystal());
         register(new dev.nautilus.module.crystal.AnchorMacro());
         register(new dev.nautilus.module.crystal.SafeAnchor());
         register(new dev.nautilus.module.crystal.AutoTotem());
         register(new dev.nautilus.module.crystal.Surround());
+        // Spear
+        register(new dev.nautilus.module.spear.SpearSwitch());
+        register(new dev.nautilus.module.spear.AutoEat());
         // SMP
         register(new XRay());
         register(new BaseFinder());

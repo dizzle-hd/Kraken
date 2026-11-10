@@ -9,7 +9,8 @@ public enum Category {
     CLIENT("Client", Items.COMMAND_BLOCK),
     COMBAT("Combat", Items.DIAMOND_SWORD),
     SMP("SMP", Items.SPYGLASS),
-    CRYSTAL("Crystal", Items.END_CRYSTAL);
+    CRYSTAL("Crystal", Items.END_CRYSTAL),
+    SPEAR("Spear", Items.IRON_SPEAR);
 
     private final String displayName;
     private final Item icon;

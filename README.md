@@ -62,6 +62,7 @@ Combat- und Crystal-Module haben im Einstellungs-Panel **oben eine Preset-Leiste
 - **SilentKillAura** – ein Ziel, wartet auf volle Abklingzeit, weiche stille Server-Rotation, Sichtlinie nötig; schlägt erst, wenn die Server-Rotation die Hitbox wirklich trifft (oder innerhalb der Toleranz liegt).
 - Alle Auren und der Aimbot teilen sich: **Zielpunkt** (Auto/Kopf/Brust/Beine), **Vorhersage** (Ticks) und **Ziel halten**. Ziele hinter Wänden werden über mehrere sichtbare Hitbox-Punkte erkannt und angezielt.
 - **Aimbot** – zieht dein Fadenkreuz weich (pro Frame, Ease-Out + Max. Drehung) auf das beste Ziel im FOV. Zielt auf den Punkt mit der kleinsten Drehung (wählbar Kopf/Brust/Beine), hält bewegte Ziele vor (Vorhersage), bleibt beim aktuellen Ziel (Ziel-Lock), optional nur beim Klicken oder nur horizontal.
+- **AutoSprint** – hält beim Vorwärtslaufen automatisch die Sprint-Taste.
 - **BlatantKillAura** – große Reichweite, mehrere Ziele, durch Wände, CPS-Modus, Kamera rastet ein (oder Silent).
 
 ### Crystal
@@ -70,6 +71,10 @@ Combat- und Crystal-Module haben im Einstellungs-Panel **oben eine Preset-Leiste
 - **SafeAnchor** – setzt vor der Explosion einen Schutzblock zwischen dich und den Anker (Glowstone/Obsidian/beliebig, zu dir oder zusätzlich oben). Alleine nutzbar oder kombiniert mit AnchorMacro.
 - **AutoTotem** – hält ein Totem in der Zweithand (immer oder unter einer Leben-Grenze, darüber Kristall/Goldapfel).
 - **Surround** – umgibt deine Füße mit Obsidian (Zentrieren, Stützblöcke, doppelte Höhe, aus beim Weggehen).
+
+### Spear
+- **SpearSwitch** – Lunge im Dauerfeuer: du hältst einen leeren (oder anderen) Slot, pro Stoß wird im selben Tick kurz auf den Speer gewechselt, zugestochen und zurückgewechselt – so zählt nur der kurze Cooldown der leeren Hand. Auslöser: an/aus per Modul-Taste, Halten einer eigenen Lunge-Taste oder solange die Angriffstaste gedrückt ist. Intervall, Zufall, Park-Slot, nur Speere mit Lunge, Hunger-Schutz. Lunge wirkt nur zu Fuß (nicht reitend, nicht mit Elytra, nicht im Wasser) und ab 7 Hunger.
+- **AutoEat** – isst automatisch, wenn der Hunger unter die Grenze fällt (Lunge kostet viel Hunger), optional mit Goldäpfeln, nicht während du angreifst.
 
 ### SMP
 - **XRay** – blendet alles außer ausgewählten Erzen/Kisten aus, optional Fullbright. *(Funktioniert nicht mit Sodium – schaltet sich dort automatisch ab.)*
