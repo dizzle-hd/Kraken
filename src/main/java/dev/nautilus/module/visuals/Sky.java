@@ -12,6 +12,7 @@ import dev.nautilus.module.Category;
 import dev.nautilus.module.Module;
 import dev.nautilus.module.ModuleManager;
 import dev.nautilus.setting.BoolSetting;
+import dev.nautilus.setting.ModeSetting;
 import dev.nautilus.setting.NumberSetting;
 import dev.nautilus.util.Render3D;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
@@ -30,28 +31,32 @@ import org.joml.Vector4f;
 import java.util.Random;
 
 /**
- * A livelier overworld sky in the Nautilus look: the trademark ring arching across the sky, a
- * northern-lights curtain and shooting stars at night, more stars and a sky tinted in the HUD colour.
- * Everything is client-side geometry far behind the terrain – it never hides blocks or entities.
+ * Northern lights over the overworld: several glowing curtains with moving rays and folds, green at
+ * the bottom edge fading into the HUD colour / violet at the top – plus shooting stars, more stars and
+ * a sky tinted in the HUD colour.
+ *
+ * <p>Only ever on the sky itself: the curtains sit far behind the loaded terrain and are depth-tested
+ * against everything (blocks, entities, clouds) – a block in front always covers them, and they are
+ * never drawn on top of or through blocks.
  */
 public class Sky extends Module {
-    private final BoolSetting ring = add(new BoolSetting("Himmelsring", "Das Nautilus-Markenzeichen: ein leuchtender Ring quer über den Himmel", true));
-    private final BoolSetting aurora = add(new BoolSetting("Polarlicht", "Wehende Lichtvorhänge im Norden – nachts", true));
+    private final BoolSetting aurora = add(new BoolSetting("Polarlicht", "Wehende Polarlicht-Vorhänge am Himmel", true));
+    private final ModeSetting time = add(new ModeSetting("Zeit", "Wann das Polarlicht zu sehen ist", "Nachts", "Nachts", "Immer"));
+    private final ModeSetting colors = add(new ModeSetting("Farben", "Farben des Polarlichts", "Klassisch", "Klassisch", "HUD-Farbe", "Regenbogen"));
+    private final NumberSetting intensity = add(new NumberSetting("Stärke", "Helligkeit des Polarlichts", 70, 10, 100, 5));
     private final BoolSetting shootingStars = add(new BoolSetting("Sternschnuppen", "Ab und zu eine Sternschnuppe – nachts", true));
-    private final NumberSetting tint = add(new NumberSetting("Himmelsfarbe", "Wie stark der Himmel in der HUD-Farbe getönt wird (0 = Vanilla)", 25, 0, 100, 5));
-    private final NumberSetting stars = add(new NumberSetting("Sterne", "Mehr Sterne: schon in der Dämmerung und heller (0 = Vanilla)", 50, 0, 100, 10));
-    private final NumberSetting intensity = add(new NumberSetting("Stärke", "Deckkraft von Ring, Polarlicht und Sternschnuppen", 70, 10, 100, 5));
+    private final NumberSetting stars = add(new NumberSetting("Sterne", "Mehr Sterne: schon in der Dämmerung und heller (0 = Vanilla)", 40, 0, 100, 10));
+    private final NumberSetting tint = add(new NumberSetting("Himmelsfarbe", "Wie stark der Himmel in der HUD-Farbe getönt wird (0 = Vanilla)", 0, 0, 100, 5));
 
     private static final RenderPipeline PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath("nautilusclient", "pipeline/sky_fx"))
             .withCull(false)
-            .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-            // behind terrain and clouds, but never written into the depth buffer
-            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+            .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING)) // additive light, like a real aurora
+            // reversed Z (far = 0): passes only where nothing is in front – i.e. only on the empty sky
+            .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
             .build();
     private static final RenderType QUADS = RenderType.create("nautilusclient_sky_fx", RenderSetup.builder(PIPELINE).createRenderSetup());
 
-    // values of the vanilla sky of this frame (from SkyRendererMixin)
     private static boolean overworld;
     private static float night, clear = 1f;
 
@@ -63,7 +68,7 @@ public class Sky extends Module {
     private long starStart = -1;
 
     public Sky() {
-        super("Himmel", "Lebendiger Himmel: leuchtender Nautilus-Ring, Polarlicht, Sternschnuppen, mehr Sterne und Tönung in der HUD-Farbe.",
+        super("Himmel", "Polarlichter am Nachthimmel, Sternschnuppen, mehr Sterne und auf Wunsch ein Himmel in der HUD-Farbe – nur im Himmel, nie auf Blöcken.",
                 Category.VISUALS, Items.FIREWORK_STAR);
         loadEnabled(true);
     }
@@ -85,7 +90,6 @@ public class Sky extends Module {
         float ar = ((acc >> 16) & 0xFF) / 255f, ag = ((acc >> 8) & 0xFF) / 255f, ab = (acc & 0xFF) / 255f;
         if (t > 0 && state.skyColor != null) {
             var c = state.skyColor;
-            // day: a soft pastel of the accent, night: a deep shade of it
             float lum = 0.299f * c.x() + 0.587f * c.y() + 0.114f * c.z();
             float k = t * 0.45f;
             state.skyColor = new Vector3f(c.x() + (ar * lum * 1.15f - c.x()) * k, c.y() + (ag * lum * 1.15f - c.y()) * k, c.z() + (ab * lum * 1.15f - c.z()) * k);
@@ -99,75 +103,69 @@ public class Sky extends Module {
         if (st > 0) state.starBrightness = Math.min(1f, Math.max(state.starBrightness * (1f + st), state.starBrightness + st * 0.15f * state.rainBrightness));
     }
 
-    // ---- geometry ---------------------------------------------------------------------------------
+    // ---- geometry (camera-relative, on a sphere far behind the terrain) ----------------------------
 
-    private void quad(float[] a, float[] b, float[] c, float[] d, int ca, int cb, int cc, int cd) {
-        pos.add(a[0]); pos.add(a[1]); pos.add(a[2]); col.add(ca);
-        pos.add(b[0]); pos.add(b[1]); pos.add(b[2]); col.add(cb);
-        pos.add(c[0]); pos.add(c[1]); pos.add(c[2]); col.add(cc);
-        pos.add(d[0]); pos.add(d[1]); pos.add(d[2]); col.add(cd);
-    }
-
-    /** Fades everything out towards the horizon (the vanilla fog would hide it there anyway). */
-    private static float horizon(float y, float dist) {
-        float e = y / dist;
-        return Math.max(0f, Math.min(1f, (e - 0.02f) / 0.18f));
+    private void vertex(float[] p, int c) {
+        pos.add(p[0]); pos.add(p[1]); pos.add(p[2]); col.add(c);
     }
 
     private static int argb(int rgb, float a) {
         return ((int) (Math.max(0f, Math.min(1f, a)) * 255) << 24) | (rgb & 0xFFFFFF);
     }
 
-    /** Point on the tilted ring: angle t around it, offset w across the band (radians of sky). */
-    private static float[] ringPoint(float d, float t, float w, float tilt, float yaw) {
-        // circle in the XZ plane, lifted by the band offset, then tilted around X and turned around Y
-        double x = Math.cos(t) * Math.cos(w), y = Math.sin(w), z = Math.sin(t) * Math.cos(w);
-        double y1 = y * Math.cos(tilt) - z * Math.sin(tilt), z1 = y * Math.sin(tilt) + z * Math.cos(tilt);
-        double x2 = x * Math.cos(yaw) + z1 * Math.sin(yaw), z2 = -x * Math.sin(yaw) + z1 * Math.cos(yaw);
-        return new float[]{(float) (x2 * d), (float) (y1 * d), (float) (z2 * d)};
+    /** Point on the sky sphere: azimuth (0 = north, clockwise) and elevation in radians. */
+    private static float[] sky(float d, double az, double el) {
+        return new float[]{(float) (Math.sin(az) * Math.cos(el) * d), (float) (Math.sin(el) * d), (float) (-Math.cos(az) * Math.cos(el) * d)};
     }
 
-    private void band(float d, float tilt, float yaw, float width, float alpha, int c1, int c2) {
-        int seg = 160;
-        float[] offs = {-width, -width * 0.25f, 0f, width * 0.25f, width};
-        float[] alp = {0f, 0.55f, 1f, 0.55f, 0f};
-        for (int i = 0; i < seg; i++) {
-            float t0 = (float) (i * Math.PI * 2 / seg), t1 = (float) ((i + 1) * Math.PI * 2 / seg);
-            int ca = Shapes.lerp(c1, c2, 0.5f + 0.5f * (float) Math.sin(t0 * 2)), cb = Shapes.lerp(c1, c2, 0.5f + 0.5f * (float) Math.sin(t1 * 2));
-            for (int k = 0; k < offs.length - 1; k++) {
-                float[] p00 = ringPoint(d, t0, offs[k], tilt, yaw), p01 = ringPoint(d, t0, offs[k + 1], tilt, yaw);
-                float[] p11 = ringPoint(d, t1, offs[k + 1], tilt, yaw), p10 = ringPoint(d, t1, offs[k], tilt, yaw);
-                quad(p00, p10, p11, p01,
-                        argb(ca, alpha * alp[k] * horizon(p00[1], d)), argb(cb, alpha * alp[k] * horizon(p10[1], d)),
-                        argb(cb, alpha * alp[k + 1] * horizon(p11[1], d)), argb(ca, alpha * alp[k + 1] * horizon(p01[1], d)));
+    /** Smooth pseudo-noise from a few sines: the folds and rays of the curtains. */
+    private static double wave(double x, double t, double seed) {
+        return Math.sin(x * 3.1 + t * 0.35 + seed) * 0.5 + Math.sin(x * 7.3 - t * 0.6 + seed * 2.1) * 0.3 + Math.sin(x * 17.0 + t * 0.9 + seed * 3.7) * 0.2;
+    }
+
+    private int[] palette(double u, float t) {
+        return switch (colors.get()) {
+            case "HUD-Farbe" -> new int[]{HudStyle.accent(), HudStyle.hueShift(HudStyle.accent(), 0.15f)};
+            case "Regenbogen" -> {
+                float h = (float) ((u * 0.6 + t * 0.02) % 1.0);
+                yield new int[]{net.minecraft.util.Mth.hsvToRgb(h, 0.75f, 1f), net.minecraft.util.Mth.hsvToRgb((h + 0.15f) % 1f, 0.6f, 1f)};
             }
+            default -> new int[]{0x3DFFA0, Shapes.lerp(0xFF7A5CFF, 0xFFFF5AB4, (float) (0.5 + 0.5 * Math.sin(u * 4 + t * 0.1))) & 0xFFFFFF};
+        };
+    }
+
+    /**
+     * One curtain: follows an azimuth range at a base elevation; its lower edge folds and drifts, bright
+     * vertical rays run along it. Each column is two quads: bright lower edge → mid → transparent top.
+     */
+    private void curtain(float d, double az0, double az1, double baseEl, double height, double seed, float alpha, float t) {
+        int seg = 90;
+        float[][] lo = new float[seg + 1][], mid = new float[seg + 1][], hi = new float[seg + 1][];
+        int[] cLo = new int[seg + 1], cMid = new int[seg + 1], cHi = new int[seg + 1];
+        for (int i = 0; i <= seg; i++) {
+            double u = i / (double) seg;
+            double az = az0 + (az1 - az0) * u + 0.05 * wave(u * 2, t, seed);
+            double el = baseEl + Math.toRadians(4) * wave(u * 1.5, t * 0.8, seed + 5);
+            double h = height * (0.75 + 0.35 * (0.5 + 0.5 * wave(u * 3, t * 0.5, seed + 9)));
+            // rays: thin bright streaks moving along the curtain
+            double rays = Math.pow(0.5 + 0.5 * Math.sin(u * 140 + t * 1.2 + seed * 13 + 2 * Math.sin(u * 31 + t * 0.4)), 3);
+            float edge = (float) Math.min(1.0, Math.min(u, 1 - u) * 7);         // soft curtain ends
+            float pulse = (float) (0.55 + 0.45 * (0.5 + 0.5 * wave(u * 2.3, t * 1.3, seed + 3)));
+            float a = alpha * edge * pulse * (float) (0.45 + 0.55 * rays);
+            int[] pal = palette(u, t);
+            lo[i] = sky(d, az, el);
+            mid[i] = sky(d, az + 0.02 * Math.sin(t * 0.3 + u * 9), el + h * 0.35);
+            hi[i] = sky(d, az + 0.04 * Math.sin(t * 0.3 + u * 9), el + h);
+            cLo[i] = argb(pal[0], a * 0.95f);
+            cMid[i] = argb(Shapes.lerp(0xFF000000 | pal[0], 0xFF000000 | pal[1], 0.5f), a * 0.55f);
+            cHi[i] = argb(pal[1], 0f);
         }
-    }
-
-    private void aurora(float d, float alpha, float time) {
-        int seg = 70;
-        int c1 = HudStyle.accent(), c2 = HudStyle.hueShift(HudStyle.accent(), 0.35f);
-        if (c2 == c1) c2 = 0xFF3DDCB0; // white accent: no hue to turn, use teal
         for (int i = 0; i < seg; i++) {
-            float u0 = i / (float) seg, u1 = (i + 1) / (float) seg;
-            float[][] bottom = new float[2][], top = new float[2][];
-            float[] us = {u0, u1};
-            int[] cols = new int[2];
-            float[] fade = new float[2];
-            for (int k = 0; k < 2; k++) {
-                float u = us[k];
-                double az = Math.toRadians(-70 + 140 * u) + 0.08 * Math.sin(time * 0.6 + u * 9);   // around north (-Z)
-                double wave = 0.06 * Math.sin(time * 0.9 + u * 14) + 0.03 * Math.sin(time * 1.7 + u * 31);
-                double low = Math.toRadians(8), high = Math.toRadians(30 + 8 * Math.sin(time * 0.5 + u * 7));
-                double x = Math.sin(az), z = -Math.cos(az);
-                bottom[k] = new float[]{(float) (x * Math.cos(low) * d + wave * d), (float) (Math.sin(low) * d), (float) (z * Math.cos(low) * d)};
-                top[k] = new float[]{(float) (x * Math.cos(high) * d + wave * d * 1.4), (float) (Math.sin(high) * d), (float) (z * Math.cos(high) * d)};
-                cols[k] = Shapes.lerp(c1, c2, 0.5f + 0.5f * (float) Math.sin(time * 0.4 + u * 6));
-                float edge = Math.min(u, 1 - u) * 6f;
-                fade[k] = Math.min(1f, edge) * (0.6f + 0.4f * (float) Math.sin(time * 1.3 + u * 20));
-            }
-            quad(bottom[0], bottom[1], top[1], top[0],
-                    argb(cols[0], alpha * fade[0]), argb(cols[1], alpha * fade[1]), argb(cols[1], 0f), argb(cols[0], 0f));
+            // thin glow below the lower edge
+            float[] lo0b = new float[]{lo[i][0], lo[i][1] - d * 0.012f, lo[i][2]}, lo1b = new float[]{lo[i + 1][0], lo[i + 1][1] - d * 0.012f, lo[i + 1][2]};
+            vertex(lo0b, cLo[i] & 0x00FFFFFF); vertex(lo1b, cLo[i + 1] & 0x00FFFFFF); vertex(lo[i + 1], cLo[i + 1]); vertex(lo[i], cLo[i]);
+            vertex(lo[i], cLo[i]); vertex(lo[i + 1], cLo[i + 1]); vertex(mid[i + 1], cMid[i + 1]); vertex(mid[i], cMid[i]);
+            vertex(mid[i], cMid[i]); vertex(mid[i + 1], cMid[i + 1]); vertex(hi[i + 1], cHi[i + 1]); vertex(hi[i], cHi[i]);
         }
     }
 
@@ -182,21 +180,17 @@ public class Sky extends Module {
         float t = (now - starStart) / 900f;
         if (t > 1f) {
             starStart = -1;
-            nextStar = now + 4000 + random.nextInt(9000);
+            nextStar = now + 5000 + random.nextInt(12000);
             return;
         }
         float a = alpha * (float) Math.sin(t * Math.PI);
-        float len = 0.25f;
-        float[] head = sphere(d * 0.95f, starYaw + starDir * t * 0.5f, starPitch - t * 0.25f);
-        float[] tail = sphere(d * 0.95f, starYaw + starDir * (t * 0.5f - len), starPitch - (t - len * 2) * 0.25f);
-        float w = d * 0.003f;
-        quad(new float[]{head[0], head[1] + w, head[2]}, new float[]{tail[0], tail[1], tail[2]},
-                new float[]{tail[0], tail[1], tail[2]}, new float[]{head[0], head[1] - w, head[2]},
-                argb(0xFFFFFF, a), argb(HudStyle.accent(), 0f), argb(HudStyle.accent(), 0f), argb(0xFFFFFF, a));
-    }
-
-    private static float[] sphere(float d, float yaw, float pitch) {
-        return new float[]{(float) (Math.cos(pitch) * Math.sin(yaw) * d), (float) (Math.sin(pitch) * d), (float) (-Math.cos(pitch) * Math.cos(yaw) * d)};
+        float[] head = sky(d * 0.95f, starYaw + starDir * t * 0.5f, starPitch - t * 0.25f);
+        float[] tail = sky(d * 0.95f, starYaw + starDir * (t * 0.5f - 0.25f), starPitch - (t - 0.5f) * 0.25f);
+        float w = d * 0.0025f;
+        vertex(new float[]{head[0], head[1] + w, head[2]}, argb(0xFFFFFF, a));
+        vertex(tail, 0);
+        vertex(tail, 0);
+        vertex(new float[]{head[0], head[1] - w, head[2]}, argb(0xFFFFFF, a));
     }
 
     @Override
@@ -205,20 +199,18 @@ public class Sky extends Module {
         pos.clear();
         col.clear();
         long now = System.currentTimeMillis();
-        float time = (now % 3_600_000L) / 1000f;
-        // far behind the terrain, well inside the far plane (≥ 4 × render distance)
+        float t = (now % 3_600_000L) / 1000f;
+        // far behind the loaded terrain, well inside the far plane (≥ 4 × render distance)
         float d = Math.max(96f, mc.options.getEffectiveRenderDistance() * 16f * 1.8f);
-        float k = intensity.getFloat() / 100f * clear;
-        if (ring.isOn()) {
-            float a = k * (0.22f + 0.38f * night);
-            int c1 = HudStyle.accent(), c2 = HudStyle.accent2();
-            float yaw = time * 0.01f;
-            band(d, (float) Math.toRadians(62), yaw, 0.11f, a, c1, c2);                       // wide glow
-            band(d, (float) Math.toRadians(62), yaw, 0.018f, Math.min(1f, a * 1.8f), 0xFFFFFFFF, c1); // bright core
-            band(d, (float) Math.toRadians(-48), -yaw * 0.7f + 1.3f, 0.035f, a * 0.6f, c2, c1); // second, thinner ring
+        float visible = time.is("Immer") ? Math.max(0.35f, night) : night;
+        float k = intensity.getFloat() / 100f * clear * visible;
+        if (aurora.isOn() && k > 0.01f) {
+            // three curtains: a big one in the north, two smaller, higher ones drifting around
+            curtain(d, Math.toRadians(-80), Math.toRadians(70), Math.toRadians(14), Math.toRadians(26), 1.0, k * 0.85f, t);
+            curtain(d, Math.toRadians(-40) + 0.1 * Math.sin(t * 0.02), Math.toRadians(110), Math.toRadians(30), Math.toRadians(20), 4.0, k * 0.55f, t * 1.1f);
+            curtain(d, Math.toRadians(150), Math.toRadians(250), Math.toRadians(22), Math.toRadians(18), 7.0, k * 0.4f, t * 0.9f);
         }
-        if (aurora.isOn() && night > 0.05f) aurora(d, k * 0.55f * night, time);
-        if (shootingStars.isOn() && night > 0.3f) shootingStar(d, k * night, now);
+        if (shootingStars.isOn() && night > 0.3f) shootingStar(d, intensity.getFloat() / 100f * night * clear, now);
         if (col.isEmpty()) return;
         float[] p = pos.toFloatArray();
         int[] c = col.toIntArray();

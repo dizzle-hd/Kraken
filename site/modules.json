@@ -2357,17 +2357,17 @@
    "id": "Hotbar",
    "name": "Hotbar",
    "category": "VISUALS",
-   "description": "Glas-Hotbar mit quadratischen Slots und Ring-Anzeigen für Leben, Hunger, Luft und XP – im Nautilus-Ringdesign.",
+   "description": "Glas-Hotbar mit quadratischen Slots, darüber Leisten für Leben, Hunger, Rüstung, Luft und XP – im Nautilus-Glasdesign.",
    "settings": [
     {
-     "name": "Ringe",
-     "desc": "Leben, Hunger und Luft als Ringe statt Herzen und Keulen",
+     "name": "Leisten",
+     "desc": "Leben und Hunger als Glas-Leisten über der Hotbar statt Herzen und Keulen",
      "type": "bool",
      "default": true
     },
     {
      "name": "XP-Leiste",
-     "desc": "Eigene XP-Leiste mit Level im Ring (ersetzt auch die Ortungsleiste)",
+     "desc": "Eigene XP-Linie mit Level (ersetzt auch die Ortungsleiste)",
      "type": "bool",
      "default": true
     },
@@ -2384,19 +2384,43 @@
    "id": "Sky",
    "name": "Himmel",
    "category": "VISUALS",
-   "description": "Lebendiger Himmel: leuchtender Nautilus-Ring, Polarlicht, Sternschnuppen, mehr Sterne und Tönung in der HUD-Farbe.",
+   "description": "Polarlichter am Nachthimmel, Sternschnuppen, mehr Sterne und auf Wunsch ein Himmel in der HUD-Farbe – nur im Himmel, nie auf Blöcken.",
    "settings": [
     {
-     "name": "Himmelsring",
-     "desc": "Das Nautilus-Markenzeichen: ein leuchtender Ring quer über den Himmel",
+     "name": "Polarlicht",
+     "desc": "Wehende Polarlicht-Vorhänge am Himmel",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Polarlicht",
-     "desc": "Wehende Lichtvorhänge im Norden – nachts",
-     "type": "bool",
-     "default": true
+     "name": "Zeit",
+     "desc": "Wann das Polarlicht zu sehen ist",
+     "type": "mode",
+     "default": "Nachts",
+     "modes": [
+      "Nachts",
+      "Immer"
+     ]
+    },
+    {
+     "name": "Farben",
+     "desc": "Farben des Polarlichts",
+     "type": "mode",
+     "default": "Klassisch",
+     "modes": [
+      "Klassisch",
+      "HUD-Farbe",
+      "Regenbogen"
+     ]
+    },
+    {
+     "name": "Stärke",
+     "desc": "Helligkeit des Polarlichts",
+     "type": "number",
+     "default": 70,
+     "min": 10,
+     "max": 100,
+     "step": 5
     },
     {
      "name": "Sternschnuppen",
@@ -2405,29 +2429,20 @@
      "default": true
     },
     {
-     "name": "Himmelsfarbe",
-     "desc": "Wie stark der Himmel in der HUD-Farbe getönt wird (0 = Vanilla)",
-     "type": "number",
-     "default": 25,
-     "min": 0,
-     "max": 100,
-     "step": 5
-    },
-    {
      "name": "Sterne",
      "desc": "Mehr Sterne: schon in der Dämmerung und heller (0 = Vanilla)",
      "type": "number",
-     "default": 50,
+     "default": 40,
      "min": 0,
      "max": 100,
      "step": 10
     },
     {
-     "name": "Stärke",
-     "desc": "Deckkraft von Ring, Polarlicht und Sternschnuppen",
+     "name": "Himmelsfarbe",
+     "desc": "Wie stark der Himmel in der HUD-Farbe getönt wird (0 = Vanilla)",
      "type": "number",
-     "default": 70,
-     "min": 10,
+     "default": 0,
+     "min": 0,
      "max": 100,
      "step": 5
     }

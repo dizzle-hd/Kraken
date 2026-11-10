@@ -30,7 +30,8 @@ public final class Fx {
             .withLocation(Identifier.fromNamespaceAndPath("nautilusclient", "pipeline/glow_fx"))
             .withCull(false)
             .withColorTargetState(new ColorTargetState(BlendFunction.LIGHTNING)) // additive: overlapping glow gets brighter
-            .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
+            // 26.x renders with reversed Z (near = 1, far = 0): GREATER_OR_EQUAL = hidden behind blocks like vanilla
+            .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, false))
             .build();
     private static final RenderType GLOW = RenderType.create("nautilusclient_glow_fx", RenderSetup.builder(PIPELINE).createRenderSetup());
     private static final int MAX_EFFECTS = 600;
