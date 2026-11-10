@@ -6,6 +6,8 @@ on:
   push:
     paths:
       - 'site/**'
+      - 'src/main/java/dev/nautilus/module/**'
+      - 'tools/gen_modules.py'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -30,6 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Module guide data from the Java sources
+        run: python3 tools/gen_modules.py
       - name: Cache-bust CSS/JS
         # browsers must never combine a new index.html with an old cached style.css / app.js
         run: sed -i "s/__BUILD__/${GITHUB_SHA::8}/g" site/index.html

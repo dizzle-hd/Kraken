@@ -27,6 +27,10 @@ Jeder Push auf den Standard-Branch baut den Mod per GitHub Actions (`.github/wor
 veröffentlicht ihn als neues Release `v<version>-build.<nummer>`. Die Webseite (`site/`, veröffentlicht über
 `.github/workflows/pages.yml`) liest das neueste Release über die GitHub-API.
 
+Unter **Modules** auf der Webseite lässt sich jedes Modul anklicken: Was es macht, die Presets mit Bann-Ampel und
+alle Einstellungen mit Standardwert und Bereich. Die Daten (`site/modules.json`) erzeugt `tools/gen_modules.py`
+direkt aus dem Java-Code; der Webseiten-Workflow ruft das Skript vor jedem Deploy auf.
+
 Rad, Mitte und HUD sind aus **Liquid Glass** (eigener Shader: Unschärfe nur hinter dem Glas, Lichtbrechung am Rand, Lichtkante; im HUD-Modul abschaltbar). Alle Icons sind echte, sich drehende 3D-Modelle, in der Mitte steht der Spieler als 3D-Büste und schaut zur Maus. Die Schrift ist
 [Nunito](https://github.com/googlefonts/nunito) (SIL Open Font License, siehe `assets/nautilusclient/font/nunito_ofl_license.txt`).
 

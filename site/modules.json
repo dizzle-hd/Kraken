@@ -1,0 +1,2304 @@
+{
+ "categories": [
+  {
+   "id": "CLIENT",
+   "name": "Client"
+  },
+  {
+   "id": "COMBAT",
+   "name": "Combat"
+  },
+  {
+   "id": "SMP",
+   "name": "SMP"
+  },
+  {
+   "id": "CRYSTAL",
+   "name": "Crystal"
+  },
+  {
+   "id": "SPEAR",
+   "name": "Spear"
+  },
+  {
+   "id": "MACE",
+   "name": "Mace"
+  },
+  {
+   "id": "PLAYER",
+   "name": "Player"
+  }
+ ],
+ "modules": [
+  {
+   "id": "TriggerBot",
+   "name": "TriggerBot",
+   "category": "COMBAT",
+   "description": "Schlägt automatisch zu, sobald dein Fadenkreuz auf einem Ziel liegt – mit Reaktionszeit und zufälliger Reichweite.",
+   "settings": [
+    {
+     "name": "Spieler",
+     "desc": "Spieler angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Monster",
+     "desc": "Feindliche Mobs angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tiere",
+     "desc": "Friedliche Mobs angreifen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Unsichtbare",
+     "desc": "Unsichtbare Ziele angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Abklingzeit",
+     "desc": "Angriff erst ab dieser Aufladung (1.0 = voll)",
+     "type": "number",
+     "default": 0.95,
+     "min": 0.1,
+     "max": 1,
+     "step": 0.05
+    },
+    {
+     "name": "Min. Verzögerung",
+     "desc": "Extra-Ticks NACH dem Aufladen, bevor geschlagen wird (min)",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Max. Verzögerung",
+     "desc": "Extra-Ticks NACH dem Aufladen, bevor geschlagen wird (max)",
+     "type": "number",
+     "default": 2,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Min. Reaktion",
+     "desc": "Ticks, bis auf ein neues Ziel im Fadenkreuz reagiert wird (min)",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Max. Reaktion",
+     "desc": "Ticks, bis auf ein neues Ziel im Fadenkreuz reagiert wird (max)",
+     "type": "number",
+     "default": 3,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Min. Reichweite",
+     "desc": "Zufällige Reichweite pro Schlag, untere Grenze (Blöcke)",
+     "type": "number",
+     "default": 2.6,
+     "min": 1,
+     "max": 3,
+     "step": 0.05
+    },
+    {
+     "name": "Max. Reichweite",
+     "desc": "Zufällige Reichweite pro Schlag, obere Grenze (Blöcke)",
+     "type": "number",
+     "default": 2.95,
+     "min": 1,
+     "max": 3,
+     "step": 0.05
+    },
+    {
+     "name": "Auslassen",
+     "desc": "Chance in %, eine Gelegenheit absichtlich auszulassen",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 30,
+     "step": 1
+    },
+    {
+     "name": "Nur Krits",
+     "desc": "Nur zuschlagen während du fällst (kritischer Treffer)",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Pause beim Benutzen",
+     "desc": "Nicht angreifen während du isst / blockst",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Volle Aufladung + 1–4 Ticks, Reaktion 3–6 Ticks, Reichweite 2,4–2,85",
+     "values": {
+      "Abklingzeit": 1,
+      "Min. Verzögerung": 1,
+      "Max. Verzögerung": 4,
+      "Min. Reaktion": 3,
+      "Max. Reaktion": 6,
+      "Min. Reichweite": 2.4,
+      "Max. Reichweite": 2.85,
+      "Auslassen": 5,
+      "Nur Krits": false
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Fast volle Aufladung + 0–2 Ticks, Reaktion 1–3 Ticks, Reichweite 2,6–2,95",
+     "values": {
+      "Abklingzeit": 0.95,
+      "Min. Verzögerung": 0,
+      "Max. Verzögerung": 2,
+      "Min. Reaktion": 1,
+      "Max. Reaktion": 3,
+      "Min. Reichweite": 2.6,
+      "Max. Reichweite": 2.95,
+      "Auslassen": 0,
+      "Nur Krits": false
+     }
+    },
+    {
+     "name": "Schnell",
+     "risk": 2,
+     "note": "Sofort, früh und immer bei voller Reichweite",
+     "values": {
+      "Abklingzeit": 0.8,
+      "Min. Verzögerung": 0,
+      "Max. Verzögerung": 0,
+      "Min. Reaktion": 0,
+      "Max. Reaktion": 0,
+      "Min. Reichweite": 3,
+      "Max. Reichweite": 3,
+      "Auslassen": 0,
+      "Nur Krits": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "SilentAim",
+   "name": "SilentAim",
+   "category": "COMBAT",
+   "description": "Lenkt deine Klicks unsichtbar auf das nächste Ziel in deinem Sichtkegel.",
+   "settings": [
+    {
+     "name": "FOV",
+     "desc": "Kegel um dein Fadenkreuz, in dem Ziele erfasst werden (Grad)",
+     "type": "number",
+     "default": 40,
+     "min": 5,
+     "max": 180,
+     "step": 1
+    },
+    {
+     "name": "Reichweite",
+     "desc": "Maximale Reichweite in Blöcken",
+     "type": "number",
+     "default": 3,
+     "min": 2,
+     "max": 6,
+     "step": 0.1
+    },
+    {
+     "name": "Spieler",
+     "desc": "Spieler anvisieren",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Monster",
+     "desc": "Feindliche Mobs anvisieren",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tiere",
+     "desc": "Friedliche Mobs anvisieren",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Durch Wände",
+     "desc": "Auch Ziele hinter Blöcken treffen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Nur bei Fehlschlag",
+     "desc": "Nur eingreifen wenn du sonst danebenschlagen würdest",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Nur knapp verfehlte Schläge, kleiner Kegel",
+     "values": {
+      "FOV": 15,
+      "Reichweite": 3,
+      "Durch Wände": false,
+      "Nur bei Fehlschlag": true
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Mittlerer Kegel",
+     "values": {
+      "FOV": 40,
+      "Reichweite": 3,
+      "Durch Wände": false,
+      "Nur bei Fehlschlag": true
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Großer Kegel, mehr Reichweite, durch Wände",
+     "values": {
+      "FOV": 120,
+      "Reichweite": 4.5,
+      "Durch Wände": true,
+      "Nur bei Fehlschlag": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "SilentKillAura",
+   "name": "SilentKillAura",
+   "category": "COMBAT",
+   "description": "Greift Ziele automatisch an – mit unsichtbarer Server-Rotation, deine Kamera bleibt ruhig.",
+   "settings": [
+    {
+     "name": "Sortierung",
+     "desc": "Welches Ziel zuerst angegriffen wird",
+     "type": "mode",
+     "default": "Distanz",
+     "modes": [
+      "Distanz",
+      "Leben",
+      "Winkel"
+     ]
+    },
+    {
+     "name": "Spieler",
+     "desc": "Spieler angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Monster",
+     "desc": "Feindliche Mobs angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tiere",
+     "desc": "Friedliche Mobs angreifen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Unsichtbare",
+     "desc": "Unsichtbare Ziele angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Teammates",
+     "desc": "Auch Spieler aus deinem Team angreifen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Zielpunkt",
+     "desc": "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine",
+     "type": "mode",
+     "default": "Auto",
+     "modes": [
+      "Auto",
+      "Kopf",
+      "Brust",
+      "Beine"
+     ]
+    },
+    {
+     "name": "Vorhersage",
+     "desc": "Bewegung des Ziels vorhalten (Ticks, 0 = aus)",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 4,
+     "step": 0.5
+    },
+    {
+     "name": "Ziel halten",
+     "desc": "Beim aktuellen Ziel bleiben statt ständig zu wechseln",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Pause beim Benutzen",
+     "desc": "Nicht angreifen während du isst / blockst",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Reichweite",
+     "desc": "Angriffsreichweite in Blöcken",
+     "type": "number",
+     "default": null,
+     "min": 1,
+     "max": null,
+     "step": 0.1
+    },
+    {
+     "name": "FOV",
+     "desc": "Nur Ziele innerhalb dieses Sichtwinkels (360 = rundum)",
+     "type": "number",
+     "default": null,
+     "min": 10,
+     "max": 360,
+     "step": 5
+    },
+    {
+     "name": "Abklingzeit",
+     "desc": "Angriff erst ab dieser Aufladung (1.0 = voll)",
+     "type": "number",
+     "default": 0.95,
+     "min": 0.5,
+     "max": 1,
+     "step": 0.05
+    },
+    {
+     "name": "Drehgeschwindigkeit",
+     "desc": "Max. Grad pro Tick für die stille Rotation",
+     "type": "number",
+     "default": 60,
+     "min": 10,
+     "max": 180,
+     "step": 5
+    },
+    {
+     "name": "Toleranz",
+     "desc": "Wie genau gezielt sein muss bevor geschlagen wird (Grad)",
+     "type": "number",
+     "default": 15,
+     "min": 1,
+     "max": 60,
+     "step": 1
+    },
+    {
+     "name": "Durch Wände",
+     "desc": "Ziele hinter Blöcken angreifen",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Volle Aufladung, langsame Drehung, nur nach vorn",
+     "values": {
+      "Abklingzeit": 1,
+      "Drehgeschwindigkeit": 25,
+      "Toleranz": 6,
+      "Reichweite": 3,
+      "FOV": 120,
+      "Durch Wände": false
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Rundum, normale Reichweite",
+     "values": {
+      "Abklingzeit": 0.95,
+      "Drehgeschwindigkeit": 60,
+      "Toleranz": 15,
+      "Reichweite": 3.1,
+      "FOV": 360,
+      "Durch Wände": false
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Schnelle Drehung, mehr Reichweite, durch Wände",
+     "values": {
+      "Abklingzeit": 0.8,
+      "Drehgeschwindigkeit": 180,
+      "Toleranz": 45,
+      "Reichweite": 4,
+      "FOV": 360,
+      "Durch Wände": true
+     }
+    }
+   ]
+  },
+  {
+   "id": "BlatantKillAura",
+   "name": "BlatantKillAura",
+   "category": "COMBAT",
+   "description": "Aggressive Aura: hohe Reichweite, mehrere Ziele, durch Wände, Kamera gleitet zum Ziel.",
+   "settings": [
+    {
+     "name": "Sortierung",
+     "desc": "Welches Ziel zuerst angegriffen wird",
+     "type": "mode",
+     "default": "Distanz",
+     "modes": [
+      "Distanz",
+      "Leben",
+      "Winkel"
+     ]
+    },
+    {
+     "name": "Spieler",
+     "desc": "Spieler angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Monster",
+     "desc": "Feindliche Mobs angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tiere",
+     "desc": "Friedliche Mobs angreifen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Unsichtbare",
+     "desc": "Unsichtbare Ziele angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Teammates",
+     "desc": "Auch Spieler aus deinem Team angreifen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Zielpunkt",
+     "desc": "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine",
+     "type": "mode",
+     "default": "Auto",
+     "modes": [
+      "Auto",
+      "Kopf",
+      "Brust",
+      "Beine"
+     ]
+    },
+    {
+     "name": "Vorhersage",
+     "desc": "Bewegung des Ziels vorhalten (Ticks, 0 = aus)",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 4,
+     "step": 0.5
+    },
+    {
+     "name": "Ziel halten",
+     "desc": "Beim aktuellen Ziel bleiben statt ständig zu wechseln",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Pause beim Benutzen",
+     "desc": "Nicht angreifen während du isst / blockst",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Reichweite",
+     "desc": "Angriffsreichweite in Blöcken",
+     "type": "number",
+     "default": null,
+     "min": 1,
+     "max": null,
+     "step": 0.1
+    },
+    {
+     "name": "FOV",
+     "desc": "Nur Ziele innerhalb dieses Sichtwinkels (360 = rundum)",
+     "type": "number",
+     "default": null,
+     "min": 10,
+     "max": 360,
+     "step": 5
+    },
+    {
+     "name": "Rotation",
+     "desc": "Kamera = Kamera gleitet zum Ziel, Silent = nur Server, Keine = gar nicht drehen",
+     "type": "mode",
+     "default": "Kamera",
+     "modes": [
+      "Kamera",
+      "Silent",
+      "Keine"
+     ]
+    },
+    {
+     "name": "Glätte",
+     "desc": "Wie weich die Kamera zum Ziel gleitet (höher = weicher, langsamer)",
+     "type": "number",
+     "default": 6,
+     "min": 1,
+     "max": 20,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Max. Drehung",
+     "desc": "Höchste Drehgeschwindigkeit der Kamera in Grad pro Sekunde",
+     "type": "number",
+     "default": 540,
+     "min": 90,
+     "max": 1440,
+     "step": 30,
+     "conditional": true
+    },
+    {
+     "name": "Timing",
+     "desc": "Abklingzeit abwarten oder mit fester CPS spammen",
+     "type": "mode",
+     "default": "CPS",
+     "modes": [
+      "CPS",
+      "Abklingzeit"
+     ]
+    },
+    {
+     "name": "CPS",
+     "desc": "Schläge pro Sekunde im CPS-Modus",
+     "type": "number",
+     "default": 12,
+     "min": 1,
+     "max": 20,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Max. Ziele",
+     "desc": "Wie viele Ziele pro Schlag gleichzeitig getroffen werden",
+     "type": "number",
+     "default": 3,
+     "min": 1,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Durch Wände",
+     "desc": "Ziele hinter Blöcken angreifen",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Gemäßigt",
+     "risk": 1,
+     "note": "Ein Ziel, Abklingzeit, normale Reichweite, keine Wände",
+     "values": {
+      "Rotation": "Kamera",
+      "Glätte": 8,
+      "Max. Drehung": 360,
+      "Timing": "Abklingzeit",
+      "Max. Ziele": 1,
+      "Reichweite": 3.2,
+      "Durch Wände": false
+     }
+    },
+    {
+     "name": "Blatant",
+     "risk": 2,
+     "note": "Mehrere Ziele, hohe CPS, große Reichweite, durch Wände",
+     "values": {
+      "Rotation": "Silent",
+      "Timing": "CPS",
+      "CPS": 16,
+      "Max. Ziele": 5,
+      "Reichweite": 6,
+      "Durch Wände": true
+     }
+    }
+   ]
+  },
+  {
+   "id": "Aimbot",
+   "name": "Aimbot",
+   "category": "COMBAT",
+   "description": "Zieht dein Fadenkreuz weich auf das beste Ziel in deinem Sichtkegel – mit Vorhersage und Ziel-Lock.",
+   "settings": [
+    {
+     "name": "Sortierung",
+     "desc": "Welches Ziel zuerst angegriffen wird",
+     "type": "mode",
+     "default": "Distanz",
+     "modes": [
+      "Distanz",
+      "Leben",
+      "Winkel"
+     ]
+    },
+    {
+     "name": "Spieler",
+     "desc": "Spieler angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Monster",
+     "desc": "Feindliche Mobs angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tiere",
+     "desc": "Friedliche Mobs angreifen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Unsichtbare",
+     "desc": "Unsichtbare Ziele angreifen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Teammates",
+     "desc": "Auch Spieler aus deinem Team angreifen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Zielpunkt",
+     "desc": "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine",
+     "type": "mode",
+     "default": "Auto",
+     "modes": [
+      "Auto",
+      "Kopf",
+      "Brust",
+      "Beine"
+     ]
+    },
+    {
+     "name": "Vorhersage",
+     "desc": "Bewegung des Ziels vorhalten (Ticks, 0 = aus)",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 4,
+     "step": 0.5
+    },
+    {
+     "name": "Ziel halten",
+     "desc": "Beim aktuellen Ziel bleiben statt ständig zu wechseln",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Pause beim Benutzen",
+     "desc": "Nicht angreifen während du isst / blockst",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Reichweite",
+     "desc": "Angriffsreichweite in Blöcken",
+     "type": "number",
+     "default": null,
+     "min": 1,
+     "max": null,
+     "step": 0.1
+    },
+    {
+     "name": "FOV",
+     "desc": "Nur Ziele innerhalb dieses Sichtwinkels (360 = rundum)",
+     "type": "number",
+     "default": null,
+     "min": 10,
+     "max": 360,
+     "step": 5
+    },
+    {
+     "name": "Glätte",
+     "desc": "Wie weich die Kamera zum Ziel gleitet (höher = weicher, langsamer)",
+     "type": "number",
+     "default": 5,
+     "min": 1,
+     "max": 20,
+     "step": 0.5
+    },
+    {
+     "name": "Max. Drehung",
+     "desc": "Höchste Drehgeschwindigkeit in Grad pro Sekunde",
+     "type": "number",
+     "default": 360,
+     "min": 30,
+     "max": 1440,
+     "step": 30
+    },
+    {
+     "name": "Nur beim Klicken",
+     "desc": "Nur zielen, während die Angriffstaste gedrückt ist",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Vertikal",
+     "desc": "Auch nach oben/unten zielen (aus = nur seitlich)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Durch Wände",
+     "desc": "Auch Ziele hinter Blöcken anvisieren",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Leichte Zielhilfe: kleiner Kegel, langsam, nur beim Klicken",
+     "values": {
+      "Glätte": 14,
+      "Max. Drehung": 120,
+      "Nur beim Klicken": true,
+      "FOV": 35,
+      "Vorhersage": 0.5,
+      "Durch Wände": false
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Deutliche Zielhilfe, mittleres Tempo",
+     "values": {
+      "Glätte": 6,
+      "Max. Drehung": 360,
+      "Nur beim Klicken": false,
+      "FOV": 70,
+      "Vorhersage": 1,
+      "Durch Wände": false
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Rastet sofort ein, auch durch Wände",
+     "values": {
+      "Glätte": 2,
+      "Max. Drehung": 1080,
+      "Nur beim Klicken": false,
+      "FOV": 180,
+      "Vorhersage": 1.5,
+      "Durch Wände": true
+     }
+    }
+   ]
+  },
+  {
+   "id": "AutoCrystal",
+   "name": "AutoCrystal",
+   "category": "CRYSTAL",
+   "description": "Kristall halten + auf Obsidian schauen = sofort durchcrystallen. Modus Ziel: sucht Gegner und den besten Platz selbst.",
+   "settings": [
+    {
+     "name": "Modus",
+     "desc": "Fadenkreuz = sobald du einen Kristall hältst und auf Obsidian/Bedrock schaust, wird sofort durchgecrystalt; Ziel = sucht selbst Gegner und den besten Platz",
+     "type": "mode",
+     "default": "Fadenkreuz",
+     "modes": [
+      "Fadenkreuz",
+      "Ziel"
+     ]
+    },
+    {
+     "name": "Spieler",
+     "desc": "Spieler angreifen",
+     "type": "bool",
+     "default": true,
+     "conditional": true
+    },
+    {
+     "name": "Monster",
+     "desc": "Feindliche Mobs angreifen",
+     "type": "bool",
+     "default": false,
+     "conditional": true
+    },
+    {
+     "name": "Tiere",
+     "desc": "Friedliche Mobs angreifen",
+     "type": "bool",
+     "default": false,
+     "conditional": true
+    },
+    {
+     "name": "Ziel-Reichweite",
+     "desc": "Wie weit Ziele entfernt sein dürfen",
+     "type": "number",
+     "default": 10,
+     "min": 3,
+     "max": 16,
+     "step": 0.5,
+     "conditional": true
+    },
+    {
+     "name": "Platzieren",
+     "desc": "Kristalle platzieren",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Zerstören",
+     "desc": "Kristalle zerstören",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Platzier-Reichweite",
+     "desc": "Reichweite zum Platzieren",
+     "type": "number",
+     "default": 4.5,
+     "min": 1,
+     "max": 6,
+     "step": 0.1
+    },
+    {
+     "name": "Zerstör-Reichweite",
+     "desc": "Reichweite zum Zerstören",
+     "type": "number",
+     "default": 4.5,
+     "min": 1,
+     "max": 6,
+     "step": 0.1
+    },
+    {
+     "name": "Platzier-Verzögerung",
+     "desc": "Ticks zwischen zwei Platzierungen",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Zerstör-Verzögerung",
+     "desc": "Ticks zwischen zwei Schlägen",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Pro Tick",
+     "desc": "Wie viele Kristalle pro Tick platziert/zerstört werden",
+     "type": "number",
+     "default": 1,
+     "min": 1,
+     "max": 3,
+     "step": 1
+    },
+    {
+     "name": "Sofort zerstören",
+     "desc": "Kristall-Spam: Kristall im selben Moment zerstören, in dem er erscheint",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Auf Bestätigung warten",
+     "desc": "An = den nächsten Kristall erst setzen, wenn der Server den alten entfernt hat (sicherer). Aus = sofort nachsetzen – schneller, aber höheres Flag-Risiko",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Nur eigene",
+     "desc": "Nur Kristalle zerstören, die du selbst platziert hast",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Min. Schaden",
+     "desc": "Mindestschaden am Ziel (Herzen ×2)",
+     "type": "number",
+     "default": 6,
+     "min": 0,
+     "max": 36,
+     "step": 0.5,
+     "conditional": true
+    },
+    {
+     "name": "Max. Eigenschaden",
+     "desc": "Höchstens so viel Schaden an dir selbst (nur Modus Ziel)",
+     "type": "number",
+     "default": 8,
+     "min": 0,
+     "max": 36,
+     "step": 0.5,
+     "conditional": true
+    },
+    {
+     "name": "Anti-Selbstmord",
+     "desc": "Nie einen Kristall, der dich töten würde",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Face-Place",
+     "desc": "Unter diesem Leben des Ziels reicht 2 Schaden (0 = aus)",
+     "type": "number",
+     "default": 8,
+     "min": 0,
+     "max": 36,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Wechseln",
+     "desc": "Keins = nur wenn du Kristalle hältst, Normal = auf Kristalle wechseln, Zurück = danach zurück",
+     "type": "mode",
+     "default": "Normal",
+     "modes": [
+      "Keins",
+      "Normal",
+      "Zurück"
+     ]
+    },
+    {
+     "name": "Rotation",
+     "desc": "Silent = Server sieht dich zum Kristall schauen, Keine = gar nicht drehen",
+     "type": "mode",
+     "default": "Silent",
+     "modes": [
+      "Silent",
+      "Keine"
+     ],
+     "conditional": true
+    },
+    {
+     "name": "Durch Wände",
+     "desc": "Auch ohne Sichtlinie platzieren/zerstören",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Pause beim Essen",
+     "desc": "Nicht während du isst / trinkst",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Anzeigen",
+     "desc": "Platzier-Position als Box anzeigen",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Fadenkreuz, kleine Pausen, kein Sofort-Zerstören",
+     "values": {
+      "Modus": "Fadenkreuz",
+      "Platzier-Verzögerung": 2,
+      "Zerstör-Verzögerung": 2,
+      "Pro Tick": 1,
+      "Sofort zerstören": false,
+      "Auf Bestätigung warten": true
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Fadenkreuz, Kristall-Spam mit kurzer Pause",
+     "values": {
+      "Modus": "Fadenkreuz",
+      "Platzier-Verzögerung": 1,
+      "Zerstör-Verzögerung": 0,
+      "Pro Tick": 1,
+      "Sofort zerstören": true,
+      "Auf Bestätigung warten": true
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Sucht selbst Ziele, keine Pausen, mehrere pro Tick, durch Wände",
+     "values": {
+      "Modus": "Ziel",
+      "Platzier-Verzögerung": 0,
+      "Zerstör-Verzögerung": 0,
+      "Pro Tick": 2,
+      "Sofort zerstören": true,
+      "Durch Wände": true,
+      "Auf Bestätigung warten": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "AnchorMacro",
+   "name": "AnchorMacro",
+   "category": "CRYSTAL",
+   "description": "Anker halten + auf einen Block schauen = setzt, lädt und sprengt Anker in Schleife. Kombinierbar mit SafeAnchor.",
+   "settings": [
+    {
+     "name": "Auslöser",
+     "desc": "Halten = Anker in der Hand + auf einen Block schauen: setzt, lädt und sprengt selbst in Schleife. Neu = nur gerade platzierte Anker, Immer = jeder anvisierte Anker, Taste = nur mit Makro-Taste",
+     "type": "mode",
+     "default": "Halten",
+     "modes": [
+      "Halten",
+      "Neu",
+      "Immer",
+      "Taste"
+     ]
+    },
+    {
+     "name": "Makro-Taste",
+     "desc": "Taste für den Auslöser 'Taste'",
+     "type": "key",
+     "conditional": true
+    },
+    {
+     "name": "Ladungen",
+     "desc": "Mit wie viel Glowstone geladen wird (1 reicht zum Sprengen)",
+     "type": "number",
+     "default": 1,
+     "min": 1,
+     "max": 4,
+     "step": 1
+    },
+    {
+     "name": "Verzögerung",
+     "desc": "Ticks zwischen den Schritten (0 = so schnell wie möglich)",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Zufall",
+     "desc": "Zufällige Extra-Ticks pro Schritt",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 5,
+     "step": 1
+    },
+    {
+     "name": "Sprengen mit",
+     "desc": "Welches Item den Anker zündet",
+     "type": "mode",
+     "default": "Auto",
+     "modes": [
+      "Auto",
+      "Totem",
+      "Slot"
+     ]
+    },
+    {
+     "name": "Spreng-Slot",
+     "desc": "Hotbar-Slot (1-9) für 'Slot'",
+     "type": "number",
+     "default": 1,
+     "min": 1,
+     "max": 9,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Sprengen",
+     "desc": "Aus = nur laden",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "SafeAnchor nutzen",
+     "desc": "Vor dem Sprengen einen Schutzblock setzen (wenn SafeAnchor an ist)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Max. Eigenschaden",
+     "desc": "Nicht sprengen, wenn du mehr Schaden bekommen würdest (Herzen ×2)",
+     "type": "number",
+     "default": 10,
+     "min": 0,
+     "max": 36,
+     "step": 1
+    },
+    {
+     "name": "Anti-Selbstmord",
+     "desc": "Nie sprengen, wenn dich die Explosion töten würde",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Auf Bestätigung warten",
+     "desc": "An = erst laden/sprengen, wenn der Server Anker und Ladung bestätigt hat (sicherer). Aus = ohne Warten – schneller, aber höheres Flag-Risiko",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Zurückwechseln",
+     "desc": "Am Ende wieder den vorherigen Slot halten",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Menschliches Tempo mit zufälligen Pausen",
+     "values": {
+      "Verzögerung": 3,
+      "Zufall": 2,
+      "Auf Bestätigung warten": true
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Schnell mit etwas Zufall",
+     "values": {
+      "Verzögerung": 1,
+      "Zufall": 1,
+      "Auf Bestätigung warten": true
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "So schnell wie möglich",
+     "values": {
+      "Verzögerung": 0,
+      "Zufall": 0,
+      "Auf Bestätigung warten": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "SafeAnchor",
+   "name": "SafeAnchor",
+   "category": "CRYSTAL",
+   "description": "Setzt einen Schutzblock zwischen dich und den Anker, bevor er explodiert. Kombinierbar mit AnchorMacro.",
+   "settings": [
+    {
+     "name": "Schutzblock",
+     "desc": "Welcher Block als Schild gesetzt wird",
+     "type": "mode",
+     "default": "Glowstone",
+     "modes": [
+      "Glowstone",
+      "Obsidian",
+      "Beliebig"
+     ]
+    },
+    {
+     "name": "Seite",
+     "desc": "Wo der Schild hin soll: zu dir hin (automatisch) oder zusätzlich auf Augenhöhe",
+     "type": "mode",
+     "default": "Zu dir",
+     "modes": [
+      "Zu dir",
+      "Zu dir + oben"
+     ]
+    },
+    {
+     "name": "Verzögerung",
+     "desc": "Ticks zwischen zwei gesetzten Blöcken (alleine)",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Nur geladen",
+     "desc": "Alleine nur geladene Anker absichern",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Zurückwechseln",
+     "desc": "Danach wieder den vorherigen Slot halten",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "AutoTotem",
+   "name": "AutoTotem",
+   "category": "CRYSTAL",
+   "description": "Legt automatisch ein Totem in die Zweithand – öffnet dazu das Inventar und drückt die Zweithand-Taste (F).",
+   "settings": [
+    {
+     "name": "Modus",
+     "desc": "Immer = Totem bleibt immer in der Zweithand, Leben = nur unter der Leben-Grenze",
+     "type": "mode",
+     "default": "Immer",
+     "modes": [
+      "Immer",
+      "Leben"
+     ]
+    },
+    {
+     "name": "Leben-Grenze",
+     "desc": "Unter diesem Leben (inkl. Absorption) kommt das Totem in die Zweithand",
+     "type": "number",
+     "default": 12,
+     "min": 1,
+     "max": 36,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Sonst",
+     "desc": "Was über der Grenze in die Zweithand kommt",
+     "type": "mode",
+     "default": "Kristall",
+     "modes": [
+      "Kristall",
+      "Goldapfel",
+      "Nichts"
+     ],
+     "conditional": true
+    },
+    {
+     "name": "Inventar öffnen",
+     "desc": "Inventar öffnen und das Totem mit der Zweithand-Taste (F) tauschen – wie per Hand. Aus = ohne sichtbares Inventar",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Öffnen-Verzögerung",
+     "desc": "Ticks zwischen Inventar öffnen und Taste drücken",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 10,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Schließen-Verzögerung",
+     "desc": "Ticks zwischen Taste drücken und Inventar schließen",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 10,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Zufall",
+     "desc": "Zufällige Extra-Ticks pro Schritt",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 5,
+     "step": 1
+    },
+    {
+     "name": "Verzögerung",
+     "desc": "Ticks Pause nach einem Wechsel",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 20,
+     "step": 1
+    },
+    {
+     "name": "Im Inventar",
+     "desc": "Auch wechseln, während du dein Inventar selbst offen hast",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Inventar öffnen, F drücken, mit menschlichen Pausen",
+     "values": {
+      "Inventar öffnen": true,
+      "Öffnen-Verzögerung": 2,
+      "Schließen-Verzögerung": 2,
+      "Zufall": 2,
+      "Verzögerung": 2
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Inventar öffnen, schnell",
+     "values": {
+      "Inventar öffnen": true,
+      "Öffnen-Verzögerung": 1,
+      "Schließen-Verzögerung": 1,
+      "Zufall": 1,
+      "Verzögerung": 0
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Unsichtbar ohne Inventar, sofort",
+     "values": {
+      "Inventar öffnen": false,
+      "Zufall": 0,
+      "Verzögerung": 0
+     }
+    }
+   ]
+  },
+  {
+   "id": "Surround",
+   "name": "Surround",
+   "category": "CRYSTAL",
+   "description": "Umgibt deine Füße mit Obsidian, damit niemand Kristalle direkt neben dir platzieren kann.",
+   "settings": [
+    {
+     "name": "Block",
+     "desc": "Welcher Block gesetzt wird",
+     "type": "mode",
+     "default": "Obsidian",
+     "modes": [
+      "Obsidian",
+      "Weinender Obsidian",
+      "Beide"
+     ]
+    },
+    {
+     "name": "Blöcke pro Tick",
+     "desc": "Wie viele Blöcke pro Tick gesetzt werden",
+     "type": "number",
+     "default": 2,
+     "min": 1,
+     "max": 4,
+     "step": 1
+    },
+    {
+     "name": "Verzögerung",
+     "desc": "Ticks zwischen zwei Durchgängen",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 10,
+     "step": 1
+    },
+    {
+     "name": "Zentrieren",
+     "desc": "Beim Einschalten per Tastendruck (W/A/S/D antippen, schleichend) zur Blockmitte laufen, damit alle vier Seiten frei sind",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tipp-Länge",
+     "desc": "Wie viele Ticks eine Bewegungstaste beim Zentrieren gedrückt wird",
+     "type": "number",
+     "default": 1,
+     "min": 1,
+     "max": 4,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Stützblöcke",
+     "desc": "Auch Blöcke unter den Ringblöcken setzen, falls dort Luft ist",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Doppelt",
+     "desc": "Zweite Reihe auf Kopfhöhe (gegen Kristalle auf Kopfhöhe)",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Aus beim Verlassen",
+     "desc": "Ausschalten, sobald du den Block verlässt oder springst",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Zurückwechseln",
+     "desc": "Danach wieder den vorherigen Slot halten",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Platzieren",
+     "desc": "Mit Blick = Kamera dreht sich zu jedem Block und setzt ihn per Rechtsklick wie von Hand, Direkt = ohne hinzuschauen",
+     "type": "mode",
+     "default": "Mit Blick",
+     "modes": [
+      "Mit Blick",
+      "Direkt"
+     ]
+    },
+    {
+     "name": "Dreh-Tempo",
+     "desc": "Wie schnell die Kamera zum nächsten Block schaut (Grad pro Sekunde)",
+     "type": "number",
+     "default": 900,
+     "min": 180,
+     "max": 2000,
+     "step": 30,
+     "conditional": true
+    },
+    {
+     "name": "Glätte",
+     "desc": "Wie weich die Kamera dreht (höher = weicher)",
+     "type": "number",
+     "default": 3,
+     "min": 1,
+     "max": 10,
+     "step": 0.5,
+     "conditional": true
+    },
+    {
+     "name": "Blick zurück",
+     "desc": "Danach wieder dorthin schauen, wo du vorher hingeschaut hast",
+     "type": "bool",
+     "default": true,
+     "conditional": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Mit Blick, ruhige Kamera, ein Block nach dem anderen",
+     "values": {
+      "Platzieren": "Mit Blick",
+      "Dreh-Tempo": 540,
+      "Glätte": 4,
+      "Blöcke pro Tick": 1,
+      "Zentrieren": true
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Mit Blick, schnelle Kamera",
+     "values": {
+      "Platzieren": "Mit Blick",
+      "Dreh-Tempo": 900,
+      "Glätte": 3,
+      "Blöcke pro Tick": 2,
+      "Zentrieren": true
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Ohne hinzuschauen, alles auf einmal",
+     "values": {
+      "Platzieren": "Direkt",
+      "Blöcke pro Tick": 4,
+      "Zentrieren": true
+     }
+    }
+   ]
+  },
+  {
+   "id": "SpearSwitch",
+   "name": "SpearSwitch",
+   "category": "SPEAR",
+   "description": "Lunge im Dauerfeuer: wechselt pro Stoß kurz auf den Speer und zurück. Per Modul-Taste an/aus.",
+   "settings": [
+    {
+     "name": "Auslöser",
+     "desc": "An = lunget, solange das Modul an ist (per Modul-Taste toggeln), Halten = nur solange die Lunge-Taste gedrückt ist, Angriff = solange die Angriffstaste gedrückt ist",
+     "type": "mode",
+     "default": "An",
+     "modes": [
+      "An",
+      "Halten",
+      "Angriff"
+     ]
+    },
+    {
+     "name": "Lunge-Taste",
+     "desc": "Taste für den Auslöser 'Halten'",
+     "type": "key",
+     "conditional": true
+    },
+    {
+     "name": "Intervall",
+     "desc": "Ticks zwischen zwei Lunges (leere Hand: 5 = voll aufgeladen)",
+     "type": "number",
+     "default": 5,
+     "min": 1,
+     "max": 20,
+     "step": 1
+    },
+    {
+     "name": "Zufall",
+     "desc": "Zufällige Extra-Ticks pro Lunge",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 4,
+     "step": 1
+    },
+    {
+     "name": "Parken auf",
+     "desc": "Welcher Slot zwischen den Lunges gehalten wird",
+     "type": "mode",
+     "default": "Leerer Slot",
+     "modes": [
+      "Leerer Slot",
+      "Vorheriger Slot"
+     ]
+    },
+    {
+     "name": "Nur mit Lunge",
+     "desc": "Nur Speere mit der Lunge-Verzauberung benutzen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Hunger-Schutz",
+     "desc": "Pausieren unter 7 Hunger (dort wirkt Lunge nicht)",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Volle Aufladung der leeren Hand + Zufall",
+     "values": {
+      "Intervall": 6,
+      "Zufall": 2
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Alle 5 Ticks, wenig Zufall",
+     "values": {
+      "Intervall": 5,
+      "Zufall": 1
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "So schnell wie möglich",
+     "values": {
+      "Intervall": 3,
+      "Zufall": 0
+     }
+    }
+   ]
+  },
+  {
+   "id": "MaceSwap",
+   "name": "MaceSwap",
+   "category": "MACE",
+   "description": "Schlägt beim Fallen automatisch mit dem Streitkolben zu und wechselt danach zurück – Schwert bleibt in der Hand.",
+   "settings": [
+    {
+     "name": "Min. Fallhöhe",
+     "desc": "Erst ab dieser Fallhöhe auf den Streitkolben wechseln (Smash ab 1,5 Blöcken)",
+     "type": "number",
+     "default": 1.5,
+     "min": 1.5,
+     "max": 20,
+     "step": 0.5
+    },
+    {
+     "name": "Auswahl",
+     "desc": "Welcher Streitkolben: Auto = meister Schaden fürs Ziel (Dichte/Bresche), sonst bevorzugt die Verzauberung",
+     "type": "mode",
+     "default": "Auto",
+     "modes": [
+      "Auto",
+      "Dichte",
+      "Bresche",
+      "Windstoß"
+     ]
+    },
+    {
+     "name": "Auch ohne Fall",
+     "desc": "Auch normale Schläge mit dem Streitkolben ausführen (6 Schaden, langsam)",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Nur Spieler",
+     "desc": "Nur wechseln, wenn du einen Spieler schlägst",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Zurückwechseln",
+     "desc": "Nach dem Schlag wieder den vorherigen Slot halten",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Nur bei richtigen Smashes ab 3 Blöcken, Spieler",
+     "values": {
+      "Min. Fallhöhe": 3,
+      "Auch ohne Fall": false,
+      "Nur Spieler": true
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Jeder Smash ab 1,5 Blöcken",
+     "values": {
+      "Min. Fallhöhe": 1.5,
+      "Auch ohne Fall": false,
+      "Nur Spieler": false
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Immer mit dem Streitkolben",
+     "values": {
+      "Min. Fallhöhe": 1.5,
+      "Auch ohne Fall": true,
+      "Nur Spieler": false
+     }
+    }
+   ]
+  },
+  {
+   "id": "AutoSmash",
+   "name": "AutoSmash",
+   "category": "MACE",
+   "description": "Trifft beim Fallen automatisch mit dem Streitkolben – im letzten Moment für maximalen Smash-Schaden.",
+   "settings": [
+    {
+     "name": "Spieler",
+     "desc": "Spieler treffen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Monster",
+     "desc": "Feindliche Mobs treffen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tiere",
+     "desc": "Friedliche Mobs treffen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Min. Fallhöhe",
+     "desc": "Erst ab dieser Fallhöhe zuschlagen (Blöcke)",
+     "type": "number",
+     "default": 3,
+     "min": 1.5,
+     "max": 30,
+     "step": 0.5
+    },
+    {
+     "name": "Reichweite",
+     "desc": "Maximale Reichweite in Blöcken",
+     "type": "number",
+     "default": 3,
+     "min": 2,
+     "max": 4.5,
+     "step": 0.1
+    },
+    {
+     "name": "Timing",
+     "desc": "Spät = im letzten Tick vor dem Aufprall / bevor das Ziel aus der Reichweite fällt (mehr Schaden), Sofort = sobald in Reichweite",
+     "type": "mode",
+     "default": "Spät",
+     "modes": [
+      "Spät",
+      "Sofort"
+     ]
+    },
+    {
+     "name": "Zielen",
+     "desc": "Fadenkreuz = nur was du anvisierst, Silent = nächstes Ziel, die Drehung geht nur an den Server",
+     "type": "mode",
+     "default": "Fadenkreuz",
+     "modes": [
+      "Fadenkreuz",
+      "Silent"
+     ]
+    },
+    {
+     "name": "Nur mit Streitkolben",
+     "desc": "Nur zuschlagen, wenn ein Streitkolben in der Hand ist (oder MaceSwap einen hat)",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": [
+    {
+     "name": "Legit",
+     "risk": 0,
+     "note": "Nur im Fadenkreuz, normale Reichweite",
+     "values": {
+      "Zielen": "Fadenkreuz",
+      "Reichweite": 2.9,
+      "Timing": "Spät",
+      "Min. Fallhöhe": 3
+     }
+    },
+    {
+     "name": "Normal",
+     "risk": 1,
+     "note": "Fadenkreuz, volle Reichweite",
+     "values": {
+      "Zielen": "Fadenkreuz",
+      "Reichweite": 3,
+      "Timing": "Spät",
+      "Min. Fallhöhe": 2
+     }
+    },
+    {
+     "name": "Rage",
+     "risk": 2,
+     "note": "Silent auf das nächste Ziel, mehr Reichweite",
+     "values": {
+      "Zielen": "Silent",
+      "Reichweite": 4,
+      "Timing": "Spät",
+      "Min. Fallhöhe": 1.5
+     }
+    }
+   ]
+  },
+  {
+   "id": "StunSlam",
+   "name": "StunSlam",
+   "category": "MACE",
+   "description": "Ziel blockt mit Schild: erst Axt (Schild aus), im selben Tick der Streitkolben-Schlag.",
+   "settings": [
+    {
+     "name": "Nur beim Fallen",
+     "desc": "Nur bei einem Smash (Fallhöhe > 1,5), sonst bei jedem Schlag",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Schild-Richtung",
+     "desc": "Nur wenn der Schild wirklich zu dir zeigt",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "WindBoost",
+   "name": "WindBoost",
+   "category": "MACE",
+   "description": "Springt und wirft eine Windkugel senkrecht nach unten – katapultiert dich für einen Streitkolben-Smash hoch.",
+   "settings": [
+    {
+     "name": "Auslöser",
+     "desc": "Einmal = Modul-Taste boostet einmal (Modul geht wieder aus), Taste = Modul bleibt an, die Boost-Taste boostet",
+     "type": "mode",
+     "default": "Einmal",
+     "modes": [
+      "Einmal",
+      "Taste"
+     ]
+    },
+    {
+     "name": "Boost-Taste",
+     "desc": "Taste für den Auslöser 'Taste'",
+     "type": "key",
+     "conditional": true
+    },
+    {
+     "name": "Springen",
+     "desc": "Am Boden im selben Tick springen (höher)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Zurückwechseln",
+     "desc": "Danach wieder den vorherigen Slot halten",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "AutoSprint",
+   "name": "AutoSprint",
+   "category": "PLAYER",
+   "description": "Hält beim Vorwärtslaufen automatisch die Sprint-Taste – für mehr Rückstoß im Kampf.",
+   "settings": [
+    {
+     "name": "Alle Richtungen",
+     "desc": "Auch seitlich/rückwärts die Sprint-Taste halten (Vanilla sprintet trotzdem nur vorwärts)",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "AutoEat",
+   "name": "AutoEat",
+   "category": "PLAYER",
+   "description": "Isst automatisch, wenn der Hunger niedrig ist – damit Lunge und Sprinten weiter funktionieren.",
+   "settings": [
+    {
+     "name": "Hunger-Grenze",
+     "desc": "Essen, sobald der Hunger auf diesen Wert fällt (20 = voll, Lunge braucht 7)",
+     "type": "number",
+     "default": 12,
+     "min": 1,
+     "max": 19,
+     "step": 1
+    },
+    {
+     "name": "Goldäpfel",
+     "desc": "Auch Goldäpfel essen (sonst nur normales Essen)",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Nicht im Kampf",
+     "desc": "Nicht essen, solange du die Angriffstaste hältst",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Zurückwechseln",
+     "desc": "Danach wieder den vorherigen Slot halten",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "XRay",
+   "name": "XRay",
+   "category": "SMP",
+   "description": "Blendet alle Blöcke außer Erzen und Kisten aus. (Funktioniert nicht mit Sodium)",
+   "settings": [
+    {
+     "name": "Diamant",
+     "desc": "Diamanterz anzeigen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Antiker Schrott",
+     "desc": "Antiken Schrott anzeigen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Smaragd",
+     "desc": "Smaragderz anzeigen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Gold",
+     "desc": "Golderz (inkl. Nether-Gold) anzeigen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Eisen",
+     "desc": "Eisenerz anzeigen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Redstone",
+     "desc": "Redstoneerz anzeigen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Lapis",
+     "desc": "Lapiserz anzeigen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Kupfer",
+     "desc": "Kupfererz anzeigen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Kohle",
+     "desc": "Kohleerz anzeigen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Quarz",
+     "desc": "Netherquarz anzeigen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Kisten & Spawner",
+     "desc": "Truhen, Fässer, Shulker, Spawner anzeigen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Flüssigkeiten",
+     "desc": "Wasser und Lava weiterhin anzeigen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Fullbright",
+     "desc": "Alles hell machen",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "BaseFinder",
+   "name": "BaseFinder",
+   "category": "SMP",
+   "description": "Sucht Hinweise auf Basen: Amethyst-Wachstum, Sound-Blöcke, Lager, Spieler-Blöcke und mehr.",
+   "settings": [
+    {
+     "name": "Amethyst-Grower",
+     "desc": "Geoden mit vielen ausgewachsenen Amethyst-Clustern = Chunk war lange geladen (Spieler in der Nähe)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Cluster-Anteil",
+     "desc": "Ab welchem Anteil ausgewachsener Cluster ein Chunk markiert wird",
+     "type": "number",
+     "default": 0.6,
+     "min": 0.2,
+     "max": 1,
+     "step": 0.05,
+     "conditional": true
+    },
+    {
+     "name": "Sound-Blöcke",
+     "desc": "Markiert Blöcke, an denen der Server Geräusche abspielt (Kolben, Türen, Truhen, Öfen, Amboss …)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Bau-Geräusche",
+     "desc": "Auch Abbau-/Platzier-Geräusche anderer Spieler markieren",
+     "type": "bool",
+     "default": true,
+     "conditional": true
+    },
+    {
+     "name": "Redstone-Geräusche",
+     "desc": "Komparatoren, Fackeln, Stolperdraht, Sculk, Kupfer-Lampen, Werfer, Kolben …",
+     "type": "bool",
+     "default": true,
+     "conditional": true
+    },
+    {
+     "name": "Mob-Geräusche",
+     "desc": "Geräusche von Dorfbewohnern & anderen Mobs: der Block, auf dem sie stehen, wird markiert",
+     "type": "bool",
+     "default": true,
+     "conditional": true
+    },
+    {
+     "name": "Schritte",
+     "desc": "Schritt-Geräusche von Spielern und Mobs: markiert den Block unter ihnen",
+     "type": "bool",
+     "default": true,
+     "conditional": true
+    },
+    {
+     "name": "Alle Geräusche",
+     "desc": "Jedes Geräusch vom Server markieren (außer Musik, Wetter, Umgebung)",
+     "type": "bool",
+     "default": false,
+     "conditional": true
+    },
+    {
+     "name": "Sound-Dauer",
+     "desc": "Wie lange Sound-Markierungen sichtbar bleiben (Sekunden)",
+     "type": "number",
+     "default": 60,
+     "min": 5,
+     "max": 600,
+     "step": 5,
+     "conditional": true
+    },
+    {
+     "name": "Lager",
+     "desc": "Chunks mit vielen Truhen/Fässern/Öfen/Trichtern, sowie jede Shulker- und Endertruhe",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Min. Lager",
+     "desc": "Ab wie vielen Lager-Blöcken ein Chunk markiert wird",
+     "type": "number",
+     "default": 4,
+     "min": 1,
+     "max": 30,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Spieler-Blöcke",
+     "desc": "Blöcke, die fast nie natürlich vorkommen (Leuchtfeuer, Zaubertisch, Amboss, Schilder, Beobachter …)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Portale",
+     "desc": "Aktivierte Netherportale in der Oberwelt / im End",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Kelp-Wachstum",
+     "desc": "Kelp, das bis zur Wasseroberfläche gewachsen ist = Chunk war lange geladen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Min. Kelp",
+     "desc": "Ab wie vielen ausgewachsenen Kelp-Spitzen ein Chunk markiert wird",
+     "type": "number",
+     "default": 12,
+     "min": 3,
+     "max": 60,
+     "step": 1,
+     "conditional": true
+    },
+    {
+     "name": "Objekte",
+     "desc": "Rahmen, Rüstungsständer, benannte & gezähmte Tiere, Kistenloren",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Meldungen",
+     "desc": "Funde als HUD-Benachrichtigung melden",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tracer",
+     "desc": "Linien von dir zu den Funden zeichnen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Scan-Tempo",
+     "desc": "Chunks pro Tick (höher = schneller, mehr Last)",
+     "type": "number",
+     "default": 2,
+     "min": 1,
+     "max": 10,
+     "step": 1
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Hud",
+   "name": "HUD",
+   "category": "CLIENT",
+   "description": "Zeigt die HUD-Elemente (Logo, Module, Koordinaten, FPS, …). Anordnen im HUD-Editor.",
+   "settings": [
+    {
+     "name": "Liquid Glass",
+     "desc": "Echtes Flüssigglas (Unschärfe + Lichtbrechung) für Rad und HUD. Aus = leichteres, einfaches Glas, bessere FPS",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Rad-Größe",
+     "desc": "Größe des Rads in Prozent",
+     "type": "number",
+     "default": 100,
+     "min": 60,
+     "max": 140,
+     "step": 5
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Notifications",
+   "name": "Notifications",
+   "category": "CLIENT",
+   "description": "Zeigt im HUD an, wenn ein Modul an- oder ausgeschaltet wird.",
+   "settings": [],
+   "presets": []
+  },
+  {
+   "id": "HudEditor",
+   "name": "HUD-Editor",
+   "category": "CLIENT",
+   "description": "HUD-Elemente verschieben, ein- und ausblenden.",
+   "settings": [],
+   "presets": []
+  },
+  {
+   "id": "Setup",
+   "name": "Einrichtung",
+   "category": "CLIENT",
+   "description": "Ersteinrichtung erneut öffnen: Rad-Taste, Rad-Größe, Liquid Glass, Hinweise.",
+   "settings": [],
+   "presets": []
+  },
+  {
+   "id": "Zoom",
+   "name": "Zoom",
+   "category": "CLIENT",
+   "description": "Zoomt auf Tastendruck heran (Standard: C) – Taste, Stärke und Modus im Rad einstellbar.",
+   "settings": [
+    {
+     "name": "Zoom-Taste",
+     "desc": "Taste zum Zoomen (Rechtsklick im Feld = entfernen)",
+     "type": "key"
+    },
+    {
+     "name": "Modus",
+     "desc": "Halten = zoomt solange die Taste gedrückt ist, Umschalten = ein Druck an, ein Druck aus",
+     "type": "mode",
+     "default": "Halten",
+     "modes": [
+      "Halten",
+      "Umschalten"
+     ]
+    },
+    {
+     "name": "Stärke",
+     "desc": "Vergrößerung (3 = dreifach)",
+     "type": "number",
+     "default": 4,
+     "min": 1.5,
+     "max": 50,
+     "step": 0.5
+    },
+    {
+     "name": "Mausrad",
+     "desc": "Beim Zoomen mit dem Mausrad näher/weiter zoomen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Weich",
+     "desc": "Weiches Ein- und Auszoomen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Langsame Maus",
+     "desc": "Maus beim Zoomen entsprechend langsamer",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Freecam",
+   "name": "Freecam",
+   "category": "CLIENT",
+   "description": "Kamera löst sich vom Spieler und fliegt frei – auch durch Blöcke. Dein Spieler bleibt stehen.",
+   "settings": [
+    {
+     "name": "Tempo",
+     "desc": "Fluggeschwindigkeit in Blöcken pro Sekunde",
+     "type": "number",
+     "default": 12,
+     "min": 1,
+     "max": 60,
+     "step": 1
+    },
+    {
+     "name": "Sprint-Faktor",
+     "desc": "Wie viel schneller mit gedrückter Sprint-Taste",
+     "type": "number",
+     "default": 3,
+     "min": 1,
+     "max": 10,
+     "step": 0.5
+    },
+    {
+     "name": "Blickrichtung",
+     "desc": "Vorwärts fliegt in Blickrichtung (auch hoch/runter), aus = nur waagerecht",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  }
+ ]
+}
