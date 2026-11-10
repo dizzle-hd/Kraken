@@ -8,6 +8,7 @@ import dev.nautilus.setting.BoolSetting;
 import dev.nautilus.setting.KeySetting;
 import dev.nautilus.setting.ModeSetting;
 import dev.nautilus.setting.NumberSetting;
+import dev.nautilus.module.player.AutoEat;
 import dev.nautilus.util.InvUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;

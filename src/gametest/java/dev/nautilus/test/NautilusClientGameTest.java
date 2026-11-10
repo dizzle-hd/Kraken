@@ -60,7 +60,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
 
             // hover + click "Combat" (segment 1 of 3 → 120° clockwise from the top)
-            clickWheel(ctx, 72, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 60, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(15);
             ctx.takeScreenshot("02-combat");
 
@@ -72,14 +72,14 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             // close the settings panel, then left click a module to enable it (SilentKillAura = index 2 of 6 → 120°)
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
-            clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 144, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
             ctx.takeScreenshot("04-enabled");
 
             // back to the main wheel, open SMP (index 2 of 5 → 144°) and its BaseFinder settings
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
-            clickWheel(ctx, 144, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
             clickWheel(ctx, 180, InputConstants.MOUSE_BUTTON_RIGHT, true);
             ctx.waitTicks(15);

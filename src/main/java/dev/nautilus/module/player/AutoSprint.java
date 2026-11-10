@@ -1,4 +1,4 @@
-package dev.nautilus.module.combat;
+package dev.nautilus.module.player;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.nautilus.module.Category;
@@ -11,7 +11,7 @@ public class AutoSprint extends Module {
     private final BoolSetting allDirections = add(new BoolSetting("Alle Richtungen", "Auch seitlich/rückwärts die Sprint-Taste halten (Vanilla sprintet trotzdem nur vorwärts)", false));
 
     public AutoSprint() {
-        super("AutoSprint", "Hält beim Vorwärtslaufen automatisch die Sprint-Taste – für mehr Rückstoß im Kampf.", Category.COMBAT, Items.FEATHER);
+        super("AutoSprint", "Hält beim Vorwärtslaufen automatisch die Sprint-Taste – für mehr Rückstoß im Kampf.", Category.PLAYER, Items.FEATHER);
     }
 
     @Override

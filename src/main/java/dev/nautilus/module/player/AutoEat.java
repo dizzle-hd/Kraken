@@ -1,4 +1,4 @@
-package dev.nautilus.module.spear;
+package dev.nautilus.module.player;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.nautilus.module.Category;
@@ -31,7 +31,7 @@ public class AutoEat extends Module {
     private int ticks;
 
     public AutoEat() {
-        super("AutoEat", "Isst automatisch, wenn der Hunger niedrig ist – damit Lunge und Sprinten weiter funktionieren.", Category.SPEAR, Items.COOKED_BEEF);
+        super("AutoEat", "Isst automatisch, wenn der Hunger niedrig ist – damit Lunge und Sprinten weiter funktionieren.", Category.PLAYER, Items.COOKED_BEEF);
     }
 
     public boolean isEating() {
