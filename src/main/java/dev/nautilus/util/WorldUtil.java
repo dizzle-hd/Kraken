@@ -66,12 +66,17 @@ public final class WorldUtil {
 
     /** Vanilla end crystal rules: obsidian/bedrock, free block above, no entity in the 1x2x1 space above. */
     public static boolean canPlaceCrystal(BlockPos base) {
+        return canPlaceCrystal(base, null);
+    }
+
+    /** Same, but {@code ignore} (an entity that is being removed right now) does not block the spot. */
+    public static boolean canPlaceCrystal(BlockPos base, Entity ignore) {
         BlockState s = mc().level.getBlockState(base);
         if (!s.is(Blocks.OBSIDIAN) && !s.is(Blocks.BEDROCK)) return false;
         BlockPos up = base.above();
         if (!mc().level.isEmptyBlock(up)) return false;
         AABB box = new AABB(up.getX(), up.getY(), up.getZ(), up.getX() + 1, up.getY() + 2, up.getZ() + 1);
-        return mc().level.getEntities((Entity) null, box, e -> !e.isSpectator()).isEmpty();
+        return mc().level.getEntities((Entity) null, box, e -> !e.isSpectator() && e != ignore).isEmpty();
     }
 
     /** Point on {@code pos} closest to the eyes (for reach checks). */

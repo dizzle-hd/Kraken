@@ -50,7 +50,7 @@ public class AutoCrystal extends Module {
     private final NumberSetting breakDelay = add(new NumberSetting("Zerstör-Verzögerung", "Ticks zwischen zwei Schlägen", 0, 0, 10, 1));
     private final NumberSetting perTick = add(new NumberSetting("Pro Tick", "Wie viele Kristalle pro Tick platziert/zerstört werden", 1, 1, 3, 1));
     private final BoolSetting instant = add(new BoolSetting("Sofort zerstören", "Kristall-Spam: Kristall im selben Moment zerstören, in dem er erscheint", true));
-    private final BoolSetting refill = add(new BoolSetting("Sofort nachsetzen", "Fadenkreuz: nach dem Zerstören im selben Moment den nächsten Kristall setzen (durchschießen)", true));
+    private final BoolSetting refill = add(new BoolSetting("Ohne Bestätigung", "Nicht warten, bis der Server den alten Kristall entfernt hat, sondern sofort nachsetzen – schneller, aber höheres Flag-Risiko", false));
     private final BoolSetting ownOnly = add(new BoolSetting("Nur eigene", "Nur Kristalle zerstören, die du selbst platziert hast", false));
     // --- damage
     private final NumberSetting minDamage = add(new NumberSetting("Min. Schaden", "Mindestschaden am Ziel (Herzen ×2)", 6, 0, 36, 0.5).visibleWhen(this::targetMode));
@@ -212,7 +212,8 @@ public class AutoCrystal extends Module {
     private void act() {
         if (placeWait > 0) placeWait--;
         if (breakWait > 0) breakWait--;
-        if (crosshairMode()) {
+        if (crosshairMode() || target == null) {
+            // crosshair mode – and target mode while nobody is around: crystal where you look
             crosshairTick();
             return;
         }
@@ -303,10 +304,20 @@ public class AutoCrystal extends Module {
     private void breakAndRefill(EndCrystal c, BlockPos base, InteractionHand hand) {
         AttackUtil.attack(c);
         breakWait = breakDelay.getInt();
+        // default: wait for the server to remove the crystal (onCrystalRemoved places the next one)
         if (!refill.isOn() || !place.isOn() || hand == null) return;
-        // the crystal is gone for the server once it handled the attack: forget it on the client too
+        // "Ohne Bestätigung": forget it on the client right away and place the next one immediately
         mc.level.removeEntity(c.getId(), Entity.RemovalReason.KILLED);
-        if (!WorldUtil.canPlaceCrystal(base) || suicide(new Vec3(base.getX() + 0.5, base.getY() + 1, base.getZ() + 0.5))) return;
+        placeOn(base, hand);
+    }
+
+    /** Places a crystal on top of {@code base} with the given hand (if allowed and not suicidal). */
+    private void placeOn(BlockPos base, InteractionHand hand) {
+        placeOn(base, hand, null);
+    }
+
+    private void placeOn(BlockPos base, InteractionHand hand, Entity leaving) {
+        if (!WorldUtil.canPlaceCrystal(base, leaving) || suicide(new Vec3(base.getX() + 0.5, base.getY() + 1, base.getZ() + 0.5))) return;
         Vec3 hit = new Vec3(base.getX() + 0.5, base.getY() + 1, base.getZ() + 0.5);
         var r = mc.gameMode.useItemOn(mc.player, hand, new net.minecraft.world.phys.BlockHitResult(hit, Direction.UP, base, false));
         if (r.consumesAction()) {
@@ -347,9 +358,22 @@ public class AutoCrystal extends Module {
     }
 
     /** Crystal spam: called as soon as a crystal entity appears on the client. */
+    /**
+     * The server confirmed that a crystal is gone: if it stood on the block you are crystalling,
+     * place the next one right now (no guessing ahead of the server).
+     */
+    public void onCrystalRemoved(EndCrystal crystal) {
+        if (!isEnabled() || !place.isOn() || paused() || mc.gui.screen() != null || lookBase == null) return;
+        if (!(crosshairMode() || target == null)) return;
+        if (!crystal.blockPosition().below().equals(lookBase)) return;
+        InteractionHand hand = crystalHand();
+        if (hand == null || placeWait > 0) return;
+        placeOn(lookBase, hand, crystal); // the removed crystal is still in the world for this moment
+    }
+
     public void onCrystalSpawn(EndCrystal crystal) {
         if (!isEnabled() || !instant.isOn() || !breakOn.isOn() || paused() || mc.gui.screen() != null) return;
-        if (crosshairMode()) {
+        if (crosshairMode() || target == null) {
             // only the crystal on the block you are crystalling
             if (lookBase == null || !crystal.blockPosition().below().equals(lookBase) || crystalHand() == null) return;
             Vec3 eyes = mc.player.getEyePosition();

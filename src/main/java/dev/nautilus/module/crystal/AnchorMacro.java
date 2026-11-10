@@ -123,12 +123,9 @@ public class AnchorMacro extends Module {
             clicks = 0;
             timeout = 40;
             step = Step.CHARGE;
-            if (mc.level.getBlockState(anchor).is(Blocks.RESPAWN_ANCHOR)) {
-                // the client already shows the anchor (placement prediction): charge right away
-            } else {
-                pause();
-                return;
-            }
+            // wait a tick for the server to confirm the anchor before charging it
+            wait = Math.max(1, delay.getInt());
+            return;
         }
 
         if (step == Step.IDLE) {
