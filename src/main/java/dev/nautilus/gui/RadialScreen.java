@@ -92,6 +92,22 @@ public class RadialScreen extends Screen {
     private NumberSetting dragging;
     private int draggingIndex = -1;
     private KeySetting listening;
+
+    // ---- settings panel (right of the wheel) ----------------------------------------------------
+    private Module panelModule;          // module whose settings are shown (null = panel closed)
+    private Module panelShown;           // module drawn while the panel slides out
+    private float panelAnim;             // 0 = closed, 1 = open (smoothed)
+    private float panelScroll, panelScrollTarget, panelContentH;
+    private float px1, py1, px2, py2;    // panel rectangle of this frame
+    private NumberSetting panelDragging;
+    private float[] panelDragRect;
+    private long panelOpenedAt;
+    private final List<PanelHit> panelHits = new ArrayList<>();
+
+    /** A clickable area of the panel. kind: toggle, number, mode, key, preset, active, close */
+    private record PanelHit(float x1, float y1, float x2, float y2, String kind, Setting<?> setting, Module.Preset preset) {
+        boolean in(double x, double y) { return x >= x1 && x <= x2 && y >= y1 && y <= y2; }
+    }
     private String hint;
 
     // ---- per-frame geometry ----------------------------------------------------------------------
@@ -217,6 +233,45 @@ public class RadialScreen extends Screen {
         discR = R * 0.375f;
         cx = width / 2f;
         cy = wheelCenterY(height);
+        if (panelAnim > 0.001f) {
+            float pw = Math.min(340f, width * 0.5f);
+            px2 = width - 12f;
+            px1 = px2 - pw;
+            py1 = SEARCH_STRIP + 8f;
+            py2 = height - 34f;
+            float left = px1 - 10f;
+            float targetR = Math.max(60f, Math.min(R, left / 2f - 8f));
+            float a = ease(panelAnim);
+            float targetCx = left / 2f + 4f;
+            cx = cx + (targetCx - cx) * a;
+            R = R + (targetR - R) * a;
+            rOut = R;
+            rIn = R * 0.44f;
+            gap = Math.max(3f, R * 0.028f);
+            corner = R * 0.07f;
+            ringR = R * 0.405f;
+            discR = R * 0.375f;
+        }
+    }
+
+    private void openPanel(Module m) {
+        if (panelModule != m) {
+            panelScroll = panelScrollTarget = 0f;
+            panelOpenedAt = System.currentTimeMillis();
+        }
+        panelModule = m;
+        panelShown = m;
+        listening = null;
+    }
+
+    private void closePanel() {
+        panelModule = null;
+        panelDragging = null;
+        listening = null;
+    }
+
+    private boolean inPanel(double x, double y) {
+        return panelModule != null && panelAnim > 0.5f && x >= px1 && x <= px2 && y >= py1 && y <= py2;
     }
 
     /** -1 = nothing, -2 = centre, otherwise segment index. */
@@ -376,6 +431,9 @@ public class RadialScreen extends Screen {
         float dt = Math.min(0.1f, (now - lastFrame) / 1000f);
         lastFrame = now;
         float time = (now - openedAt) / 1000f;
+        if (level == Level.CATEGORIES && panelModule != null) closePanel();
+        panelAnim += ((panelModule != null ? 1f : 0f) - panelAnim) * Math.min(1f, dt * 11f);
+        if (panelModule == null && panelAnim < 0.002f) { panelAnim = 0f; panelShown = null; }
         layout();
         Shapes.setPixelSize(1f / Math.max(1, minecraft.getWindow().getGuiScale()));
         hint = null;
@@ -604,10 +662,223 @@ public class RadialScreen extends Screen {
         ctx.pose().popMatrix();
 
         renderSearchBar(ctx, close, mouseX, mouseY);
+        renderPanel(ctx, close, mouseX, mouseY, dt);
         renderHint(ctx, close);
     }
 
     /** Glass search bar above the wheel: magnifier, query (or placeholder) and a blinking caret. */
+    // =============================================================================================
+    // Settings panel
+    // =============================================================================================
+
+    private List<String> wrapText(String text, float maxW, float scale) {
+        List<String> lines = new ArrayList<>();
+        StringBuilder line = new StringBuilder();
+        for (String word : text.split(" ")) {
+            String cand = line.isEmpty() ? word : line + " " + word;
+            if (!line.isEmpty() && textWidth(cand, false) * scale > maxW) {
+                lines.add(line.toString());
+                line = new StringBuilder(word);
+            } else line = new StringBuilder(cand);
+        }
+        if (!line.isEmpty()) lines.add(line.toString());
+        return lines;
+    }
+
+    private void rightText(GuiGraphicsExtractor ctx, String t, float xRight, float y, float scale, int color, boolean bold) {
+        leftText(ctx, t, xRight - textWidth(t, bold) * scale, y, scale, color, bold);
+    }
+
+    private void renderPanel(GuiGraphicsExtractor ctx, float close, int mouseX, int mouseY, float dt) {
+        panelHits.clear();
+        Module m = panelShown;
+        if (m == null || panelAnim < 0.01f) return;
+        float a = ease(panelAnim) * close;
+        float slide = (1f - ease(panelAnim)) * 40f;
+        float x1 = px1 + slide, x2 = px2 + slide, y1 = py1, y2 = py2;
+        float pad = 12f;
+
+        ctx.nextStratum();
+        Shapes bg = new Shapes();
+        if (LiquidGlass.enabled()) {
+            LiquidGlass.roundRect(ctx, x1, y1, x2, y2, 12f, a);
+            bg.roundRect(x1, y1, x2, y2, 12f, Shapes.alpha(0x8C1A0805, a));
+        } else {
+            bg.roundRect(x1, y1, x2, y2, 12f, Shapes.alpha(0xE01A0805, a));
+        }
+        bg.roundRectRim(x1, y1, x2, y2, 12f, 0.8f, Shapes.alpha(0x40FFFFFF, a));
+        bg.submit(ctx);
+
+        Shapes s = new Shapes();
+        List<Runnable> text = new ArrayList<>();
+        int white = Shapes.alpha(0xFFFFFFFF, a), dim = Shapes.alpha(0xB0FFFFFF, a), faint = Shapes.alpha(0x80FFFFFF, a);
+
+        // ---- header (fixed): name, active switch, close
+        float hy = y1 + 15f;
+        text.add(() -> leftText(ctx, m.getName(), x1 + pad, hy, 1.1f, white, true));
+        // close "×"
+        float cxr = x2 - pad - 4f;
+        boolean hotClose = mouseX >= cxr - 7 && mouseX <= cxr + 7 && mouseY >= hy - 7 && mouseY <= hy + 7;
+        s.line(cxr - 3.5f, hy - 3.5f, cxr + 3.5f, hy + 3.5f, 1.3f, hotClose ? white : dim);
+        s.line(cxr - 3.5f, hy + 3.5f, cxr + 3.5f, hy - 3.5f, 1.3f, hotClose ? white : dim);
+        panelHits.add(new PanelHit(cxr - 8, hy - 8, cxr + 8, hy + 8, "close", null, null));
+        if (hotClose) hint = "Einstellungen schließen (ESC)";
+        // active switch
+        float sw = 26f, sh = 13f, sx2 = cxr - 16f, sx1 = sx2 - sw;
+        drawSwitch(s, sx1, hy - sh / 2f, sw, sh, m.isEnabled(), a);
+        text.add(() -> rightText(ctx, m.isEnabled() ? "An" : "Aus", sx1 - 5f, hy, 0.72f, m.isEnabled() ? Shapes.alpha(0xFF5BE38A, a) : dim, false));
+        panelHits.add(new PanelHit(sx1 - 30f, hy - 8, sx2, hy + 8, "active", null, null));
+        if (mouseX >= sx1 - 30f && mouseX <= sx2 && mouseY >= hy - 8 && mouseY <= hy + 8) hint = "Modul an- oder ausschalten";
+
+        float y = hy + 13f;
+        for (String line : wrapText(m.getDescription(), x2 - x1 - 2 * pad, 0.68f)) {
+            float ly = y;
+            text.add(() -> leftText(ctx, line, x1 + pad, ly, 0.68f, faint, false));
+            y += 8f;
+        }
+        y += 4f;
+
+        // ---- presets (fixed, below the header)
+        List<Module.Preset> presets = m.getPresets();
+        if (!presets.isEmpty()) {
+            float cxp = x1 + pad;
+            float ch = 15f;
+            float cy0 = y;
+            for (Module.Preset p : presets) {
+                boolean active = m.matches(p);
+                String name = (active ? "✓ " : "") + p.name();
+                float w = textWidth(name, true) * 0.78f + 30f;
+                if (cxp + w > x2 - pad) { cxp = x1 + pad; cy0 += ch + 4f; }
+                float c1 = cxp, c2 = cxp + w, r1 = cy0, r2 = cy0 + ch;
+                boolean hot = mouseX >= c1 && mouseX <= c2 && mouseY >= r1 && mouseY <= r2;
+                int rc = RISK_COLORS[p.risk()];
+                s.roundRect(c1, r1, c2, r2, ch / 2f, Shapes.alpha(active ? (rc & 0xFFFFFF) | 0x50000000 : hot ? 0x30FFFFFF : 0x18FFFFFF, a));
+                s.roundRectRim(c1, r1, c2, r2, ch / 2f, 0.7f, Shapes.alpha(active ? rc : 0x40FFFFFF, a));
+                float lr = 1.8f;
+                int[] order = {2, 1, 0};
+                for (int k = 0; k < 3; k++) {
+                    boolean lit = order[k] == p.risk();
+                    s.circle(c1 + 7f + k * lr * 2.4f, (r1 + r2) / 2f, lr, Shapes.alpha(lit ? RISK_COLORS[order[k]] : 0x38FFFFFF, a));
+                }
+                float nx = c1 + 7f + 3 * lr * 2.4f + 1f, ny = (r1 + r2) / 2f;
+                text.add(() -> leftText(ctx, name, nx, ny, 0.78f, white, true));
+                panelHits.add(new PanelHit(c1, r1, c2, r2, "preset", null, p));
+                if (hot) hint = p.name() + " · Bann-Risiko " + RISK_NAMES[p.risk()] + " · " + p.note();
+                cxp = c2 + 5f;
+            }
+            y = cy0 + ch + 7f;
+        }
+        s.rect(x1 + pad, y, x2 - pad, y + 0.5f, Shapes.alpha(0x26FFFFFF, a));
+        y += 6f;
+
+        // ---- settings list (scrolls)
+        float listTop = y, listBottom = y2 - 8f;
+        List<Setting<?>> rows = new ArrayList<>();
+        for (Setting<?> st : m.getSettings()) if (st.isVisible()) rows.add(st);
+        rows.add(m.keybind);
+        float rowH = 22f;
+        panelContentH = rows.size() * rowH;
+        float maxScroll = Math.max(0f, panelContentH - (listBottom - listTop));
+        panelScrollTarget = Math.max(0f, Math.min(maxScroll, panelScrollTarget));
+        panelScroll += (panelScrollTarget - panelScroll) * Math.min(1f, dt * 14f);
+        float ctrlW = Math.min(120f, (x2 - x1) * 0.42f);
+        float cRight = x2 - pad;
+        for (int i = 0; i < rows.size(); i++) {
+            Setting<?> st = rows.get(i);
+            float ry = listTop + i * rowH - panelScroll;
+            if (ry < listTop - 1f || ry + rowH > listBottom + 1f) continue; // outside the visible list
+            float my = ry + rowH / 2f;
+            boolean hot = mouseX >= x1 && mouseX <= x2 && mouseY >= ry && mouseY < ry + rowH;
+            if (hot) {
+                s.roundRect(x1 + 6f, ry + 1f, x2 - 6f, ry + rowH - 1f, 6f, Shapes.alpha(0x14FFFFFF, a));
+                hint = st.getDescription();
+            }
+            String label = st.getName();
+            text.add(() -> leftText(ctx, label, x1 + pad, my, 0.82f, white, false));
+            float c1 = cRight - ctrlW;
+            if (st instanceof BoolSetting b) {
+                drawSwitch(s, cRight - 26f, my - 6.5f, 26f, 13f, b.isOn(), a);
+                panelHits.add(new PanelHit(x1, ry, x2, ry + rowH, "toggle", st, null));
+            } else if (st instanceof NumberSetting num) {
+                float tw = ctrlW - 34f, t1 = c1, t2 = c1 + tw;
+                float f = (float) num.getFraction();
+                s.roundRect(t1, my - 1.5f, t2, my + 1.5f, 1.5f, Shapes.alpha(0x38FFFFFF, a));
+                s.roundRect(t1, my - 1.5f, t1 + tw * f, my + 1.5f, 1.5f, Shapes.alpha(ACCENT, a));
+                s.circle(t1 + tw * f, my, num == panelDragging ? 5f : 4f, Shapes.alpha(0xFFFFFFFF, a));
+                String v = num.display();
+                text.add(() -> rightText(ctx, v, cRight, my, 0.8f, Shapes.alpha(VALUE, a), true));
+                panelHits.add(new PanelHit(t1 - 4f, ry, t2 + 4f, ry + rowH, "number", st, null));
+            } else if (st instanceof ModeSetting mode) {
+                String v = mode.get();
+                boolean hotCtrl = hot && mouseX >= c1;
+                s.roundRect(c1, my - 7f, cRight, my + 7f, 7f, Shapes.alpha(hotCtrl ? 0x30FFFFFF : 0x18FFFFFF, a));
+                text.add(() -> leftText(ctx, "‹", c1 + 5f, my, 0.85f, dim, true));
+                text.add(() -> rightText(ctx, "›", cRight - 5f, my, 0.85f, dim, true));
+                float vw = textWidth(v, true) * 0.78f;
+                float vs = vw > ctrlW - 22f ? 0.78f * (ctrlW - 22f) / vw : 0.78f;
+                text.add(() -> leftText(ctx, v, (c1 + cRight) / 2f - textWidth(v, true) * vs / 2f, my, vs, Shapes.alpha(VALUE, a), true));
+                panelHits.add(new PanelHit(c1, ry, cRight, ry + rowH, "mode", st, null));
+            } else if (st instanceof KeySetting key) {
+                String v = key == listening ? "Taste drücken …" : key.display();
+                float kw = Math.max(44f, textWidth(v, true) * 0.78f + 16f);
+                s.roundRect(cRight - kw, my - 7f, cRight, my + 7f, 7f, Shapes.alpha(key == listening ? 0xCCFF5A2A : 0x22FFFFFF, a));
+                s.roundRectRim(cRight - kw, my - 7f, cRight, my + 7f, 7f, 0.6f, Shapes.alpha(0x40FFFFFF, a));
+                text.add(() -> leftText(ctx, v, cRight - kw / 2f - textWidth(v, true) * 0.39f, my, 0.78f, white, true));
+                panelHits.add(new PanelHit(cRight - kw, ry, cRight, ry + rowH, "key", st, null));
+            }
+        }
+        // scroll indicator
+        if (maxScroll > 0f) {
+            float trackH = listBottom - listTop;
+            float barH = Math.max(14f, trackH * (trackH / panelContentH));
+            float barY = listTop + (trackH - barH) * (panelScroll / maxScroll);
+            s.roundRect(x2 - 5f, barY, x2 - 3f, barY + barH, 1f, Shapes.alpha(0x50FFFFFF, a));
+        }
+        s.submit(ctx);
+        for (Runnable r : text) r.run();
+        if (panelDragging != null) panelDragRect = panelDragRect; // keep the slider while dragging
+    }
+
+    private void drawSwitch(Shapes s, float x, float y, float w, float h, boolean on, float a) {
+        s.roundRect(x, y, x + w, y + h, h / 2f, Shapes.alpha(on ? ACCENT : 0x40FFFFFF, a));
+        s.circle(on ? x + w - h / 2f : x + h / 2f, y + h / 2f, h / 2f - 2f, Shapes.alpha(0xFFFFFFFF, a));
+    }
+
+    /** A click inside the open panel. */
+    private boolean panelClick(double mx, double my, boolean right) {
+        Module m = panelModule;
+        for (PanelHit h : List.copyOf(panelHits)) {
+            if (!h.in(mx, my)) continue;
+            switch (h.kind()) {
+                case "close" -> closePanel();
+                case "active" -> m.toggle();
+                case "toggle" -> ((BoolSetting) h.setting()).toggle();
+                case "mode" -> ((ModeSetting) h.setting()).cycle(!right);
+                case "key" -> {
+                    KeySetting k = (KeySetting) h.setting();
+                    if (right) k.set(-1); else listening = k;
+                }
+                case "number" -> {
+                    NumberSetting num = (NumberSetting) h.setting();
+                    if (right) num.set(num.get() - num.getStep());
+                    else {
+                        panelDragging = num;
+                        panelDragRect = new float[]{h.x1() + 4f, h.x2() - 4f};
+                        num.setFraction((mx - panelDragRect[0]) / Math.max(1f, panelDragRect[1] - panelDragRect[0]));
+                    }
+                }
+                case "preset" -> {
+                    m.applyPreset(h.preset());
+                    dev.nautilus.hud.Notifications.push(m.getName(), "Preset „" + h.preset().name() + "“ geladen", RISK_COLORS[h.preset().risk()]);
+                    dev.nautilus.config.ConfigManager.save();
+                }
+                default -> {}
+            }
+            return true;
+        }
+        return true; // clicks on the panel background do nothing
+    }
+
     /** Clickable preset chips of the top strip (settings level): {x1, y1, x2, y2} per preset. */
     private final List<float[]> presetChips = new ArrayList<>();
 
@@ -874,6 +1145,7 @@ public class RadialScreen extends Screen {
             listening = null;
             return true;
         }
+        if (inPanel(click.x(), click.y())) return panelClick(click.x(), click.y(), button == InputConstants.MOUSE_BUTTON_RIGHT);
         if (level == Level.SETTINGS && module != null) {
             for (int i = 0; i < presetChips.size() && i < module.getPresets().size(); i++) {
                 float[] r = presetChips.get(i);
@@ -902,13 +1174,12 @@ public class RadialScreen extends Screen {
         switch (level) {
             case CATEGORIES -> enter(Level.MODULES, e.category(), null);
             case MODULES -> {
-                if (right || button == InputConstants.MOUSE_BUTTON_MIDDLE) enter(Level.SETTINGS, category, e.module());
+                if (right || button == InputConstants.MOUSE_BUTTON_MIDDLE) openPanel(e.module());
                 else e.module().toggle();
             }
             case SEARCH -> {
                 if (right || button == InputConstants.MOUSE_BUTTON_MIDDLE) {
-                    enter(Level.SETTINGS, e.module().getCategory(), e.module());
-                    settingsFromSearch = true;
+                    openPanel(e.module());
                 } else e.module().toggle();
             }
             case SETTINGS -> {
@@ -949,6 +1220,10 @@ public class RadialScreen extends Screen {
 
     @Override
     public boolean mouseDragged(MouseButtonEvent click, double offsetX, double offsetY) {
+        if (panelDragging != null && panelDragRect != null) {
+            panelDragging.setFraction((click.x() - panelDragRect[0]) / Math.max(1f, panelDragRect[1] - panelDragRect[0]));
+            return true;
+        }
         if (dragging != null) {
             dragTo(dragging, draggingIndex, entries().size(), click.x(), click.y());
             return true;
@@ -958,6 +1233,7 @@ public class RadialScreen extends Screen {
 
     @Override
     public boolean mouseReleased(MouseButtonEvent click) {
+        panelDragging = null;
         dragging = null;
         draggingIndex = -1;
         return super.mouseReleased(click);
@@ -965,6 +1241,17 @@ public class RadialScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (inPanel(mouseX, mouseY)) {
+            // over a slider: change the value, otherwise scroll the list
+            for (PanelHit h : panelHits) {
+                if (h.in(mouseX, mouseY) && h.setting() instanceof NumberSetting num) {
+                    num.set(num.get() + Math.signum(verticalAmount) * num.getStep());
+                    return true;
+                }
+            }
+            panelScrollTarget -= (float) verticalAmount * 22f;
+            return true;
+        }
         if (level == Level.SEARCH) {
             int pages = pageCount(allEntries().size());
             int np = Math.max(0, Math.min(pages - 1, page - (int) Math.signum(verticalAmount)));
@@ -1009,7 +1296,9 @@ public class RadialScreen extends Screen {
             return true;
         }
         if (key == InputConstants.KEY_ESCAPE) {
-            if (level == Level.CATEGORIES) onClose(); else back();
+            if (panelModule != null) closePanel();
+            else if (level == Level.CATEGORIES) onClose();
+            else back();
             return true;
         }
         if (level == Level.SEARCH && key == InputConstants.KEY_BACKSPACE) {
@@ -1058,6 +1347,10 @@ public class RadialScreen extends Screen {
     }
 
     private void back() {
+        if (panelModule != null) {
+            closePanel();
+            return;
+        }
         if (level == Level.SETTINGS && settingsFromSearch && !query.isEmpty()) {
             settingsFromSearch = false;
             level = Level.SEARCH;

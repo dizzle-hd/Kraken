@@ -41,7 +41,7 @@ Beim ersten Betreten einer Welt öffnet sich die **Einrichtung**: Hinweise (Alph
 | Rad öffnen / schließen | `Rechts-Shift` (in den Minecraft-Steuerungen änderbar) |
 | Kategorie öffnen | Links-Klick auf ein Segment |
 | Modul an/aus | Links-Klick auf ein Modul |
-| Einstellungen eines Moduls | Rechts-Klick auf ein Modul – die Einstellungen erscheinen direkt im Rad |
+| Einstellungen eines Moduls | Rechts-Klick auf ein Modul – das Rad gleitet nach links, rechts öffnet sich ein Einstellungs-Panel |
 | Schalter / Modus ändern | Klick auf das Segment (Rechts-Klick = Modus rückwärts) |
 | Zahlenwert | Am orangen Bogen ziehen oder über dem Segment scrollen |
 | Mehr Einstellungen | Scrollen außerhalb eines Zahlen-Segments blättert die Seite um |
@@ -52,7 +52,7 @@ Alles wird in `config/nautilusclient.json` gespeichert (eine alte `config/kraken
 
 ## Presets
 
-Combat- und Crystal-Module haben in ihren Einstellungen **oben über dem Rad eine Preset-Leiste** (z. B. Legit / Normal / Rage) mit einer Ampel für das geschätzte Bann-Risiko: 🟢 niedrig · 🟡 mittel · 🔴 hoch. Klick lädt das Preset, das aktive ist markiert. Die Ampel ist eine grobe Einschätzung (Tempo, Regelmäßigkeit, Reichweite) – keine Garantie gegen Anti-Cheats.
+Combat- und Crystal-Module haben im Einstellungs-Panel **oben eine Preset-Leiste** (z. B. Legit / Normal / Rage) mit einer Ampel für das geschätzte Bann-Risiko: 🟢 niedrig · 🟡 mittel · 🔴 hoch. Klick lädt das Preset, das aktive ist markiert. Die Ampel ist eine grobe Einschätzung (Tempo, Regelmäßigkeit, Reichweite) – keine Garantie gegen Anti-Cheats.
 
 ## Module
 
