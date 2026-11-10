@@ -50,6 +50,7 @@ public class AutoCrystal extends Module {
     private final NumberSetting breakDelay = add(new NumberSetting("Zerstör-Verzögerung", "Ticks zwischen zwei Schlägen", 0, 0, 10, 1));
     private final NumberSetting perTick = add(new NumberSetting("Pro Tick", "Wie viele Kristalle pro Tick platziert/zerstört werden", 1, 1, 3, 1));
     private final BoolSetting instant = add(new BoolSetting("Sofort zerstören", "Kristall-Spam: Kristall im selben Moment zerstören, in dem er erscheint", true));
+    private final BoolSetting refill = add(new BoolSetting("Sofort nachsetzen", "Fadenkreuz: nach dem Zerstören im selben Moment den nächsten Kristall setzen (durchschießen)", true));
     private final BoolSetting ownOnly = add(new BoolSetting("Nur eigene", "Nur Kristalle zerstören, die du selbst platziert hast", false));
     // --- damage
     private final NumberSetting minDamage = add(new NumberSetting("Min. Schaden", "Mindestschaden am Ziel (Herzen ×2)", 6, 0, 36, 0.5).visibleWhen(this::targetMode));
@@ -266,10 +267,7 @@ public class AutoCrystal extends Module {
             // looking at a crystal: break it
             if (hr instanceof net.minecraft.world.phys.EntityHitResult eh && eh.getEntity() instanceof EndCrystal c && c.isAlive()) {
                 lookBase = c.blockPosition().below();
-                if (breakOn.isOn() && breakWait <= 0 && !suicide(c.position())) {
-                    AttackUtil.attack(c);
-                    breakWait = breakDelay.getInt();
-                }
+                if (breakOn.isOn() && breakWait <= 0 && !suicide(c.position())) breakAndRefill(c, lookBase, hand);
                 return;
             }
             if (!(hr instanceof net.minecraft.world.phys.BlockHitResult bh) || bh.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK) return;
@@ -282,10 +280,7 @@ public class AutoCrystal extends Module {
             // a crystal is already standing there: break it first
             EndCrystal existing = crystalOn(base);
             if (existing != null) {
-                if (breakOn.isOn() && breakWait <= 0 && !suicide(existing.position())) {
-                    AttackUtil.attack(existing);
-                    breakWait = breakDelay.getInt();
-                }
+                if (breakOn.isOn() && breakWait <= 0 && !suicide(existing.position())) breakAndRefill(existing, base, hand);
                 return;
             }
             if (!place.isOn() || placeWait > 0 || !WorldUtil.canPlaceCrystal(base)) return;
@@ -298,6 +293,26 @@ public class AutoCrystal extends Module {
                 placeWait = placeDelay.getInt();
             }
             if (placeWait > 0) return;
+        }
+    }
+
+    /**
+     * Breaks the crystal and – without waiting for the server to remove it – places the next one on
+     * the same block right away (the attack and the new placement go out together).
+     */
+    private void breakAndRefill(EndCrystal c, BlockPos base, InteractionHand hand) {
+        AttackUtil.attack(c);
+        breakWait = breakDelay.getInt();
+        if (!refill.isOn() || !place.isOn() || hand == null) return;
+        // the crystal is gone for the server once it handled the attack: forget it on the client too
+        mc.level.removeEntity(c.getId(), Entity.RemovalReason.KILLED);
+        if (!WorldUtil.canPlaceCrystal(base) || suicide(new Vec3(base.getX() + 0.5, base.getY() + 1, base.getZ() + 0.5))) return;
+        Vec3 hit = new Vec3(base.getX() + 0.5, base.getY() + 1, base.getZ() + 0.5);
+        var r = mc.gameMode.useItemOn(mc.player, hand, new net.minecraft.world.phys.BlockHitResult(hit, Direction.UP, base, false));
+        if (r.consumesAction()) {
+            mc.player.swing(hand, mc.player.getItemInHand(hand).getInteractAnimation(), false);
+            placedByUs.add(base.immutable());
+            placeWait = placeDelay.getInt();
         }
     }
 
@@ -339,9 +354,8 @@ public class AutoCrystal extends Module {
             if (lookBase == null || !crystal.blockPosition().below().equals(lookBase) || crystalHand() == null) return;
             Vec3 eyes = mc.player.getEyePosition();
             if (eyes.distanceTo(RotationUtil.closestPoint(eyes, crystal)) > breakRange.get() || suicide(crystal.position())) return;
-            AttackUtil.attack(crystal);
-            breakWait = breakDelay.getInt();
-            placeWait = 0; // the block is free again: place the next one right away
+            placeWait = 0;
+            breakAndRefill(crystal, lookBase, crystalHand());
             return;
         }
         if (target == null) return;

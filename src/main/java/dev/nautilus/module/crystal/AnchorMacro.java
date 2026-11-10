@@ -32,7 +32,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * another item – then switches back. Outside the Nether only (there anchors set your spawn).
  */
 public class AnchorMacro extends Module {
-    private final ModeSetting trigger = add(new ModeSetting("Auslöser", "Neu = nur gerade platzierte Anker, Immer = jeder anvisierte Anker, Taste = nur solange die Makro-Taste gedrückt ist", "Neu", "Neu", "Immer", "Taste"));
+    private final ModeSetting trigger = add(new ModeSetting("Auslöser", "Halten = Anker in der Hand + auf einen Block schauen: setzt, lädt und sprengt selbst in Schleife. Neu = nur gerade platzierte Anker, Immer = jeder anvisierte Anker, Taste = nur mit Makro-Taste", "Halten", "Halten", "Neu", "Immer", "Taste"));
     private final KeySetting macroKey = add(new KeySetting("Makro-Taste", "Taste für den Auslöser 'Taste'", -1).visibleWhen(() -> trigger.is("Taste")));
     private final NumberSetting charges = add(new NumberSetting("Ladungen", "Mit wie viel Glowstone geladen wird (1 reicht zum Sprengen)", 1, 1, 4, 1));
     private final NumberSetting delay = add(new NumberSetting("Verzögerung", "Ticks zwischen den Schritten (0 = so schnell wie möglich)", 1, 0, 10, 1));
@@ -54,7 +54,7 @@ public class AnchorMacro extends Module {
     private boolean lastWasAnchor;
 
     public AnchorMacro() {
-        super("AnchorMacro", "Lädt und sprengt den anvisierten Respawn-Anker automatisch. Kombinierbar mit SafeAnchor.",
+        super("AnchorMacro", "Anker halten + auf einen Block schauen = setzt, lädt und sprengt Anker in Schleife. Kombinierbar mit SafeAnchor.",
                 Category.CRYSTAL, Items.RESPAWN_ANCHOR);
         preset("Legit", LOW, "Menschliches Tempo mit zufälligen Pausen",
                 "Verzögerung", 3, "Zufall", 2);
@@ -74,7 +74,7 @@ public class AnchorMacro extends Module {
     }
 
     private void finish() {
-        if (switchBack.isOn() && prevSlot >= 0 && mc.player != null) InvUtil.select(prevSlot);
+        if ((switchBack.isOn() || trigger.is("Halten")) && prevSlot >= 0 && mc.player != null) InvUtil.select(prevSlot);
         step = Step.IDLE;
         anchor = null;
         prevSlot = -1;
@@ -104,6 +104,32 @@ public class AnchorMacro extends Module {
 
         if (wait > 0) { wait--; return; }
         if (mc.gui.screen() != null) return;
+
+        if (step == Step.IDLE && trigger.is("Halten")) {
+            if (!mc.player.getMainHandItem().is(Items.RESPAWN_ANCHOR)) return;
+            if (looked == null) {
+                // place the anchor where the crosshair points
+                if (!(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) return;
+                BlockPos target = WorldUtil.isReplaceable(hit.getBlockPos()) ? hit.getBlockPos() : hit.getBlockPos().relative(hit.getDirection());
+                if (!WorldUtil.isReplaceable(target) || mc.player.getBoundingBox().intersects(new net.minecraft.world.phys.AABB(target))) return;
+                if (InvUtil.hotbar(Items.GLOWSTONE) < 0) return;
+                var r = mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, hit);
+                if (!r.consumesAction()) return;
+                mc.player.swing(InteractionHand.MAIN_HAND, mc.player.getMainHandItem().getInteractAnimation(), false);
+                looked = target;
+            }
+            anchor = looked;
+            prevSlot = InvUtil.selected(); // the anchor slot: back to it after the blast for the next round
+            clicks = 0;
+            timeout = 40;
+            step = Step.CHARGE;
+            if (mc.level.getBlockState(anchor).is(Blocks.RESPAWN_ANCHOR)) {
+                // the client already shows the anchor (placement prediction): charge right away
+            } else {
+                pause();
+                return;
+            }
+        }
 
         if (step == Step.IDLE) {
             if (looked == null) return;
