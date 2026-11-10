@@ -198,11 +198,28 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             // --- Mace: MaceSwap + AutoSmash while falling onto a zombie, WindBoost ---
             maceTests(ctx, sp);
 
-            // --- HUD: every element on ---
+            // --- HUD: every element on, a clean scene for the website shots ---
+            var srvHud = sp.getServer();
+            srvHud.runCommand("kill @e[type=!minecraft:player]");
+            srvHud.runCommand("time set noon");
+            srvHud.runCommand("effect give @p minecraft:instant_health 1 4 true");
+            srvHud.runCommand("effect give @p minecraft:saturation 1 10 true");
+            srvHud.runCommand("item replace entity @p armor.head with minecraft:diamond_helmet[damage=300]");
+            srvHud.runCommand("item replace entity @p armor.chest with minecraft:diamond_chestplate[damage=100]");
+            srvHud.runCommand("item replace entity @p armor.legs with minecraft:diamond_leggings");
+            srvHud.runCommand("item replace entity @p armor.feet with minecraft:diamond_boots[damage=250]");
             ctx.runOnClient(c -> {
                 for (var e : dev.nautilus.hud.HudManager.get().elements()) e.enabled = true;
+                var mm = ModuleManager.get();
+                mm.get(dev.nautilus.module.mace.MaceSwap.class).loadEnabled(true);
+                mm.get(dev.nautilus.module.player.AutoSprint.class).loadEnabled(true);
+                mm.get(dev.nautilus.module.crystal.PopCounter.class).loadEnabled(true);
+                c.player.setYRot(0);
+                c.player.setXRot(15);
             });
             ctx.waitTicks(80); // let the toasts expire
+            ctx.runOnClient(c -> c.gui.hud.getChat().clearMessages(false));
+            ctx.waitTicks(2);
             ctx.takeScreenshot("09-hud-all");
 
             // --- HUD colour: blue, then the cycling rainbow, back to orange ---
@@ -242,6 +259,12 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.setScreen(() -> null);
             ctx.waitTicks(5);
             ctx.takeScreenshot("12-hud-after-edit");
+            ctx.runOnClient(c -> {
+                var mm = ModuleManager.get();
+                mm.get(dev.nautilus.module.mace.MaceSwap.class).loadEnabled(false);
+                mm.get(dev.nautilus.module.player.AutoSprint.class).loadEnabled(false);
+                mm.get(dev.nautilus.module.crystal.PopCounter.class).loadEnabled(false);
+            });
 
             // --- first-start setup: all three pages ---
             ctx.setScreen(dev.nautilus.gui.OnboardingScreen::new);
