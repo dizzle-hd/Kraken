@@ -8,11 +8,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Fullbright for XRay: full night vision in the lightmap. */
+/** Fullbright (module or XRay option): full night vision in the lightmap. */
 @Mixin(LightmapRenderStateExtractor.class)
 public abstract class LightmapRenderStateExtractorMixin {
     @Inject(method = "extract", at = @At("TAIL"))
     private void nautilus$fullbright(LightmapRenderState renderState, float partialTicks, CallbackInfo ci) {
-        if (XRay.fullbright()) renderState.nightVisionEffectIntensity = 1.0f;
+        if (XRay.fullbright() || dev.nautilus.module.player.Fullbright.active()) renderState.nightVisionEffectIntensity = 1.0f;
     }
 }

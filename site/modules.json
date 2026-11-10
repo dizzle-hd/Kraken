@@ -1701,6 +1701,14 @@
    "presets": []
   },
   {
+   "id": "Fullbright",
+   "name": "Fullbright",
+   "category": "PLAYER",
+   "description": "Macht alles hell wie mit Nachtsicht – nur bei dir, der Server merkt nichts.",
+   "settings": [],
+   "presets": []
+  },
+  {
    "id": "XRay",
    "name": "XRay",
    "category": "SMP",

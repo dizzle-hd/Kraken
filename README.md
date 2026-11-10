@@ -86,6 +86,7 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
 ### Player
 - **AutoSprint** – hält beim Vorwärtslaufen automatisch die Sprint-Taste.
 - **AutoTool** – nimmt beim Abbauen das schnellste Werkzeug aus der Hotbar und wechselt danach zurück; fast kaputte Werkzeuge werden geschont, mit Schwert/Streitkolben in der Hand wird nicht gewechselt.
+- **Fullbright** – alles hell wie mit Nachtsicht, nur bei dir (sendet nichts).
 - **ArmorAlert** – Glas-Toast, sobald ein Rüstungsteil unter eine Grenze (%) fällt oder nur noch wenige Totems im Inventar sind. Liest nur – sendet nichts.
 - **AutoEat** – isst automatisch, wenn der Hunger unter die Grenze fällt (Lunge kostet viel Hunger), optional mit Goldäpfeln, nicht während du angreifst.
 
@@ -108,6 +109,12 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
   - **Ziel** – Name, Distanz, Lebensbalken (Absorption in Gold), Rüstung und Totem-Pops deines Ziels (Fadenkreuz oder zuletzt geschlagen).
   - **Smash-Vorschau** – beim Fallen mit Streitkolben in der Hotbar: Fallhöhe und der Schaden, den ein Smash jetzt machen würde (aufs Ziel nach Rüstung).
   - **Rüstung** – Haltbarkeit von Kopf, Brust, Hose, Schuhen und Waffe in Prozent (im HUD-Editor einschalten).
+  - **Rüstungs-HUD** – Icons von Rüstung, Haupt- und Zweithand über der Hotbar, darunter Haltbarkeit in % (grün/gelb/rot) bzw. Anzahl.
+  - **Effekte** – aktive Trank-Effekte mit Farbpunkt, Stufe und Restzeit (die letzten 10 s in Rot).
+  - **Vorrat** – wie viele Totems, Kristalle, Obsidian, Anker, Glowstone, Goldäpfel, Perlen, XP-Flaschen und Windkugeln du dabei hast (letztes Totem in Rot).
+  - **Tastenanzeige** – W A S D, Links-/Rechtsklick mit CPS und Leertaste; gedrückte Tasten leuchten in der HUD-Farbe.
+  - **Inventar** – die 27 Slots deines Inventars als kleines Glas-Raster.
+  - **CPS**, **Server** (IP), **Tag** (Spieltag) und **Todespunkt** (Koordinaten deines letzten Todes, mit Entfernung).
 - **HUD-Farbe** – Orange, Rot, Pink, Lila, Blau, Türkis, Grün, Gold, Weiß oder Regenbogen: färbt den ganzen Client: Rad (aktive Module, Bögen, Glas-Tönung, Mitte), Einstellungs-Panel, Suche, Logo, Modulliste, Beschriftungen, Einrichtung und Editor. Einstellbar in der Einrichtung (mit Live-Vorschau) und im Rad unter Client → HUD.
 - **Benachrichtigungen** – Modul an/aus und BaseFinder-Funde erscheinen als Glas-Toasts im HUD statt im Chat.
 - **HUD** – Nautilus-Logo (sanft schaukelnde Nautilus-Muschel) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).

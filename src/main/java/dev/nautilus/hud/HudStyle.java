@@ -118,4 +118,24 @@ public final class HudStyle {
     public static void text(GuiGraphicsExtractor ctx, String text, float x, float centerY, float scale, int color, boolean bold) {
         UiText.left(ctx, Minecraft.getInstance().font, text, x, centerY + textCenterFix * scale, scale, color, bold, true);
     }
+
+    /** Text horizontally centred on centerX, optically centred on centerY. */
+    public static void textCentered(GuiGraphicsExtractor ctx, String text, float centerX, float centerY, float scale, int color, boolean bold) {
+        text(ctx, text, centerX - width(text, bold, scale) / 2f, centerY, scale, color, bold);
+    }
+
+    /** Flat item icon with its top-left corner at (x, y), {@code size} GUI pixels wide (vanilla = 16). */
+    public static void item(GuiGraphicsExtractor ctx, net.minecraft.world.item.ItemStack stack, float x, float y, float size) {
+        if (stack.isEmpty()) return;
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(x, y);
+        ctx.pose().scale(size / 16f, size / 16f);
+        ctx.item(stack, 0, 0);
+        ctx.pose().popMatrix();
+    }
+
+    /** Colour for a "how much is left" fraction (0-1): green, yellow, red. */
+    public static int wear(float fraction) {
+        return fraction > 0.5f ? GOOD : fraction > 0.2f ? 0xFFFFD27A : BAD;
+    }
 }

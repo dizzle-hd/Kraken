@@ -25,6 +25,7 @@ import dev.nautilus.module.player.ArmorAlert;
 import dev.nautilus.module.player.AutoEat;
 import dev.nautilus.module.player.AutoSprint;
 import dev.nautilus.module.player.AutoTool;
+import dev.nautilus.module.player.Fullbright;
 import dev.nautilus.module.smp.BaseFinder;
 import dev.nautilus.module.smp.PlayerESP;
 import dev.nautilus.module.smp.XRay;
@@ -71,6 +72,7 @@ public final class ModuleManager {
         register(new AutoEat());
         register(new AutoTool());
         register(new ArmorAlert());
+        register(new Fullbright());
         // SMP
         register(new XRay());
         register(new BaseFinder());

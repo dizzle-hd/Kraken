@@ -208,6 +208,12 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             srvHud.runCommand("item replace entity @p armor.chest with minecraft:diamond_chestplate[damage=100]");
             srvHud.runCommand("item replace entity @p armor.legs with minecraft:diamond_leggings");
             srvHud.runCommand("item replace entity @p armor.feet with minecraft:diamond_boots[damage=250]");
+            // effects + supplies for the effects / supplies / inventory elements
+            srvHud.runCommand("effect give @p minecraft:strength 90 1");
+            srvHud.runCommand("effect give @p minecraft:fire_resistance 300 0");
+            srvHud.runCommand("give @p minecraft:end_crystal 64");
+            srvHud.runCommand("give @p minecraft:totem_of_undying 3");
+            srvHud.runCommand("give @p minecraft:golden_apple 12");
             ctx.runOnClient(c -> {
                 for (var e : dev.nautilus.hud.HudManager.get().elements()) e.enabled = true;
                 var mm = ModuleManager.get();

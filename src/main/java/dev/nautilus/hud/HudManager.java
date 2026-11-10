@@ -65,6 +65,19 @@ public final class HudManager {
         elements.add(new dev.nautilus.hud.elements.TargetElement());
         elements.add(new dev.nautilus.hud.elements.SmashElement());
         elements.add(new dev.nautilus.hud.elements.ArmorElement());
+        elements.add(new dev.nautilus.hud.elements.ArmorHudElement());
+        elements.add(new dev.nautilus.hud.elements.EffectsElement());
+        elements.add(new dev.nautilus.hud.elements.SuppliesElement());
+        elements.add(new dev.nautilus.hud.elements.KeystrokesElement());
+        elements.add(new dev.nautilus.hud.elements.InventoryElement());
+        elements.add(new ValueElement("cps", "CPS", "CPS", false, START, START, 5, 82,
+                () -> ClickTracker.left() + " | " + ClickTracker.right(), () -> HudStyle.TEXT));
+        elements.add(new ValueElement("server", "Server", "Server", false, START, START, 5, 99,
+                this::server, () -> HudStyle.TEXT));
+        elements.add(new ValueElement("day", "Tag", "Tag", false, CENTER, START, 0, 22,
+                () -> mc.level == null ? "1" : String.valueOf(mc.level.getOverworldClockTime() / 24000L + 1), () -> HudStyle.TEXT));
+        elements.add(new ValueElement("death", "Todespunkt", "Tod", false, START, END, 5, 38,
+                this::deathPoint, () -> HudStyle.TEXT));
     }
 
     public List<HudElement> elements() { return elements; }
@@ -74,6 +87,28 @@ public final class HudManager {
         if (mc.player == null || mc.getConnection() == null) return 0;
         PlayerInfo info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
         return info == null ? 0 : info.getLatency();
+    }
+
+    private String server() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.isLocalServer() || mc.getCurrentServer() == null) return "Einzelspieler";
+        return mc.getCurrentServer().ip;
+    }
+
+    /** Coordinates of your last death (from the server), with the distance when you are in the same dimension. */
+    private String deathPoint() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || mc.level == null) return "120 64 -340";
+        var loc = mc.player.getLastDeathLocation();
+        if (loc.isEmpty()) return "–";
+        var p = loc.get().pos();
+        String s = p.getX() + " " + p.getY() + " " + p.getZ();
+        if (loc.get().dimension() == mc.level.dimension()) {
+            s += "  (" + (int) Math.sqrt(mc.player.blockPosition().distSqr(p)) + " m)";
+        } else {
+            s += "  (" + loc.get().dimension().identifier().getPath() + ")";
+        }
+        return s;
     }
 
     private String direction() {
@@ -112,6 +147,7 @@ public final class HudManager {
     /** Renders every enabled element (in the editor: also returns positions, see HudEditorScreen). */
     public void render(GuiGraphicsExtractor ctx, boolean editor, HudElement skip) {
         frame++;
+        ClickTracker.update();
         Minecraft mc = Minecraft.getInstance();
         long now = System.currentTimeMillis();
         float dt = Math.min(0.1f, (now - lastFrame) / 1000f);
