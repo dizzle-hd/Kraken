@@ -62,6 +62,9 @@ public final class HudManager {
         elements.add(new ValueElement("clock", "Uhrzeit", "Zeit", false, END, END, 5, 5,
                 () -> LocalTime.now().format(CLOCK), () -> HudStyle.TEXT));
         elements.add(new NotificationsElement());
+        elements.add(new dev.nautilus.hud.elements.TargetElement());
+        elements.add(new dev.nautilus.hud.elements.SmashElement());
+        elements.add(new dev.nautilus.hud.elements.ArmorElement());
     }
 
     public List<HudElement> elements() { return elements; }

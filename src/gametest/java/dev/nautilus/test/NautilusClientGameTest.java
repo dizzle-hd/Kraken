@@ -248,6 +248,18 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(80); // let the toasts expire
             ctx.takeScreenshot("09-hud-all");
 
+            // --- HUD colour: blue, then the cycling rainbow, back to orange ---
+            var hudColor = ctx.computeOnClient(c -> ModuleManager.get().get(Hud.class).color);
+            ctx.runOnClient(c -> hudColor.set("Blau"));
+            ctx.waitTicks(5);
+            ctx.takeScreenshot("09b-hud-blue");
+            ctx.runOnClient(c -> hudColor.set("Regenbogen"));
+            ctx.waitTicks(5);
+            ctx.takeScreenshot("09c-hud-rainbow");
+            System.out.println("[NautilusTest] HUD colour: accent blue/rainbow/orange = " + ctx.computeOnClient(c -> { hudColor.set("Blau"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
+                    + " / " + ctx.computeOnClient(c -> { hudColor.set("Regenbogen"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
+                    + " / " + ctx.computeOnClient(c -> { hudColor.set("Orange"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); }));
+
             // --- HUD editor: open it from the wheel (Client > HUD-Editor) and drag the coordinates ---
             ctx.setScreen(dev.nautilus.gui.HudEditorScreen::new);
             ctx.waitTicks(10);
@@ -274,7 +286,8 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(5);
             ctx.takeScreenshot("12-hud-after-edit");
 
-            // --- first-start setup: all three pages ---
+            // --- first-start setup: all three pages (in purple: the colour choice is shown live) ---
+            ctx.runOnClient(c -> hudColor.set("Lila"));
             ctx.setScreen(dev.nautilus.gui.OnboardingScreen::new);
             ctx.waitTicks(10);
             ctx.takeScreenshot("13-onboarding-1");
@@ -286,6 +299,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.takeScreenshot("13-onboarding-3");
             ctx.getInput().pressKey(InputConstants.KEY_RETURN);
             ctx.waitTicks(5);
+            ctx.runOnClient(c -> hudColor.set("Orange"));
         }
     }
 
@@ -579,6 +593,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
                 var e = server.getPlayerList().getPlayers().get(0).level().getEntity(z);
                 return e instanceof net.minecraft.world.entity.LivingEntity l ? l.getHealth() : -1f;
             });
+            if (i == 10) ctx.takeScreenshot("17a-smash-preview");
             if (hp < lastHp - 0.01f) mlog.append("HIT@").append(i).append('(').append(st).append(String.format(java.util.Locale.ROOT, " -%.1f) ", lastHp - hp));
             else if (i % 5 == 0) mlog.append('t').append(i).append(':').append(st).append(' ');
             lastHp = hp;
@@ -614,6 +629,19 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         postControl = true;
         ctx.waitTicks(3);
         System.out.println("[NautilusTest] Packet order control (one punch packet sent post on purpose, expect post=1): " + ctx.computeOnClient(c -> PacketLog.stop()));
+
+        // PopCounter: pop your own totem (the server sends entity event 35)
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.PopCounter.class).setEnabled(true));
+        srv.runCommand("effect clear @a minecraft:resistance"); // from the crystal tests: the hit must be lethal
+        srv.runCommand("item replace entity @a weapon.offhand with minecraft:totem_of_undying");
+        ctx.waitTicks(5);
+        srv.runCommand("damage @a 1000 minecraft:generic");
+        ctx.waitTicks(10);
+        ctx.takeScreenshot("17c-popcounter");
+        System.out.println("[NautilusTest] PopCounter: own pops " + ctx.computeOnClient(c -> dev.nautilus.util.CombatTracker.pops(c.player))
+                + ", toasts " + ctx.computeOnClient(c -> dev.nautilus.hud.Notifications.active().stream().map(t -> t.title() + ": " + t.message()).toList())
+                + ", player alive " + ctx.computeOnClient(c -> c.player.isAlive()));
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.crystal.PopCounter.class).setEnabled(false));
         ctx.waitTicks(40);
     }
 

@@ -36,7 +36,7 @@ Rad, Mitte und HUD sind aus **Liquid Glass** (eigener Shader: Unschärfe nur hin
 
 ## Einrichtung
 
-Beim ersten Betreten einer Welt öffnet sich die **Einrichtung**: Hinweise (Alpha, experimentelle Module, Sodium/Iris gefunden, Server-Regeln), dann Rad-Taste, Rad-Größe (mit Vorschau), Liquid Glass und HUD an/aus, zum Schluss die wichtigsten Tasten. Erneut öffnen: im Rad unter **Client → Einrichtung**.
+Beim ersten Betreten einer Welt öffnet sich die **Einrichtung**: Hinweise (Alpha, experimentelle Module, Sodium/Iris gefunden, Server-Regeln), dann Rad-Taste, Rad-Größe (mit Vorschau), Liquid Glass, HUD an/aus und HUD-Farbe, zum Schluss die wichtigsten Tasten. Erneut öffnen: im Rad unter **Client → Einrichtung**.
 
 ## Bedienung
 
@@ -74,6 +74,7 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
 - **SafeAnchor** – setzt vor der Explosion einen Schutzblock zwischen dich und den Anker (Glowstone/Obsidian/beliebig, zu dir oder zusätzlich oben). Alleine nutzbar oder kombiniert mit AnchorMacro.
 - **AutoTotem** – hält ein Totem in der Zweithand (immer oder unter einer Leben-Grenze, darüber Kristall/Goldapfel).
 - **Surround** – umgibt deine Füße mit Obsidian (Zentrieren, Stützblöcke, doppelte Höhe, aus beim Weggehen).
+- **PopCounter** – zählt die Totem-Pops anderer Spieler (Glas-Toast pro Pop) und meldet, nach wie vielen Pops jemand stirbt; die Zahl steht auch im Ziel-HUD. Liest nur, was der Server schickt – sendet nichts.
 
 ### Spear
 - **SpearSwitch** – Lunge im Dauerfeuer: du hältst einen leeren (oder anderen) Slot, pro Stoß wird im selben Tick kurz auf den Speer gewechselt, zugestochen und zurückgewechselt – so zählt nur der kurze Cooldown der leeren Hand. Auslöser: an/aus per Modul-Taste, Halten einer eigenen Lunge-Taste oder solange die Angriffstaste gedrückt ist. Intervall, Zufall, Park-Slot, nur Speere mit Lunge, Hunger-Schutz. Lunge wirkt nur zu Fuß (nicht reitend, nicht mit Elytra, nicht im Wasser) und ab 7 Hunger.
@@ -102,7 +103,11 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
 
 ### Client
 - **HUD-Editor** – Klick im Rad öffnet den Editor: Elemente ziehen (rasten an Rändern, Mitte und anderen Elementen ein), Rechts-Klick blendet aus, Chips im Panel blenden ein/aus, „Zurücksetzen“ stellt das Standard-Layout her.
-- **HUD-Elemente** – Logo, Modulliste, Koordinaten (inkl. Nether/Oberwelt), FPS, Ping, TPS, Geschwindigkeit, Richtung, Uhrzeit, Benachrichtigungen.
+- **HUD-Elemente** – Logo, Modulliste, Koordinaten (inkl. Nether/Oberwelt), FPS, Ping, TPS, Geschwindigkeit, Richtung, Uhrzeit, Benachrichtigungen, dazu:
+  - **Ziel** – Name, Distanz, Lebensbalken (Absorption in Gold), Rüstung und Totem-Pops deines Ziels (Fadenkreuz oder zuletzt geschlagen).
+  - **Smash-Vorschau** – beim Fallen mit Streitkolben in der Hotbar: Fallhöhe und der Schaden, den ein Smash jetzt machen würde (aufs Ziel nach Rüstung).
+  - **Rüstung** – Haltbarkeit von Kopf, Brust, Hose, Schuhen und Waffe in Prozent (im HUD-Editor einschalten).
+- **HUD-Farbe** – Orange, Rot, Pink, Lila, Blau, Türkis, Grün, Gold, Weiß oder Regenbogen: färbt Logo, Modulliste, Beschriftungen, Glas-Tönung und Editor. Einstellbar in der Einrichtung (mit Live-Vorschau) und im Rad unter Client → HUD.
 - **Benachrichtigungen** – Modul an/aus und BaseFinder-Funde erscheinen als Glas-Toasts im HUD statt im Chat.
 - **HUD** – Nautilus-Logo (sanft schaukelnde Nautilus-Muschel) + Liste aktiver Module als transparente, abgerundete Glas-Pillen im Stil des Rads (gleiten beim An-/Ausschalten herein/heraus).
 - **Notifications** – Chat-Meldung beim An-/Ausschalten.

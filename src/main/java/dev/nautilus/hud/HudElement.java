@@ -132,7 +132,7 @@ public abstract class HudElement {
         text.add(() -> {
             float tx = x + HudStyle.PAD;
             if (label != null && !label.isEmpty()) {
-                HudStyle.text(ctx, label, tx, cy, HudStyle.TEXT_SCALE, HudStyle.LABEL, true);
+                HudStyle.text(ctx, label, tx, cy, HudStyle.TEXT_SCALE, HudStyle.label(), true);
                 tx += HudStyle.width(label, true, HudStyle.TEXT_SCALE) + 4f;
             }
             HudStyle.text(ctx, value, tx, cy, HudStyle.TEXT_SCALE, valueColor, false);

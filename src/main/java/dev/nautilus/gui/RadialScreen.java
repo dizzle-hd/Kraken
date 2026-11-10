@@ -817,6 +817,10 @@ public class RadialScreen extends Screen {
                 float vw = textWidth(v, true) * 0.78f;
                 float vs = vw > ctrlW - 22f ? 0.78f * (ctrlW - 22f) / vw : 0.78f;
                 text.add(() -> leftText(ctx, v, (c1 + cRight) / 2f - textWidth(v, true) * vs / 2f, my, vs, Shapes.alpha(VALUE, a), true));
+                // HUD colour: a swatch next to the name
+                if (st == ModuleManager.get().get(dev.nautilus.module.client.Hud.class).color) {
+                    s.circle((c1 + cRight) / 2f - textWidth(v, true) * vs / 2f - 6f, my, 3f, Shapes.alpha(dev.nautilus.hud.HudStyle.colorOf(v), a));
+                }
                 panelHits.add(new PanelHit(c1, ry, cRight, ry + rowH, "mode", st, null));
             } else if (st instanceof KeySetting key) {
                 String v = key == listening ? "Taste drücken …" : key.display();

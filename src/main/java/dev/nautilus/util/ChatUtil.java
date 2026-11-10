@@ -9,11 +9,11 @@ public final class ChatUtil {
     private ChatUtil() {}
 
     public static void info(Component message) {
-        Notifications.push("Nautilus", message.getString(), HudStyle.ACCENT);
+        Notifications.push("Nautilus", message.getString(), HudStyle.accent());
     }
 
     public static void info(String message) {
-        Notifications.push("Nautilus", message, HudStyle.ACCENT);
+        Notifications.push("Nautilus", message, HudStyle.accent());
     }
 
     public static void toggle(String module, boolean on) {

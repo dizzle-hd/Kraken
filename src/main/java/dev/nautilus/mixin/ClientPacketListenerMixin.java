@@ -3,6 +3,7 @@ package dev.nautilus.mixin;
 import dev.nautilus.module.ModuleManager;
 import dev.nautilus.module.smp.BaseFinder;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
 import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
 import net.minecraft.network.protocol.game.ClientboundSetTimePacket;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
@@ -41,6 +42,24 @@ public abstract class ClientPacketListenerMixin {
         BaseFinder bf = ModuleManager.get().get(BaseFinder.class);
         if (bf != null && bf.isEnabled() && !packet.isGlobalEvent()) {
             bf.onWorldEvent(packet.getType(), packet.getPos());
+        }
+    }
+
+    /** Totem pops (event 35) and deaths (event 3) of players: counted for the target HUD and PopCounter. */
+    @Inject(method = "handleEntityEvent", at = @At("TAIL"))
+    private void nautilus$entityEvent(ClientboundEntityEventPacket packet, CallbackInfo ci) {
+        byte id = packet.getEventId();
+        if (id != 35 && id != 3) return;
+        var mc = net.minecraft.client.Minecraft.getInstance();
+        if (mc.level == null || !(packet.getEntity(mc.level) instanceof net.minecraft.world.entity.player.Player p)) return;
+        var counter = ModuleManager.get().get(dev.nautilus.module.crystal.PopCounter.class);
+        boolean on = counter != null && counter.isEnabled();
+        if (id == 35) {
+            int n = dev.nautilus.util.CombatTracker.onPop(p);
+            if (on) counter.onPop(p, n);
+        } else {
+            int n = dev.nautilus.util.CombatTracker.onDeath(p);
+            if (on) counter.onDeath(p, n);
         }
     }
 }

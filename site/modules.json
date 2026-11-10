@@ -1548,6 +1548,33 @@
    ]
   },
   {
+   "id": "PopCounter",
+   "name": "PopCounter",
+   "category": "CRYSTAL",
+   "description": "Zählt Totem-Pops anderer Spieler und meldet, nach wie vielen Pops jemand stirbt.",
+   "settings": [
+    {
+     "name": "Eigene Pops",
+     "desc": "Auch deine eigenen Totem-Pops melden",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tode melden",
+     "desc": "Melden, wenn ein Spieler nach Pops stirbt",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Nur in der Nähe",
+     "desc": "Nur Spieler innerhalb von 32 Blöcken melden",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "SpearSwitch",
    "name": "SpearSwitch",
    "category": "SPEAR",
@@ -2188,6 +2215,15 @@
      "min": 60,
      "max": 140,
      "step": 5
+    },
+    {
+     "name": "HUD-Farbe",
+     "desc": "Akzentfarbe von HUD, Logo und Glas-Tönung (Regenbogen = wechselt langsam durch alle Farben)",
+     "type": "mode",
+     "default": null,
+     "modes": [
+      null
+     ]
     }
    ],
    "presets": []

@@ -42,6 +42,7 @@ public final class ModuleManager {
         register(new dev.nautilus.module.crystal.SafeAnchor());
         register(new dev.nautilus.module.crystal.AutoTotem());
         register(new dev.nautilus.module.crystal.Surround());
+        register(new dev.nautilus.module.crystal.PopCounter());
         // Spear
         register(new dev.nautilus.module.spear.SpearSwitch());
         // Mace

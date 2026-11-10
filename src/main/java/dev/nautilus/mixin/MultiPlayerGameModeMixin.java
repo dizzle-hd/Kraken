@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MultiPlayerGameModeMixin {
     @Inject(method = "attack", at = @At("HEAD"))
     private void nautilus$preAttack(Player player, Entity target, CallbackInfo ci) {
+        if (player == net.minecraft.client.Minecraft.getInstance().player) dev.nautilus.util.CombatTracker.onAttack(target);
         MaceHooks.preAttack(player, target);
     }
 

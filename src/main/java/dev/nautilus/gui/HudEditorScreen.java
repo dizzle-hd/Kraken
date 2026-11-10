@@ -72,19 +72,19 @@ public class HudEditorScreen extends Screen {
             if (!e.enabled) continue;
             float x = e.x(width, true), y = e.y(height, true), w = e.width(true), h = e.height(true);
             boolean hot = e == hovered;
-            frames.roundRect(x - 3, y - 3, x + w + 3, y + h + 3, 6, hot ? 0x24FF5A2A : 0x10FFFFFF);
-            frames.roundRectRim(x - 3, y - 3, x + w + 3, y + h + 3, 6, hot ? 1.2f : 0.8f, hot ? 0xCCFF5A2A : 0x44FFFFFF);
+            frames.roundRect(x - 3, y - 3, x + w + 3, y + h + 3, 6, hot ? HudStyle.accent(0x24) : 0x10FFFFFF);
+            frames.roundRectRim(x - 3, y - 3, x + w + 3, y + h + 3, 6, hot ? 1.2f : 0.8f, hot ? HudStyle.accent(0xCC) : 0x44FFFFFF);
             if (hot) {
                 String name = e.name();
                 float lx = x, ly = y - 3 - 9;
                 if (ly < 2) ly = y + h + 4;
                 float fx = lx, fy = ly;
-                labels.add(() -> HudStyle.text(ctx, name, fx, fy + 4, 0.8f, 0xFFFFB49C, true));
+                labels.add(() -> HudStyle.text(ctx, name, fx, fy + 4, 0.8f, HudStyle.label(), true));
             }
         }
         // snap guides
         for (float[] g : guides) {
-            frames.rect(Math.min(g[0], g[2]) - 0.4f, Math.min(g[1], g[3]) - 0.4f, Math.max(g[0], g[2]) + 0.4f, Math.max(g[1], g[3]) + 0.4f, 0xCCFF5A2A);
+            frames.rect(Math.min(g[0], g[2]) - 0.4f, Math.min(g[1], g[3]) - 0.4f, Math.max(g[0], g[2]) + 0.4f, Math.max(g[1], g[3]) + 0.4f, HudStyle.accent(0xCC));
         }
         frames.submit(ctx);
 
@@ -149,12 +149,12 @@ public class HudEditorScreen extends Screen {
                 HudElement e = reset ? null : hud.elements().get(i);
                 boolean on = e != null && e.enabled;
                 boolean hot = mouseX >= x && mouseX <= x + cw && mouseY >= y && mouseY <= y + h;
-                int fill = reset ? (hot ? 0x40FFFFFF : 0x22FFFFFF) : on ? (hot ? 0xCCFF6A3A : 0xA6FF5A2A) : (hot ? 0x40FFFFFF : 0x1EFFFFFF);
+                int fill = reset ? (hot ? 0x40FFFFFF : 0x22FFFFFF) : on ? (hot ? HudStyle.accentHot(0xCC) : HudStyle.accent(0xA6)) : (hot ? 0x40FFFFFF : 0x1EFFFFFF);
                 s.roundRect(x, y, x + cw, y + h, h / 2f, fill);
                 s.roundRectRim(x, y, x + cw, y + h, h / 2f, 0.7f, 0x40FFFFFF);
                 if (!reset) s.circle(x + 7f, y + h / 2f, 1.8f, on ? 0xFFFFFFFF : 0x80FFFFFF);
                 float tx = x + (reset ? 8f : 12f), ty = y + h / 2f;
-                int col = on || reset ? HudStyle.TEXT : HudStyle.TEXT_DIM;
+                int col = on && !reset ? HudStyle.onAccent() : reset ? HudStyle.TEXT : HudStyle.TEXT_DIM;
                 text.add(() -> HudStyle.text(ctx, n, tx, ty, scale, col, false));
                 chips.add(new Chip(x, y, x + cw, y + h, e, reset ? "reset" : "toggle"));
                 x += cw + gap;

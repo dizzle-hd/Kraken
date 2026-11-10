@@ -22,7 +22,7 @@ import java.util.List;
  * First-start setup, shown once when the player enters a world (again via Client → Einrichtung):
  * <ol>
  *   <li>welcome + warnings (alpha, experimental, Sodium / Iris found, server rules),</li>
- *   <li>settings with live preview: wheel key, wheel size, liquid glass, HUD,</li>
+ *   <li>settings with live preview: wheel key, wheel size, liquid glass, HUD, HUD colour,</li>
  *   <li>controls overview.</li>
  * </ol>
  */
@@ -103,8 +103,8 @@ public class OnboardingScreen extends Screen {
         if (page == 1) {
             float r = RadialScreen.wheelRadius(width, height);
             float cx = width / 2f, cy = RadialScreen.wheelCenterY(height);
-            s.ring(cx, cy, r, 1.2f, 0x66FF5A2A);
-            s.ring(cx, cy, r * 0.44f, 1f, 0x33FF5A2A);
+            s.ring(cx, cy, r, 1.2f, HudStyle.accent(0x66));
+            s.ring(cx, cy, r * 0.44f, 1f, HudStyle.accent(0x33));
         }
         s.submit(ctx);
     }
@@ -120,7 +120,7 @@ public class OnboardingScreen extends Screen {
 
         float ph = switch (page) {
             case 0 -> 64f + warningsHeight(pw) + 34f;
-            case 1 -> 64f + 4 * 30f + 34f;
+            case 1 -> 64f + 5 * 30f + 34f;
             default -> 64f + 7 * 14f + 40f;
         };
         ph = Math.min(ph, height - 16f);
@@ -131,7 +131,7 @@ public class OnboardingScreen extends Screen {
 
         // header: logo, title, page dots
         float t = (System.currentTimeMillis() % 600000L) / 1000f;
-        NautilusLogo.draw(s, px + 22f, py + 22f, 20f, t, HudStyle.ACCENT, 0xFFFFFFFF, 0xFF2A0E08);
+        NautilusLogo.draw(s, px + 22f, py + 22f, 20f, t, HudStyle.accent(), 0xFFFFFFFF, 0xFF2A0E08);
         String title = switch (page) {
             case 0 -> "Willkommen bei Nautilus Client";
             case 1 -> "Einstellungen";
@@ -146,7 +146,7 @@ public class OnboardingScreen extends Screen {
         text.add(() -> HudStyle.text(ctx, sub, px + 40f, py + 30f, 0.75f, HudStyle.TEXT_DIM, false));
         for (int i = 0; i < PAGES; i++) {
             float dx = px + pw - 16f - (PAGES - 1 - i) * 9f;
-            s.circle(dx, py + 20f, i == page ? 2.6f : 1.8f, i == page ? HudStyle.ACCENT : 0x66FFFFFF);
+            s.circle(dx, py + 20f, i == page ? 2.6f : 1.8f, i == page ? HudStyle.accent() : 0x66FFFFFF);
         }
         s.rect(px + 14f, py + 44f, px + pw - 14f, py + 44.5f, 0x26FFFFFF);
 
@@ -175,10 +175,10 @@ public class OnboardingScreen extends Screen {
                          int mouseX, int mouseY, Runnable action) {
         float w = HudStyle.width(label, primary, 0.85f) + 26f, h = 16f;
         boolean hot = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
-        int fill = primary ? (hot ? 0xE6FF6A3A : 0xCCFF5A2A) : (hot ? 0x40FFFFFF : 0x22FFFFFF);
+        int fill = primary ? (hot ? HudStyle.accentHot(0xE6) : HudStyle.accent(0xCC)) : (hot ? 0x40FFFFFF : 0x22FFFFFF);
         s.roundRect(x, y, x + w, y + h, h / 2f, fill);
         s.roundRectRim(x, y, x + w, y + h, h / 2f, 0.7f, 0x40FFFFFF);
-        text.add(() -> HudStyle.text(ctx, label, x + 13f, y + h / 2f, 0.85f, HudStyle.TEXT, primary));
+        text.add(() -> HudStyle.text(ctx, label, x + 13f, y + h / 2f, 0.85f, primary ? HudStyle.onAccent() : HudStyle.TEXT, primary));
         buttons.add(new Button(x, y, x + w, y + h, action));
         return w;
     }
@@ -232,7 +232,7 @@ public class OnboardingScreen extends Screen {
         chip(ctx, s, text, bx1 - 22f, y - 2f, 16f, "−", false, mouseX, mouseY, () -> hud.wheelSize.set(hud.wheelSize.get() - 5));
         float frac = (float) hud.wheelSize.getFraction();
         s.roundRect(bx1, y + 4f, bx2, y + 8f, 2f, 0x33FFFFFF);
-        s.roundRect(bx1, y + 4f, bx1 + bw * frac, y + 8f, 2f, HudStyle.ACCENT);
+        s.roundRect(bx1, y + 4f, bx1 + bw * frac, y + 8f, 2f, HudStyle.accent());
         s.circle(bx1 + bw * frac, y + 6f, 4.5f, 0xFFFFFFFF);
         barX1 = bx1;
         barX2 = bx2;
@@ -249,6 +249,30 @@ public class OnboardingScreen extends Screen {
         // HUD
         label(ctx, text, px, y, "HUD anzeigen", "Logo, Modulliste, Koordinaten, FPS …");
         toggle(ctx, s, text, right, y, hud.isEnabled(), mouseX, mouseY, hud::toggle);
+        y += 30f;
+
+        // HUD colour: one swatch per colour, the whole setup shows the choice live
+        label(ctx, text, px, y, "HUD-Farbe", "Akzent für HUD, Logo und Glas");
+        String[] names = HudStyle.COLOR_NAMES;
+        float step = 13f, sy = y + 6f;
+        float sx0 = right - 5f - (names.length - 1) * step;
+        String hovered = null;
+        for (int i = 0; i < names.length; i++) {
+            String name = names[i];
+            float sx = sx0 + i * step;
+            boolean hot = Math.abs(mouseX - sx) <= 6f && Math.abs(mouseY - sy) <= 6f;
+            boolean sel = hud.color.is(name);
+            if (sel) s.ring(sx, sy, 6.6f, 1.2f, 0xFFFFFFFF);
+            else if (hot) s.ring(sx, sy, 6.4f, 0.8f, 0x99FFFFFF);
+            s.circle(sx, sy, sel || hot ? 5f : 4.4f, HudStyle.colorOf(name));
+            if (HudStyle.RAINBOW.equals(name)) s.circle(sx, sy, 1.6f, 0xFFFFFFFF); // marks the cycling one
+            if (hot) hovered = name;
+            buttons.add(new Button(sx - 6f, sy - 6f, sx + 6f, sy + 6f, () -> hud.color.set(name)));
+        }
+        String shown = hovered != null ? hovered : hud.color.get();
+        float nw = HudStyle.width(shown, true, 0.68f);
+        float ny = sy + 11f;
+        text.add(() -> HudStyle.text(ctx, shown, right - nw, ny, 0.68f, HudStyle.TEXT_DIM, true));
     }
 
     private void label(GuiGraphicsExtractor ctx, List<Runnable> text, float px, float y, String title, String hint) {
@@ -260,11 +284,11 @@ public class OnboardingScreen extends Screen {
                       int mouseX, int mouseY, Runnable action) {
         float h = 16f;
         boolean hot = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
-        int fill = active ? 0xCCFF5A2A : hot ? 0x40FFFFFF : 0x22FFFFFF;
+        int fill = active ? HudStyle.accent(0xCC) : hot ? 0x40FFFFFF : 0x22FFFFFF;
         s.roundRect(x, y, x + w, y + h, h / 2f, fill);
         s.roundRectRim(x, y, x + w, y + h, h / 2f, 0.7f, 0x40FFFFFF);
         float lw = HudStyle.width(label, true, 0.85f);
-        text.add(() -> HudStyle.text(ctx, label, x + w / 2f - lw / 2f, y + h / 2f, 0.85f, HudStyle.TEXT, true));
+        text.add(() -> HudStyle.text(ctx, label, x + w / 2f - lw / 2f, y + h / 2f, 0.85f, active ? HudStyle.onAccent() : HudStyle.TEXT, true));
         buttons.add(new Button(x, y, x + w, y + h, action));
     }
 
@@ -272,7 +296,7 @@ public class OnboardingScreen extends Screen {
                         int mouseX, int mouseY, Runnable action) {
         float w = 30f, h = 15f, x = right - w, ty = y - 1f;
         boolean hot = mouseX >= x && mouseX <= x + w && mouseY >= ty && mouseY <= ty + h;
-        s.roundRect(x, ty, x + w, ty + h, h / 2f, on ? (hot ? 0xE6FF6A3A : 0xCCFF5A2A) : (hot ? 0x40FFFFFF : 0x26FFFFFF));
+        s.roundRect(x, ty, x + w, ty + h, h / 2f, on ? (hot ? HudStyle.accentHot(0xE6) : HudStyle.accent(0xCC)) : (hot ? 0x40FFFFFF : 0x26FFFFFF));
         s.circle(on ? x + w - h / 2f : x + h / 2f, ty + h / 2f, h / 2f - 2f, 0xFFFFFFFF);
         String st = on ? "An" : "Aus";
         float sw = HudStyle.width(st, false, 0.72f);

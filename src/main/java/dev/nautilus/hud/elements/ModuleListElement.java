@@ -126,7 +126,7 @@ public class ModuleListElement extends HudElement {
             float x1 = (right ? x + total - w : x) + slide;
             float y1 = yy;
             HudStyle.pill(ctx, s, x1, y1, x1 + w, y1 + HudStyle.PILL_H, e);
-            s.circle(x1 + 7.5f, y1 + HudStyle.PILL_H / 2f, 2f, Shapes.alpha(HudStyle.ACCENT, e));
+            s.circle(x1 + 7.5f, y1 + HudStyle.PILL_H / 2f, 2f, Shapes.alpha(HudStyle.accent(list.indexOf(m) * 0.06f), e));
             String name = m.getName(), info = infoOf(m);
             float cy = y1 + HudStyle.PILL_H / 2f;
             int nc = Shapes.alpha(HudStyle.TEXT, e), ic = Shapes.alpha(HudStyle.TEXT_DIM, e);
