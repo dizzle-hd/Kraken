@@ -248,20 +248,6 @@ public final class Shapes {
         return this;
     }
 
-    public Shapes roundRectOutline(float x1, float y1, float x2, float y2, float r, float w, int color) {
-        r = Math.min(r, Math.min((x2 - x1) / 2f, (y2 - y1) / 2f));
-        rect(x1 + r, y1, x2 - r, y1 + w, color);
-        rect(x1 + r, y2 - w, x2 - r, y2, color);
-        rect(x1, y1 + r, x1 + w, y2 - r, color);
-        rect(x2 - w, y1 + r, x2, y2 - r, color);
-        float q = (float) (Math.PI / 2);
-        sector(x1 + r, y1 + r, r - w, r, 3 * q, 4 * q, 0, color, color);
-        sector(x2 - r, y1 + r, r - w, r, 0, q, 0, color, color);
-        sector(x2 - r, y2 - r, r - w, r, q, 2 * q, 0, color, color);
-        sector(x1 + r, y2 - r, r - w, r, 2 * q, 3 * q, 0, color, color);
-        return this;
-    }
-
 
     // ---- rounded annular sectors (glass segments) ------------------------------------------------
 
@@ -368,14 +354,6 @@ public final class Shapes {
         float pi = (float) Math.PI;
         sector(sx, sy, h, h + width, a0 - pi, a0, 0, color, clear);
         sector(ex, ey, h, h + width, a1, a1 + pi, 0, color, clear);
-        return this;
-    }
-
-    /** Soft radial glow: a ring fading from {@code color} at r to transparent at r + width. */
-    public Shapes glow(float cx, float cy, float r, float width, float a0, float a1, int color) {
-        int clear = color & 0x00FFFFFF;
-        sector(cx, cy, r, r + width, a0, a1, 0, color, clear);
-        sector(cx, cy, Math.max(0, r - width), r, a0, a1, 0, clear, color);
         return this;
     }
 

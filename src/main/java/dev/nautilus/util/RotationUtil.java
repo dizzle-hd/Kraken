@@ -39,16 +39,6 @@ public final class RotationUtil {
                 Mth.clamp(eyes.z, box.minZ, box.maxZ));
     }
 
-    /** A natural looking aim point: upper body, clamped into the hitbox. */
-    public static Vec3 aimPoint(Vec3 eyes, Entity target) {
-        AABB box = target.getBoundingBox();
-        double y = Mth.clamp(eyes.y, box.minY + box.getYsize() * 0.25, box.maxY - box.getYsize() * 0.1);
-        return new Vec3(
-                Mth.clamp(eyes.x, box.minX + 0.05, box.maxX - 0.05),
-                y,
-                Mth.clamp(eyes.z, box.minZ + 0.05, box.maxZ - 0.05));
-    }
-
     // =============================================================================================
     // Aim engine
     // =============================================================================================
@@ -130,16 +120,6 @@ public final class RotationUtil {
         float dy = Math.abs(Mth.wrapDegrees(rotation[0] - yaw));
         float dp = Math.abs(rotation[1] - pitch);
         return (float) Math.sqrt(dy * dy + dp * dp);
-    }
-
-    /** Move from {@code current} towards {@code target} by at most {@code maxStep} degrees. */
-    public static float[] limit(float curYaw, float curPitch, float[] target, float maxStep) {
-        float dYaw = Mth.wrapDegrees(target[0] - curYaw);
-        float dPitch = target[1] - curPitch;
-        float dist = (float) Math.sqrt(dYaw * dYaw + dPitch * dPitch);
-        if (dist <= maxStep || dist < 1e-4f) return new float[]{curYaw + dYaw, target[1]};
-        float f = maxStep / dist;
-        return new float[]{curYaw + dYaw * f, curPitch + dPitch * f};
     }
 
     /**

@@ -15,8 +15,6 @@ public final class RotationManager {
     private static boolean swapped;
     private static float savedYaw, savedPitch;
 
-    private static float serverYaw, serverPitch;
-
     private RotationManager() {}
 
     /** Request a silent rotation for the current tick. Higher priority wins. */
@@ -27,11 +25,6 @@ public final class RotationManager {
         targetYaw = yaw;
         targetPitch = Math.max(-90f, Math.min(90f, pitch));
     }
-
-    public static boolean isRequested() { return requested; }
-
-    public static float getServerYaw() { return serverYaw; }
-    public static float getServerPitch() { return serverPitch; }
 
     /** Called from the mixin at the head of LocalPlayer#sendPosition. */
     public static void preMotion(LocalPlayer player) {
@@ -46,8 +39,6 @@ public final class RotationManager {
 
     /** Called from the mixin at the tail of LocalPlayer#sendPosition. */
     public static void postMotion(LocalPlayer player) {
-        serverYaw = player.getYRot();
-        serverPitch = player.getXRot();
         if (swapped) {
             player.setYRot(savedYaw);
             player.setXRot(savedPitch);

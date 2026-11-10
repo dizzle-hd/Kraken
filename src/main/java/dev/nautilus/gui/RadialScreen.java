@@ -15,13 +15,11 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.ResolvableProfile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,7 +110,6 @@ public class RadialScreen extends Screen {
 
     // ---- per-frame geometry ----------------------------------------------------------------------
     private float cx, cy, R, rIn, rOut, gap, corner, discR, ringR;
-    private ItemStack headStack;
 
     /** One segment of the current level. */
     private record Entry(String label, ItemStack icon, String description, boolean active,
@@ -385,7 +382,7 @@ public class RadialScreen extends Screen {
         return new Fit(new String[]{label}, s);
     }
 
-    /** "BlatantKillAura" → {"Blatant", "KillAura"}, "Min. Verzögerung" → {"Min.", "Verzögerung"}. */
+    /** "AutoCrystal" → {"Auto", "Crystal"}, "Min. Verzögerung" → {"Min.", "Verzögerung"}. */
     private static String[] splitLabel(String label) {
         int best = -1;
         for (int i = 1; i < label.length(); i++) {
@@ -1029,14 +1026,6 @@ public class RadialScreen extends Screen {
         p.roundRectRim(cx - w / 2f, y - h / 2f, cx + w / 2f, y + h / 2f, h / 2f, 0.8f, Shapes.alpha(0xCCFF6A3A, appear));
         p.submit(ctx);
         text(ctx, text, cx, y, s, Shapes.alpha(0xFFFFE0D4, appear), true);
-    }
-
-    private ItemStack head() {
-        if (headStack == null && minecraft.player != null) {
-            headStack = new ItemStack(Items.PLAYER_HEAD);
-            headStack.set(DataComponents.PROFILE, ResolvableProfile.createResolved(minecraft.player.getGameProfile()));
-        }
-        return headStack;
     }
 
     // ---- setting widgets ------------------------------------------------------------------------

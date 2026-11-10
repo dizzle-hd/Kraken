@@ -288,468 +288,25 @@
    ]
   },
   {
-   "id": "SilentKillAura",
-   "name": "SilentKillAura",
-   "category": "COMBAT",
-   "description": "Greift Ziele automatisch an – mit unsichtbarer Server-Rotation, deine Kamera bleibt ruhig.",
-   "settings": [
-    {
-     "name": "Sortierung",
-     "desc": "Welches Ziel zuerst angegriffen wird",
-     "type": "mode",
-     "default": "Distanz",
-     "modes": [
-      "Distanz",
-      "Leben",
-      "Winkel"
-     ]
-    },
-    {
-     "name": "Spieler",
-     "desc": "Spieler angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Monster",
-     "desc": "Feindliche Mobs angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Tiere",
-     "desc": "Friedliche Mobs angreifen",
-     "type": "bool",
-     "default": false
-    },
-    {
-     "name": "Unsichtbare",
-     "desc": "Unsichtbare Ziele angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Teammates",
-     "desc": "Auch Spieler aus deinem Team angreifen",
-     "type": "bool",
-     "default": false
-    },
-    {
-     "name": "Zielpunkt",
-     "desc": "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine",
-     "type": "mode",
-     "default": "Auto",
-     "modes": [
-      "Auto",
-      "Kopf",
-      "Brust",
-      "Beine"
-     ]
-    },
-    {
-     "name": "Vorhersage",
-     "desc": "Bewegung des Ziels vorhalten (Ticks, 0 = aus)",
-     "type": "number",
-     "default": 1,
-     "min": 0,
-     "max": 4,
-     "step": 0.5
-    },
-    {
-     "name": "Ziel halten",
-     "desc": "Beim aktuellen Ziel bleiben statt ständig zu wechseln",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Pause beim Benutzen",
-     "desc": "Nicht angreifen während du isst / blockst",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Reichweite",
-     "desc": "Angriffsreichweite in Blöcken",
-     "type": "number",
-     "default": null,
-     "min": 1,
-     "max": null,
-     "step": 0.1
-    },
-    {
-     "name": "FOV",
-     "desc": "Nur Ziele innerhalb dieses Sichtwinkels (360 = rundum)",
-     "type": "number",
-     "default": null,
-     "min": 10,
-     "max": 360,
-     "step": 5
-    },
-    {
-     "name": "Abklingzeit",
-     "desc": "Angriff erst ab dieser Aufladung (1.0 = voll)",
-     "type": "number",
-     "default": 0.95,
-     "min": 0.5,
-     "max": 1,
-     "step": 0.05
-    },
-    {
-     "name": "Drehgeschwindigkeit",
-     "desc": "Max. Grad pro Tick für die stille Rotation",
-     "type": "number",
-     "default": 60,
-     "min": 10,
-     "max": 180,
-     "step": 5
-    },
-    {
-     "name": "Toleranz",
-     "desc": "Wie genau gezielt sein muss bevor geschlagen wird (Grad)",
-     "type": "number",
-     "default": 15,
-     "min": 1,
-     "max": 60,
-     "step": 1
-    },
-    {
-     "name": "Durch Wände",
-     "desc": "Ziele hinter Blöcken angreifen",
-     "type": "bool",
-     "default": false
-    }
-   ],
-   "presets": [
-    {
-     "name": "Legit",
-     "risk": 0,
-     "note": "Volle Aufladung, langsame Drehung, nur nach vorn",
-     "values": {
-      "Abklingzeit": 1,
-      "Drehgeschwindigkeit": 25,
-      "Toleranz": 6,
-      "Reichweite": 3,
-      "FOV": 120,
-      "Durch Wände": false
-     }
-    },
-    {
-     "name": "Normal",
-     "risk": 1,
-     "note": "Rundum, normale Reichweite",
-     "values": {
-      "Abklingzeit": 0.95,
-      "Drehgeschwindigkeit": 60,
-      "Toleranz": 15,
-      "Reichweite": 3.1,
-      "FOV": 360,
-      "Durch Wände": false
-     }
-    },
-    {
-     "name": "Rage",
-     "risk": 2,
-     "note": "Schnelle Drehung, mehr Reichweite, durch Wände",
-     "values": {
-      "Abklingzeit": 0.8,
-      "Drehgeschwindigkeit": 180,
-      "Toleranz": 45,
-      "Reichweite": 4,
-      "FOV": 360,
-      "Durch Wände": true
-     }
-    }
-   ]
-  },
-  {
-   "id": "BlatantKillAura",
-   "name": "BlatantKillAura",
-   "category": "COMBAT",
-   "description": "Aggressive Aura: hohe Reichweite, mehrere Ziele, durch Wände, Kamera gleitet zum Ziel.",
-   "settings": [
-    {
-     "name": "Sortierung",
-     "desc": "Welches Ziel zuerst angegriffen wird",
-     "type": "mode",
-     "default": "Distanz",
-     "modes": [
-      "Distanz",
-      "Leben",
-      "Winkel"
-     ]
-    },
-    {
-     "name": "Spieler",
-     "desc": "Spieler angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Monster",
-     "desc": "Feindliche Mobs angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Tiere",
-     "desc": "Friedliche Mobs angreifen",
-     "type": "bool",
-     "default": false
-    },
-    {
-     "name": "Unsichtbare",
-     "desc": "Unsichtbare Ziele angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Teammates",
-     "desc": "Auch Spieler aus deinem Team angreifen",
-     "type": "bool",
-     "default": false
-    },
-    {
-     "name": "Zielpunkt",
-     "desc": "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine",
-     "type": "mode",
-     "default": "Auto",
-     "modes": [
-      "Auto",
-      "Kopf",
-      "Brust",
-      "Beine"
-     ]
-    },
-    {
-     "name": "Vorhersage",
-     "desc": "Bewegung des Ziels vorhalten (Ticks, 0 = aus)",
-     "type": "number",
-     "default": 1,
-     "min": 0,
-     "max": 4,
-     "step": 0.5
-    },
-    {
-     "name": "Ziel halten",
-     "desc": "Beim aktuellen Ziel bleiben statt ständig zu wechseln",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Pause beim Benutzen",
-     "desc": "Nicht angreifen während du isst / blockst",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Reichweite",
-     "desc": "Angriffsreichweite in Blöcken",
-     "type": "number",
-     "default": null,
-     "min": 1,
-     "max": null,
-     "step": 0.1
-    },
-    {
-     "name": "FOV",
-     "desc": "Nur Ziele innerhalb dieses Sichtwinkels (360 = rundum)",
-     "type": "number",
-     "default": null,
-     "min": 10,
-     "max": 360,
-     "step": 5
-    },
-    {
-     "name": "Rotation",
-     "desc": "Kamera = Kamera gleitet zum Ziel, Silent = nur Server, Keine = gar nicht drehen",
-     "type": "mode",
-     "default": "Kamera",
-     "modes": [
-      "Kamera",
-      "Silent",
-      "Keine"
-     ]
-    },
-    {
-     "name": "Glätte",
-     "desc": "Wie weich die Kamera zum Ziel gleitet (höher = weicher, langsamer)",
-     "type": "number",
-     "default": 6,
-     "min": 1,
-     "max": 20,
-     "step": 1,
-     "conditional": true
-    },
-    {
-     "name": "Max. Drehung",
-     "desc": "Höchste Drehgeschwindigkeit der Kamera in Grad pro Sekunde",
-     "type": "number",
-     "default": 540,
-     "min": 90,
-     "max": 1440,
-     "step": 30,
-     "conditional": true
-    },
-    {
-     "name": "Timing",
-     "desc": "Abklingzeit abwarten oder mit fester CPS spammen",
-     "type": "mode",
-     "default": "CPS",
-     "modes": [
-      "CPS",
-      "Abklingzeit"
-     ]
-    },
-    {
-     "name": "CPS",
-     "desc": "Schläge pro Sekunde im CPS-Modus",
-     "type": "number",
-     "default": 12,
-     "min": 1,
-     "max": 20,
-     "step": 1,
-     "conditional": true
-    },
-    {
-     "name": "Max. Ziele",
-     "desc": "Wie viele Ziele pro Schlag gleichzeitig getroffen werden",
-     "type": "number",
-     "default": 3,
-     "min": 1,
-     "max": 10,
-     "step": 1
-    },
-    {
-     "name": "Durch Wände",
-     "desc": "Ziele hinter Blöcken angreifen",
-     "type": "bool",
-     "default": true
-    }
-   ],
-   "presets": [
-    {
-     "name": "Gemäßigt",
-     "risk": 1,
-     "note": "Ein Ziel, Abklingzeit, normale Reichweite, keine Wände",
-     "values": {
-      "Rotation": "Kamera",
-      "Glätte": 8,
-      "Max. Drehung": 360,
-      "Timing": "Abklingzeit",
-      "Max. Ziele": 1,
-      "Reichweite": 3.2,
-      "Durch Wände": false
-     }
-    },
-    {
-     "name": "Blatant",
-     "risk": 2,
-     "note": "Mehrere Ziele, hohe CPS, große Reichweite, durch Wände",
-     "values": {
-      "Rotation": "Silent",
-      "Timing": "CPS",
-      "CPS": 16,
-      "Max. Ziele": 5,
-      "Reichweite": 6,
-      "Durch Wände": true
-     }
-    }
-   ]
-  },
-  {
    "id": "Aimbot",
    "name": "Aimbot",
    "category": "COMBAT",
    "description": "Zieht dein Fadenkreuz weich auf das beste Ziel in deinem Sichtkegel – mit Vorhersage und Ziel-Lock.",
    "settings": [
     {
-     "name": "Sortierung",
-     "desc": "Welches Ziel zuerst angegriffen wird",
-     "type": "mode",
-     "default": "Distanz",
-     "modes": [
-      "Distanz",
-      "Leben",
-      "Winkel"
-     ]
-    },
-    {
-     "name": "Spieler",
-     "desc": "Spieler angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Monster",
-     "desc": "Feindliche Mobs angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Tiere",
-     "desc": "Friedliche Mobs angreifen",
-     "type": "bool",
-     "default": false
-    },
-    {
-     "name": "Unsichtbare",
-     "desc": "Unsichtbare Ziele angreifen",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Teammates",
-     "desc": "Auch Spieler aus deinem Team angreifen",
-     "type": "bool",
-     "default": false
-    },
-    {
-     "name": "Zielpunkt",
-     "desc": "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine",
-     "type": "mode",
-     "default": "Auto",
-     "modes": [
-      "Auto",
-      "Kopf",
-      "Brust",
-      "Beine"
-     ]
-    },
-    {
-     "name": "Vorhersage",
-     "desc": "Bewegung des Ziels vorhalten (Ticks, 0 = aus)",
-     "type": "number",
-     "default": 1,
-     "min": 0,
-     "max": 4,
-     "step": 0.5
-    },
-    {
-     "name": "Ziel halten",
-     "desc": "Beim aktuellen Ziel bleiben statt ständig zu wechseln",
-     "type": "bool",
-     "default": true
-    },
-    {
-     "name": "Pause beim Benutzen",
-     "desc": "Nicht angreifen während du isst / blockst",
-     "type": "bool",
-     "default": true
-    },
-    {
      "name": "Reichweite",
-     "desc": "Angriffsreichweite in Blöcken",
+     "desc": "Ziele bis zu dieser Entfernung anvisieren (Blöcke)",
      "type": "number",
-     "default": null,
+     "default": 4.5,
      "min": 1,
-     "max": null,
+     "max": 8,
      "step": 0.1
     },
     {
      "name": "FOV",
      "desc": "Nur Ziele innerhalb dieses Sichtwinkels (360 = rundum)",
      "type": "number",
-     "default": null,
+     "default": 90,
      "min": 10,
      "max": 360,
      "step": 5
@@ -773,10 +330,25 @@
      "step": 30
     },
     {
-     "name": "Nur beim Klicken",
-     "desc": "Nur zielen, während die Angriffstaste gedrückt ist",
-     "type": "bool",
-     "default": false
+     "name": "Zielpunkt",
+     "desc": "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine",
+     "type": "mode",
+     "default": "Auto",
+     "modes": [
+      "Auto",
+      "Kopf",
+      "Brust",
+      "Beine"
+     ]
+    },
+    {
+     "name": "Vorhersage",
+     "desc": "Bewegung des Ziels vorhalten (Ticks, 0 = aus)",
+     "type": "number",
+     "default": 1,
+     "min": 0,
+     "max": 4,
+     "step": 0.5
     },
     {
      "name": "Vertikal",
@@ -785,10 +357,69 @@
      "default": true
     },
     {
+     "name": "Sortierung",
+     "desc": "Welches Ziel zuerst anvisiert wird",
+     "type": "mode",
+     "default": "Distanz",
+     "modes": [
+      "Distanz",
+      "Leben",
+      "Winkel"
+     ]
+    },
+    {
+     "name": "Spieler",
+     "desc": "Spieler anvisieren",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Monster",
+     "desc": "Feindliche Mobs anvisieren",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Tiere",
+     "desc": "Friedliche Mobs anvisieren",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Unsichtbare",
+     "desc": "Unsichtbare Ziele anvisieren",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Teammates",
+     "desc": "Auch Spieler aus deinem Team anvisieren",
+     "type": "bool",
+     "default": false
+    },
+    {
      "name": "Durch Wände",
      "desc": "Auch Ziele hinter Blöcken anvisieren",
      "type": "bool",
      "default": false
+    },
+    {
+     "name": "Ziel halten",
+     "desc": "Beim aktuellen Ziel bleiben statt ständig zu wechseln",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Nur beim Klicken",
+     "desc": "Nur zielen, während die Angriffstaste gedrückt ist",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Pause beim Benutzen",
+     "desc": "Nicht zielen während du isst / blockst",
+     "type": "bool",
+     "default": true
     }
    ],
    "presets": [

@@ -53,9 +53,9 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.takeScreenshot("01d-head-combat");
 
             // search: just type – the wheel shows the hits
-            ctx.getInput().typeChars("aura");
+            ctx.getInput().typeChars("auto");
             ctx.waitTicks(12);
-            ctx.takeScreenshot("01e-search-aura");
+            ctx.takeScreenshot("01e-search-auto");
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
 
@@ -69,10 +69,10 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(15);
             ctx.takeScreenshot("03-settings");
 
-            // close the settings panel, then left click a module to enable it (SilentKillAura = index 2 of 6 → 120°)
+            // close the settings panel, then left click a module to enable it (SilentAim = index 1 of 3 → 120°)
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
-            clickWheel(ctx, 144, InputConstants.MOUSE_BUTTON_LEFT, false);
+            clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
             ctx.takeScreenshot("04-enabled");
 
@@ -132,53 +132,10 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(20);
             sp.getConnection().waitForChunksRender();
 
-            // --- SilentKillAura vs. a zombie (it is still enabled from the wheel click above) ---
-            sp.getServer().runCommand("kill @e[type=!minecraft:player,type=!minecraft:armor_stand]");
-            java.util.UUID testZombie = spawnZombie(sp, 2, 2, 20f);
-            ctx.waitTicks(10);
-            String before = zombieState(sp, testZombie);
-            boolean auraOn = ctx.computeOnClient(c -> ModuleManager.get().get(dev.nautilus.module.combat.SilentKillAura.class).isEnabled());
-            float startYaw = ctx.computeOnClient(c -> c.player.getYRot());
-            ctx.waitTicks(120);
-            String after = zombieState(sp, testZombie);
-            float endYaw = ctx.computeOnClient(c -> c.player.getYRot());
-            System.out.println("[NautilusTest] SilentKillAura enabled=" + auraOn + " testZombie before=" + before + " after=" + after
-                    + " cameraYaw " + startYaw + " -> " + endYaw);
-            ctx.takeScreenshot("08-after-killaura");
-
-            // --- BlatantKillAura: the camera must glide to the target, not snap ---
-            ctx.runOnClient(c -> {
-                ModuleManager.get().get(dev.nautilus.module.combat.SilentKillAura.class).setEnabled(false);
-                c.player.setYRot(0);
-                c.player.setXRot(0);
-            });
-            // invulnerable target 3 blocks to the side (90 degrees away from the view)
-            sp.getServer().runCommand("kill @e[type=!minecraft:player,type=!minecraft:armor_stand]");
-            // tanky target 3 blocks to the west: expected camera yaw about +90
-            java.util.UUID target = spawnZombie(sp, -3, 0, 1000f);
-            ctx.waitTicks(5);
-            ctx.runOnClient(c -> ModuleManager.get().get(dev.nautilus.module.combat.BlatantKillAura.class).setEnabled(true));
-            StringBuilder yaws = new StringBuilder();
-            float maxJump = 0;
-            float prev = ctx.computeOnClient(c -> c.player.getYRot());
-            for (int i = 0; i < 30; i++) {
-                ctx.waitTick();
-                float y = ctx.computeOnClient(c -> c.player.getYRot());
-                maxJump = Math.max(maxJump, Math.abs(y - prev));
-                prev = y;
-                yaws.append(String.format(java.util.Locale.ROOT, "%.1f ", y));
-            }
-            System.out.println("[NautilusTest] BlatantKillAura camera yaw per tick: " + yaws);
-            System.out.println("[NautilusTest] BlatantKillAura largest yaw change in one tick: " + maxJump);
-            String aimInfo = ctx.computeOnClient(c -> {
-                var z = c.level.getEntity(target);
-                if (z == null) return "target not found on the client";
-                float[] rot = dev.nautilus.util.RotationUtil.rotationsTo(c.player.getEyePosition(), dev.nautilus.util.RotationUtil.aimPoint(c.player.getEyePosition(), z));
-                return String.format(java.util.Locale.ROOT, "target dx=%.2f dz=%.2f expected yaw %.1f, camera yaw %.1f",
-                        z.getX() - c.player.getX(), z.getZ() - c.player.getZ(), rot[0], c.player.getYRot());
-            });
-            System.out.println("[NautilusTest] " + aimInfo + ", target " + zombieState(sp, target));
-            ctx.runOnClient(c -> ModuleManager.get().get(dev.nautilus.module.combat.BlatantKillAura.class).setEnabled(false));
+            // the wheel click above switched SilentAim on
+            boolean silentAimOn = ctx.computeOnClient(c -> ModuleManager.get().get(dev.nautilus.module.combat.SilentAim.class).isEnabled());
+            System.out.println("[NautilusTest] Wheel click enabled SilentAim: " + silentAimOn);
+            ctx.runOnClient(c -> ModuleManager.get().get(dev.nautilus.module.combat.SilentAim.class).setEnabled(false));
 
             // --- Aimbot: target 30 degrees to the side, it walks sideways; the crosshair must follow it ---
             sp.getServer().runCommand("kill @e[type=!minecraft:player,type=!minecraft:armor_stand]");
@@ -286,20 +243,23 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(5);
             ctx.takeScreenshot("12-hud-after-edit");
 
-            // --- first-start setup: all three pages (in purple: the colour choice is shown live) ---
-            ctx.runOnClient(c -> hudColor.set("Lila"));
+            // --- first-start setup: all three pages ---
             ctx.setScreen(dev.nautilus.gui.OnboardingScreen::new);
             ctx.waitTicks(10);
             ctx.takeScreenshot("13-onboarding-1");
             ctx.getInput().pressKey(InputConstants.KEY_RETURN);
             ctx.waitTicks(5);
             ctx.takeScreenshot("13-onboarding-2");
+            // the colour choice is shown live in the whole setup
+            ctx.runOnClient(c -> hudColor.set("Lila"));
+            ctx.waitTicks(3);
+            ctx.takeScreenshot("13-onboarding-2-purple");
+            ctx.runOnClient(c -> hudColor.set("Orange"));
             ctx.getInput().pressKey(InputConstants.KEY_RETURN);
             ctx.waitTicks(5);
             ctx.takeScreenshot("13-onboarding-3");
             ctx.getInput().pressKey(InputConstants.KEY_RETURN);
             ctx.waitTicks(5);
-            ctx.runOnClient(c -> hudColor.set("Orange"));
         }
     }
 

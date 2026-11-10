@@ -63,10 +63,7 @@ Combat-, Crystal- und Mace-Module haben im Einstellungs-Panel **oben eine Preset
 ### Combat
 - **TriggerBot** – schlägt zu, sobald dein Fadenkreuz auf einem Ziel liegt (Abklingzeit, Zufallsverzögerung, Nur-Krits).
 - **SilentAim** – Klicks, die danebengehen würden, werden auf das nächste Ziel im FOV-Kegel umgeleitet. Die Rotation geht nur an den Server.
-- **SilentKillAura** – ein Ziel, wartet auf volle Abklingzeit, weiche stille Server-Rotation, Sichtlinie nötig; schlägt erst, wenn die Server-Rotation die Hitbox wirklich trifft (oder innerhalb der Toleranz liegt).
-- Alle Auren und der Aimbot teilen sich: **Zielpunkt** (Auto/Kopf/Brust/Beine), **Vorhersage** (Ticks) und **Ziel halten**. Ziele hinter Wänden werden über mehrere sichtbare Hitbox-Punkte erkannt und angezielt.
-- **Aimbot** – zieht dein Fadenkreuz weich (pro Frame, Ease-Out + Max. Drehung) auf das beste Ziel im FOV. Zielt auf den Punkt mit der kleinsten Drehung (wählbar Kopf/Brust/Beine), hält bewegte Ziele vor (Vorhersage), bleibt beim aktuellen Ziel (Ziel-Lock), optional nur beim Klicken oder nur horizontal.
-- **BlatantKillAura** – große Reichweite, mehrere Ziele, durch Wände, CPS-Modus, Kamera rastet ein (oder Silent).
+- **Aimbot** – zieht dein Fadenkreuz weich (pro Frame, Ease-Out + Max. Drehung) auf das beste Ziel im FOV. Zielt auf den Punkt mit der kleinsten Drehung (wählbar Kopf/Brust/Beine), hält bewegte Ziele vor (Vorhersage), bleibt beim aktuellen Ziel (Ziel-Lock), optional nur beim Klicken oder nur horizontal. Ziele hinter Wänden werden über mehrere sichtbare Hitbox-Punkte erkannt.
 
 ### Crystal
 - **AutoCrystal** – platziert End-Kristalle auf Obsidian/Bedrock dort, wo sie dem Ziel am meisten schaden, und zerstört sie – auf Wunsch im selben Moment, in dem sie erscheinen (Kristall-Spam). Schaden wird wie in Vanilla berechnet (Abstand, Deckung, Rüstung, Schutz-Verzauberungen, Resistenz). Einstellbar: Ziele, Reichweiten, Verzögerungen, Kristalle pro Tick, Min. Schaden, Max. Eigenschaden, Anti-Selbstmord, Face-Place, Auto-Wechsel, Silent-Rotation, Nur eigene Kristalle, Anzeige.
@@ -129,7 +126,8 @@ Minecraft 26.x ist nicht mehr obfuskiert – der Code nutzt direkt die offiziell
 ./gradlew runClientGameTest
 ```
 Startet Minecraft, erstellt eine Welt, öffnet das Rad, schaltet Module, baut eine Test-„Basis“ für den
-BaseFinder, prüft XRay und lässt die SilentKillAura einen Zombie besiegen (Kamera darf sich dabei nicht drehen).
+BaseFinder, prüft XRay, Aimbot, die Crystal- und Mace-Module, HUD-Farben und Einrichtung und zeichnet jedes gesendete
+Paket auf: Kein Angriffs-, Slot- oder Item-Paket darf nach dem Bewegungspaket seines Ticks kommen (nur „pre“, kein „post“).
 Screenshots landen in `build/run/clientGameTest/screenshots`.
 
 ## Neues Modul hinzufügen

@@ -1,18 +1,30 @@
 package dev.nautilus.module;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.nautilus.module.client.Freecam;
 import dev.nautilus.module.client.Hud;
 import dev.nautilus.module.client.HudEditor;
 import dev.nautilus.module.client.Notifications;
+import dev.nautilus.module.client.Setup;
 import dev.nautilus.module.client.Zoom;
 import dev.nautilus.module.combat.Aimbot;
-import dev.nautilus.module.combat.BlatantKillAura;
 import dev.nautilus.module.combat.SilentAim;
-import dev.nautilus.module.combat.SilentKillAura;
 import dev.nautilus.module.combat.TriggerBot;
+import dev.nautilus.module.crystal.AnchorMacro;
+import dev.nautilus.module.crystal.AutoCrystal;
+import dev.nautilus.module.crystal.AutoTotem;
+import dev.nautilus.module.crystal.PopCounter;
+import dev.nautilus.module.crystal.SafeAnchor;
+import dev.nautilus.module.crystal.Surround;
+import dev.nautilus.module.mace.AutoSmash;
+import dev.nautilus.module.mace.MaceSwap;
+import dev.nautilus.module.mace.StunSlam;
+import dev.nautilus.module.mace.WindBoost;
+import dev.nautilus.module.player.AutoEat;
+import dev.nautilus.module.player.AutoSprint;
 import dev.nautilus.module.smp.BaseFinder;
 import dev.nautilus.module.smp.XRay;
-import com.mojang.blaze3d.platform.InputConstants;
+import dev.nautilus.module.spear.SpearSwitch;
 import net.minecraft.client.Minecraft;
 
 import java.util.ArrayList;
@@ -29,30 +41,29 @@ public final class ModuleManager {
 
     public static ModuleManager get() { return INSTANCE; }
 
+    /** Registers every module; inside a category the order here is the order in the wheel. */
     public void init() {
         // Combat
         register(new TriggerBot());
         register(new SilentAim());
-        register(new SilentKillAura());
-        register(new BlatantKillAura());
         register(new Aimbot());
         // Crystal PvP
-        register(new dev.nautilus.module.crystal.AutoCrystal());
-        register(new dev.nautilus.module.crystal.AnchorMacro());
-        register(new dev.nautilus.module.crystal.SafeAnchor());
-        register(new dev.nautilus.module.crystal.AutoTotem());
-        register(new dev.nautilus.module.crystal.Surround());
-        register(new dev.nautilus.module.crystal.PopCounter());
+        register(new AutoCrystal());
+        register(new AnchorMacro());
+        register(new SafeAnchor());
+        register(new AutoTotem());
+        register(new Surround());
+        register(new PopCounter());
         // Spear
-        register(new dev.nautilus.module.spear.SpearSwitch());
+        register(new SpearSwitch());
         // Mace
-        register(new dev.nautilus.module.mace.MaceSwap());
-        register(new dev.nautilus.module.mace.AutoSmash());
-        register(new dev.nautilus.module.mace.StunSlam());
-        register(new dev.nautilus.module.mace.WindBoost());
+        register(new MaceSwap());
+        register(new AutoSmash());
+        register(new StunSlam());
+        register(new WindBoost());
         // Player
-        register(new dev.nautilus.module.player.AutoSprint());
-        register(new dev.nautilus.module.player.AutoEat());
+        register(new AutoSprint());
+        register(new AutoEat());
         // SMP
         register(new XRay());
         register(new BaseFinder());
@@ -60,7 +71,7 @@ public final class ModuleManager {
         register(new Hud());
         register(new Notifications());
         register(new HudEditor());
-        register(new dev.nautilus.module.client.Setup());
+        register(new Setup());
         register(new Zoom());
         register(new Freecam());
     }
@@ -80,11 +91,6 @@ public final class ModuleManager {
 
     @SuppressWarnings("unchecked")
     public <T extends Module> T get(Class<T> clazz) { return (T) byClass.get(clazz); }
-
-    public Module getByName(String name) {
-        for (Module m : modules) if (m.getName().equalsIgnoreCase(name)) return m;
-        return null;
-    }
 
     public boolean notificationsEnabled() {
         Notifications n = get(Notifications.class);
