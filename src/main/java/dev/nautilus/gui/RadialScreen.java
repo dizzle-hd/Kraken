@@ -79,6 +79,10 @@ public class RadialScreen extends Screen {
     private boolean settingsFromSearch;
     private long lastTypedAt;
     private float searchSpin, searchSpinTarget;
+    /** Search bar clicked: shows the caret even before the first letter. */
+    private boolean searchFocused;
+    /** Bounds of the search bar (and its clear button) from the last frame, for clicks. */
+    private float sbX1, sbY1, sbX2, sbY2 = -1;
 
     // ---- animation state -------------------------------------------------------------------------
     private final long openedAt = System.currentTimeMillis();
@@ -178,18 +182,30 @@ public class RadialScreen extends Screen {
 
     /** Modules whose name (first), category or description contains the query. */
     private List<Module> searchResults() {
-        String q = query.toLowerCase(java.util.Locale.ROOT).trim();
+        String q = norm(query);
         List<Module> starts = new ArrayList<>(), name = new ArrayList<>(), other = new ArrayList<>();
+        if (q.isEmpty()) return starts;
         for (Module m : ModuleManager.get().getModules()) {
-            String n = m.getName().toLowerCase(java.util.Locale.ROOT);
+            String n = norm(m.getName());
             if (n.startsWith(q)) starts.add(m);
             else if (n.contains(q)) name.add(m);
-            else if (m.getCategory().getDisplayName().toLowerCase(java.util.Locale.ROOT).contains(q)
-                    || m.getDescription().toLowerCase(java.util.Locale.ROOT).contains(q)) other.add(m);
+            else if (norm(m.getCategory().getDisplayName()).contains(q) || norm(m.getDescription()).contains(q) || settingMatches(m, q)) other.add(m);
         }
         starts.addAll(name);
         starts.addAll(other);
         return starts;
+    }
+
+    private static boolean settingMatches(Module m, String q) {
+        for (Setting<?> st : m.getSettings()) if (norm(st.getName()).contains(q)) return true;
+        return false;
+    }
+
+    /** Lower case without accents and spaces, umlauts written out: "Rüstung" and "ruestung" both match. */
+    private static String norm(String s) {
+        String t = s.toLowerCase(java.util.Locale.ROOT).replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss");
+        t = java.text.Normalizer.normalize(t, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+        return t.replaceAll("[\\s_-]", "");
     }
 
     private int pageCount(int total) {
@@ -961,7 +977,9 @@ public class RadialScreen extends Screen {
         float ph = 16f, pw = Math.min(width - 20f, Math.max(170f, R * 1.25f));
         float x1 = width / 2f - pw / 2f, x2 = width / 2f + pw / 2f;
         float y1 = 3f, y2 = y1 + ph;
+        sbX1 = x1; sbY1 = y1; sbX2 = x2; sbY2 = y2;
         float appear = ease((System.currentTimeMillis() - openedAt) / 300f) * close;
+        boolean typing = active || searchFocused;
         ctx.nextStratum();
         Shapes bar = new Shapes();
         if (LiquidGlass.enabled()) {
@@ -970,18 +988,26 @@ public class RadialScreen extends Screen {
         } else {
             bar.roundRect(x1, y1, x2, y2, ph / 2f, Shapes.alpha(active ? HudStyle.shade(0xC0, 0.75f) : HudStyle.shade(0xB0, 0.84f), appear));
         }
-        bar.roundRectRim(x1, y1, x2, y2, ph / 2f, 0.8f, Shapes.alpha(active ? HudStyle.accentHot(0xCC) : 0x40FFFFFF, appear));
+        bar.roundRectRim(x1, y1, x2, y2, ph / 2f, 0.8f, Shapes.alpha(typing ? HudStyle.accentHot(0xCC) : 0x40FFFFFF, appear));
+        if (active) { // clear button (×) at the right end
+            float bx = x2 - ph / 2f, by = (y1 + y2) / 2f, k = 2.6f;
+            boolean hotX = mouseX >= x2 - ph && mouseX <= x2 && mouseY >= y1 && mouseY <= y2;
+            int xc = Shapes.alpha(hotX ? 0xFFFFFFFF : 0xA0FFFFFF, appear);
+            bar.line(bx - k, by - k, bx + k, by + k, 1.2f, xc);
+            bar.line(bx - k, by + k, bx + k, by - k, 1.2f, xc);
+        }
         // magnifier
         float mx = x1 + 10f, my = (y1 + y2) / 2f - 0.5f;
         bar.ring(mx, my, 3f, 1.2f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
         bar.line(mx + 2.2f, my + 2.2f, mx + 4.6f, my + 4.6f, 1.3f, Shapes.alpha(active ? ACCENT : 0xC0FFFFFF, appear));
         bar.submit(ctx);
         float tx = x1 + 19f, ty = (y1 + y2) / 2f;
-        if (active) {
+        if (typing) {
             String shown = query;
-            float maxW = pw - 26f;
+            float maxW = pw - 26f - (active ? ph : 0f);
             while (shown.length() > 1 && textWidth(shown, false) * 0.95f * s > maxW) shown = shown.substring(1);
-            leftText(ctx, shown, tx, ty, 0.95f * s, Shapes.alpha(0xFFFFFFFF, appear), false);
+            if (shown.isEmpty()) leftText(ctx, "Modulname, Kategorie oder Einstellung …", tx + 3f, ty, 0.9f * s, Shapes.alpha(0x66FFFFFF, appear), false);
+            else leftText(ctx, shown, tx, ty, 0.95f * s, Shapes.alpha(0xFFFFFFFF, appear), false);
             if ((System.currentTimeMillis() - lastTypedAt) % 1000 < 550) {
                 float cxp = tx + textWidth(shown, false) * 0.95f * s + 1f;
                 Shapes caret = new Shapes();
@@ -991,7 +1017,7 @@ public class RadialScreen extends Screen {
         } else {
             leftText(ctx, "Modul suchen … (einfach tippen)", tx, ty, 0.9f * s, Shapes.alpha(0x99FFFFFF, appear), false);
         }
-        if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) hint = active ? "ESC oder Klick in die Mitte: Suche beenden" : "Einfach lostippen, um Module zu finden";
+        if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) hint = active ? "× oder ESC: Suche beenden  ·  Enter: ersten Treffer an/aus" : "Klicken oder einfach lostippen, um Module zu finden";
     }
 
     private static final ItemStack SEARCH_ICON = new ItemStack(net.minecraft.world.item.Items.SPYGLASS);
@@ -1147,6 +1173,19 @@ public class RadialScreen extends Screen {
             return true;
         }
         if (inPanel(click.x(), click.y())) return panelClick(click.x(), click.y(), button == InputConstants.MOUSE_BUTTON_RIGHT);
+        if (level != Level.SETTINGS && click.x() >= sbX1 && click.x() <= sbX2 && click.y() >= sbY1 && click.y() <= sbY2) {
+            // the search bar: × clears, anywhere else focuses it (never counts as "click outside = back")
+            if (level == Level.SEARCH && click.x() >= sbX2 - (sbY2 - sbY1)) {
+                query = "";
+                searchFocused = true;
+                enter(Level.CATEGORIES, null, null);
+            } else {
+                searchFocused = true;
+                lastTypedAt = System.currentTimeMillis();
+            }
+            return true;
+        }
+        searchFocused = false;
         if (level == Level.SETTINGS && module != null) {
             for (int i = 0; i < presetChips.size() && i < module.getPresets().size(); i++) {
                 float[] r = presetChips.get(i);
@@ -1297,13 +1336,24 @@ public class RadialScreen extends Screen {
             return true;
         }
         if (key == InputConstants.KEY_ESCAPE) {
-            if (panelModule != null) closePanel();
+            if (searchFocused && level == Level.CATEGORIES) searchFocused = false;
+            else if (panelModule != null) closePanel();
             else if (level == Level.CATEGORIES) onClose();
             else back();
             return true;
         }
         if (level == Level.SEARCH && key == InputConstants.KEY_BACKSPACE) {
-            setQuery(query.isEmpty() ? "" : query.substring(0, query.length() - 1));
+            setQuery(input.hasControlDownWithQuirk() || query.isEmpty() ? "" : query.substring(0, query.length() - 1));
+            return true;
+        }
+        if (input.hasControlDownWithQuirk() && key == InputConstants.KEY_F) {
+            searchFocused = true;
+            lastTypedAt = System.currentTimeMillis();
+            return true;
+        }
+        if (input.hasControlDownWithQuirk() && key == InputConstants.KEY_V && listening == null) {
+            String clip = minecraft.keyboardHandler.getClipboard().replaceAll("[\\r\\n\\t]", " ").strip();
+            if (!clip.isEmpty()) setQuery(query + clip.substring(0, Math.min(40, clip.length())));
             return true;
         }
         if (level == Level.SEARCH && (key == InputConstants.KEY_RETURN || key == InputConstants.KEY_NUMPADENTER)) {
@@ -1321,10 +1371,11 @@ public class RadialScreen extends Screen {
 
     @Override
     public boolean charTyped(net.minecraft.client.input.CharacterEvent event) {
-        if (listening != null || closingAt >= 0 || level == Level.SETTINGS) return false;
+        if (listening != null || closingAt >= 0 || dragging != null) return false;
         if (!event.isAllowedChatCharacter()) return false;
         String c = event.codepointAsString();
         if (level != Level.SEARCH && c.isBlank()) return false;
+        if (query.length() >= 40) return true;
         setQuery(query + c);
         return true;
     }
@@ -1335,8 +1386,10 @@ public class RadialScreen extends Screen {
         lastTypedAt = System.currentTimeMillis();
         if (query.isEmpty()) {
             enter(Level.CATEGORIES, null, null);
+            searchFocused = true;
             return;
         }
+        if (panelModule != null) closePanel();
         if (level != Level.SEARCH) {
             level = Level.SEARCH;
             category = null;
