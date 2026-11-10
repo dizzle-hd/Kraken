@@ -18,6 +18,13 @@ public final class PacketLog {
         if (recording) current.add(packet.getClass().getName());
     }
 
+    private static final String MOVE_POINT = "#sendPosition";
+
+    /** End of LocalPlayer#sendPosition: everything after this in the same tick is "post". */
+    public static synchronized void movementPoint() {
+        if (recording) current.add(MOVE_POINT);
+    }
+
     /** Called at the very end of a client tick (after the movement packet and all END_CLIENT_TICK hooks). */
     public static synchronized void endTick() {
         if (!recording) return;
@@ -43,13 +50,14 @@ public final class PacketLog {
     /** Stops recording and returns a summary; "post=0" means every interaction was sent pre-tick. */
     public static synchronized String stop() {
         recording = false;
-        int pre = 0, post = 0, extraMoves = 0;
+        int pre = 0, post = 0, extraMoves = 0, noMark = 0;
         StringBuilder bad = new StringBuilder();
         for (int t = 0; t < ticks.size(); t++) {
             List<String> tick = ticks.get(t);
-            int lastMove = -1, moves = 0;
-            for (int i = 0; i < tick.size(); i++) if (isMove(tick.get(i))) { lastMove = i; moves++; }
+            int lastMove = tick.indexOf(MOVE_POINT), moves = 0;
+            for (String n : tick) if (isMove(n)) moves++;
             if (moves > 1) extraMoves++;
+            if (lastMove < 0) noMark++;
             for (int i = 0; i < tick.size(); i++) {
                 if (!isInteraction(tick.get(i))) continue;
                 if (lastMove >= 0 && i > lastMove) {
@@ -59,6 +67,6 @@ public final class PacketLog {
             }
         }
         return "ticks=" + ticks.size() + " interactions pre=" + pre + " post=" + post
-                + " ticksWithExtraMovePacket=" + extraMoves + (post > 0 ? " POST:" + bad : "");
+                + " ticksWithExtraMovePacket=" + extraMoves + " ticksWithoutSendPosition=" + noMark + (post > 0 ? " POST:" + bad : "");
     }
 }
