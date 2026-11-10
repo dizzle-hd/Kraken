@@ -313,6 +313,15 @@ public class NautilusClientGameTest implements FabricClientGameTest {
     private static void crystalTests(ClientGameTestContext ctx, TestSingleplayerContext sp) {
         var mm = ModuleManager.get();
         var srv = sp.getServer();
+        // all of these tests run on a platform high in the air: no water, no terrain in the way
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("execute at @a run tp @a ~ ~40 ~");
+        ctx.waitTicks(2);
+        srv.runCommand("execute at @a run fill ~-7 ~-1 ~-7 ~7 ~-1 ~7 minecraft:stone");
+        srv.runCommand("execute at @a run fill ~-7 ~ ~-7 ~7 ~5 ~7 minecraft:air");
+        ctx.runOnClient(c -> c.player.setDeltaMovement(0, 0, 0));
+        ctx.waitTicks(10);
+
         // --- TriggerBot with the Legit preset: how often does it really hit? ---
         srv.runCommand("kill @e[type=!minecraft:player]");
         srv.runCommand("item replace entity @a hotbar.4 with minecraft:iron_sword");
@@ -337,6 +346,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
                 return e instanceof net.minecraft.world.entity.LivingEntity l ? l.getHealth() : -1f;
             });
             if (hp < lastHp - 0.01f) { swings++; tlog.append("HIT@").append(i).append('(').append(st).append(") "); }
+            else if (i % 20 == 0) tlog.append("t").append(i).append(':').append(st).append(' ');
             lastHp = hp;
         }
         ctx.runOnClient(c -> mm.get(dev.nautilus.module.combat.TriggerBot.class).setEnabled(false));
@@ -390,11 +400,12 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         srv.runCommand("kill @e[type=!minecraft:player]");
         sp.getServer().runOnServer(server -> server.getPlayerList().getPlayers().get(0).setHealth(20f)); // fresh for this test
         // a clean, flat platform away from the craters of the test above
-        srv.runCommand("execute at @a run tp @a ~-40 ~6 ~");
+        srv.runCommand("execute at @a run tp @a ~ ~30 ~");
         ctx.waitTicks(2);
-        srv.runCommand("execute at @a run fill ~-5 ~-7 ~-5 ~5 ~-7 ~5 minecraft:stone");
-        srv.runCommand("execute at @a run fill ~-5 ~-6 ~-5 ~5 ~3 ~5 minecraft:air");
-        ctx.waitTicks(40);
+        srv.runCommand("execute at @a run fill ~-5 ~-1 ~-5 ~5 ~-1 ~5 minecraft:stone");
+        srv.runCommand("execute at @a run fill ~-5 ~ ~-5 ~5 ~4 ~5 minecraft:air");
+        ctx.runOnClient(c -> c.player.setDeltaMovement(0, 0, 0));
+        ctx.waitTicks(10);
         srv.runCommand("execute at @a run setblock ~ ~-1 ~3 minecraft:obsidian");
         ctx.waitTicks(3);
         int crystals2 = count(ctx, net.minecraft.world.item.Items.END_CRYSTAL);
