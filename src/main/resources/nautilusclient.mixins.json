@@ -9,6 +9,7 @@
     "BlockStateBaseMixin",
     "CameraMixin",
     "EntityMixin",
+    "AvatarRendererMixin",
     "ClientPacketListenerMixin",
     "FluidRendererMixin",
     "KeyboardInputMixin",

@@ -49,7 +49,7 @@ public class PlayerESP extends Module {
             if (dist > max) continue;
             count++;
             AABB box = p.getBoundingBox().inflate(0.05);
-            int c = color(p, dist);
+            int c = dev.nautilus.util.Friends.is(p) ? HudStyle.GOOD : color(p, dist);
             render.box(box, c);
             if (tracers.isOn()) render.tracer(box.getCenter(), c & 0x99FFFFFF);
         }

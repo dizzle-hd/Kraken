@@ -31,6 +31,7 @@ public final class TargetUtil {
         if (e.isInvisible() && !f.invisibles()) return false;
         if (e instanceof Player p) {
             if (!f.players() || p.isSpectator() || p.isCreative()) return false;
+            if (Friends.protects() && Friends.is(p)) return false;
             if (!f.teammates() && mc.player != null && mc.player.isAlliedTo(p)) return false;
             return true;
         }

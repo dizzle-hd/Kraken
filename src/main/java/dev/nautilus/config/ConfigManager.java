@@ -61,6 +61,8 @@ public final class ConfigManager {
         if (uid > 0) root.addProperty("uid", uid);
         root.addProperty("onboarded", onboarded);
         root.add("hud", dev.nautilus.hud.HudManager.get().toJson());
+        root.add("friends", dev.nautilus.util.Friends.toJson());
+        root.add("waypoints", dev.nautilus.module.smp.Waypoints.toJson());
         try {
             Files.createDirectories(FILE.getParent());
             Files.writeString(FILE, GSON.toJson(root), StandardCharsets.UTF_8);
@@ -82,6 +84,8 @@ public final class ConfigManager {
         try {
             JsonObject root = JsonParser.parseString(Files.readString(FILE, StandardCharsets.UTF_8)).getAsJsonObject();
             dev.nautilus.hud.HudManager.get().fromJson(root.get("hud"));
+            dev.nautilus.util.Friends.fromJson(root.get("friends"));
+            dev.nautilus.module.smp.Waypoints.fromJson(root.get("waypoints"));
             if (root.has("uid")) uid = root.get("uid").getAsInt();
             if (root.has("onboarded")) onboarded = root.get("onboarded").getAsBoolean();
             JsonObject modules = root.getAsJsonObject("modules");

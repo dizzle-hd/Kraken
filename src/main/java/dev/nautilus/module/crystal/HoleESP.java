@@ -46,8 +46,8 @@ public class HoleESP extends Module {
                 || s.is(Blocks.RESPAWN_ANCHOR) || s.is(Blocks.ENDER_CHEST) || s.is(Blocks.NETHERITE_BLOCK);
     }
 
-    /** 1 = bedrock hole, 0 = mixed / obsidian hole, -1 = no hole. */
-    private int check(BlockPos p) {
+    /** 1 = bedrock hole, 0 = mixed / obsidian hole, -1 = no hole. Shared with HoleSnap. */
+    public static int check(BlockPos p) {
         var level = mc.level;
         if (!level.getBlockState(p).isAir() || !level.getBlockState(p.above()).isAir() || !level.getBlockState(p.above(2)).isAir()) return -1;
         boolean bedrock = true;

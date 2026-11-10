@@ -93,6 +93,21 @@ public class NautilusClient implements ClientModInitializer {
             RENDER_3D.end(context);
         });
 
+        // 2D world overlays of the modules (nametags, waypoints) – below the HUD, hidden with F1
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "world_overlay"), (graphics, deltaTracker) -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null || mc.level == null || mc.gui.hud.isHidden()) return;
+            ModuleManager.get().onRender2D(graphics, deltaTracker.getGameTimeDeltaPartialTick(false));
+        });
+
+        // custom crosshair (Client → Fadenkreuz) instead of the vanilla one
+        HudElementRegistry.replaceElement(net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.CROSSHAIR,
+                vanilla -> (graphics, deltaTracker) -> {
+                    if (!dev.nautilus.module.client.Crosshair.render(graphics)) vanilla.extractRenderState(graphics, deltaTracker);
+                });
+
+        dev.nautilus.module.client.AutoReconnect.register();
+
         HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(MOD_ID, "hud"), (graphics, deltaTracker) -> {
             Minecraft mc = Minecraft.getInstance();
             Hud hud = ModuleManager.get().get(Hud.class);

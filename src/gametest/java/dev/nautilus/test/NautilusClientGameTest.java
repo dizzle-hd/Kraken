@@ -56,6 +56,16 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.getInput().typeChars("auto");
             ctx.waitTicks(12);
             ctx.takeScreenshot("01e-search-auto");
+            // regression: a click on the search bar must not end the search
+            ctx.getInput().setCursorPos(ctx.computeOnClient(c -> c.getWindow().getWidth() * 0.5), ctx.computeOnClient(c -> 10.0 * c.getWindow().getGuiScale()));
+            ctx.waitTicks(3);
+            ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+            ctx.waitTicks(5);
+            ctx.getInput().typeChars("ruest");
+            ctx.waitTicks(12);
+            ctx.takeScreenshot("01f-search-click-umlaut");
+            ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
+            ctx.waitTicks(5);
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(10);
 
@@ -81,7 +91,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
             clickWheel(ctx, 103, InputConstants.MOUSE_BUTTON_LEFT, false);
             ctx.waitTicks(10);
-            clickWheel(ctx, 120, InputConstants.MOUSE_BUTTON_RIGHT, true); // BaseFinder = index 1 of 3 (XRay, BaseFinder, PlayerESP)
+            clickWheel(ctx, 72, InputConstants.MOUSE_BUTTON_RIGHT, true); // BaseFinder = index 1 of 5 (XRay, BaseFinder, PlayerESP, Nametags, Waypoints)
             ctx.waitTicks(15);
             ctx.takeScreenshot("05-basefinder");
             // second settings page

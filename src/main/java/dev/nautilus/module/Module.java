@@ -128,6 +128,12 @@ public abstract class Module {
     /** World render pass. Use {@link dev.nautilus.util.Render3D} for boxes / lines. */
     public void onRender3D(LevelRenderContext context, dev.nautilus.util.Render3D render) {}
 
+    /**
+     * 2D overlay over the world (nametags, waypoint labels), drawn below the HUD. Positions come from
+     * {@link dev.nautilus.util.Projection}; shapes go into {@code s}, text/items into {@code text}.
+     */
+    public void onRender2D(net.minecraft.client.gui.GuiGraphicsExtractor ctx, dev.nautilus.gui.Shapes s, List<Runnable> text, float partialTick) {}
+
     /** Extra text shown next to the module name in the HUD list. */
     public String getInfo() { return null; }
 }

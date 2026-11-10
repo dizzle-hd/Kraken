@@ -1245,6 +1245,48 @@
    "presets": []
   },
   {
+   "id": "HoleSnap",
+   "name": "HoleSnap",
+   "category": "CRYSTAL",
+   "description": "Zieht dich ins nächste sichere Loch (Bedrock/Obsidian) und schaltet sich danach selbst aus – am besten auf eine Taste legen.",
+   "settings": [
+    {
+     "name": "Reichweite",
+     "desc": "Maximale Entfernung zum Loch",
+     "type": "number",
+     "default": 4,
+     "min": 1,
+     "max": 8,
+     "step": 0.5
+    },
+    {
+     "name": "Tempo",
+     "desc": "Geschwindigkeit in Blöcken pro Tick (Gehen ≈ 0,22)",
+     "type": "number",
+     "default": 0.25,
+     "min": 0.1,
+     "max": 0.6,
+     "step": 0.05
+    },
+    {
+     "name": "Nur Bedrock",
+     "desc": "Nur Löcher aus reinem Bedrock",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Timeout",
+     "desc": "Nach so vielen Ticks ohne Erfolg aufgeben",
+     "type": "number",
+     "default": 30,
+     "min": 5,
+     "max": 100,
+     "step": 5
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "SpearSwitch",
    "name": "SpearSwitch",
    "category": "SPEAR",
@@ -1668,6 +1710,42 @@
    "presets": []
   },
   {
+   "id": "AutoArmor",
+   "name": "AutoArmor",
+   "category": "PLAYER",
+   "description": "Zieht automatisch die beste Rüstung aus deinem Inventar an (Rüstung, Härte, Schutz-Verzauberungen).",
+   "settings": [
+    {
+     "name": "Verzögerung",
+     "desc": "Ticks zwischen zwei Rüstungsteilen",
+     "type": "number",
+     "default": 3,
+     "min": 0,
+     "max": 20,
+     "step": 1
+    },
+    {
+     "name": "Elytra behalten",
+     "desc": "Eine getragene Elytra nicht gegen einen Brustpanzer tauschen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Explosionsschutz",
+     "desc": "Explosionsschutz höher bewerten (Crystal-PvP)",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Nur im Stehen",
+     "desc": "Nur tauschen, während du dich nicht bewegst",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "ArmorAlert",
    "name": "ArmorAlert",
    "category": "PLAYER",
@@ -1984,6 +2062,115 @@
    "presets": []
   },
   {
+   "id": "Nametags",
+   "name": "Nametags",
+   "category": "SMP",
+   "description": "Zeigt über Spielern ein Glas-Schild mit Name, Leben, Distanz, Pops und Rüstung – auch durch Wände.",
+   "settings": [
+    {
+     "name": "Reichweite",
+     "desc": "Maximale Entfernung in Blöcken",
+     "type": "number",
+     "default": 64,
+     "min": 8,
+     "max": 256,
+     "step": 8
+    },
+    {
+     "name": "Größe",
+     "desc": "Größe der Schilder",
+     "type": "number",
+     "default": 1,
+     "min": 0.5,
+     "max": 2,
+     "step": 0.1
+    },
+    {
+     "name": "Leben",
+     "desc": "Leben (inkl. Absorption) anzeigen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Distanz",
+     "desc": "Entfernung in Blöcken anzeigen",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Ping",
+     "desc": "Ping des Spielers anzeigen",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Pops",
+     "desc": "Totem-Pops anzeigen (mit PopCounter)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Rüstung",
+     "desc": "Rüstung und Items in der Hand über dem Schild",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Eigenes",
+     "desc": "Auch dein eigenes Schild (nur in der dritten Person)",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Waypoints",
+   "name": "Waypoints",
+   "category": "SMP",
+   "description": "Wegpunkte pro Server und Dimension mit Entfernung, durch Wände sichtbar. Tasten zum Setzen/Löschen, automatischer Todespunkt.",
+   "settings": [
+    {
+     "name": "Setzen-Taste",
+     "desc": "Setzt einen Wegpunkt an deiner Position",
+     "type": "key"
+    },
+    {
+     "name": "Löschen-Taste",
+     "desc": "Löscht den nächsten Wegpunkt (in dieser Dimension)",
+     "type": "key"
+    },
+    {
+     "name": "Todespunkte",
+     "desc": "Setzt automatisch einen Wegpunkt, wo du stirbst (die letzten 3)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Strahl",
+     "desc": "Senkrechter Strahl und Box am Wegpunkt",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Max. Distanz",
+     "desc": "Weiter entfernte Wegpunkte werden ausgeblendet (0 = alle)",
+     "type": "number",
+     "default": 0,
+     "min": 0,
+     "max": 10000,
+     "step": 250
+    },
+    {
+     "name": "Alle löschen",
+     "desc": "Einschalten löscht alle Wegpunkte dieses Servers (springt danach wieder auf aus)",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "Hud",
    "name": "HUD",
    "category": "CLIENT",
@@ -2120,6 +2307,147 @@
      "desc": "Vorwärts fliegt in Blickrichtung (auch hoch/runter), aus = nur waagerecht",
      "type": "bool",
      "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "FriendsModule",
+   "name": "Freunde",
+   "category": "CLIENT",
+   "description": "Freundesliste: Mittelklick auf einen Spieler = Freund an/aus. Freunde werden von Combat-Modulen nicht angegriffen und grün markiert.",
+   "settings": [
+    {
+     "name": "Schützen",
+     "desc": "Combat-, Crystal- und Mace-Module greifen Freunde nie an",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Mittelklick",
+     "desc": "Mittelklick auf einen Spieler fügt ihn hinzu bzw. entfernt ihn",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Alle entfernen",
+     "desc": "Einschalten leert die Freundesliste (springt danach wieder auf aus)",
+     "type": "bool",
+     "default": false
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "Crosshair",
+   "name": "Fadenkreuz",
+   "category": "CLIENT",
+   "description": "Eigenes Fadenkreuz statt dem von Minecraft: Stil, Größe, Abstand, Dicke, Farbe, Umrandung und Cooldown-Anzeige.",
+   "settings": [
+    {
+     "name": "Stil",
+     "desc": "Form des Fadenkreuzes",
+     "type": "mode",
+     "default": "Kreuz",
+     "modes": [
+      "Kreuz",
+      "Kreuz + Punkt",
+      "Punkt",
+      "Kreis",
+      "T"
+     ]
+    },
+    {
+     "name": "Größe",
+     "desc": "Länge der Striche bzw. Radius",
+     "type": "number",
+     "default": 5,
+     "min": 1,
+     "max": 15,
+     "step": 0.5
+    },
+    {
+     "name": "Abstand",
+     "desc": "Lücke in der Mitte",
+     "type": "number",
+     "default": 2,
+     "min": 0,
+     "max": 10,
+     "step": 0.5
+    },
+    {
+     "name": "Dicke",
+     "desc": "Strichstärke",
+     "type": "number",
+     "default": 1,
+     "min": 0.5,
+     "max": 4,
+     "step": 0.25
+    },
+    {
+     "name": "Farbe",
+     "desc": "Farbe des Fadenkreuzes",
+     "type": "mode",
+     "default": "Weiß",
+     "modes": [
+      "Weiß",
+      "HUD-Farbe",
+      "Grün",
+      "Rot",
+      "Cyan",
+      "Gelb"
+     ]
+    },
+    {
+     "name": "Umrandung",
+     "desc": "Dunkler Rand für bessere Sichtbarkeit",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Ziel-Farbe",
+     "desc": "Rot, solange du auf ein Lebewesen zielst",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Dynamisch",
+     "desc": "Lücke wird beim Laufen und Springen größer",
+     "type": "bool",
+     "default": false
+    },
+    {
+     "name": "Cooldown",
+     "desc": "Kleiner Balken mit der Angriffs-Abklingzeit unter dem Fadenkreuz",
+     "type": "bool",
+     "default": true
+    }
+   ],
+   "presets": []
+  },
+  {
+   "id": "AutoReconnect",
+   "name": "AutoReconnect",
+   "category": "CLIENT",
+   "description": "Verbindet nach einem Kick oder Verbindungsabbruch automatisch neu – mit Countdown, Zurück-Knopf bricht ab.",
+   "settings": [
+    {
+     "name": "Verzögerung",
+     "desc": "Sekunden bis zum erneuten Verbinden",
+     "type": "number",
+     "default": 5,
+     "min": 1,
+     "max": 60,
+     "step": 1
+    },
+    {
+     "name": "Versuche",
+     "desc": "So oft hintereinander versuchen (danach aufgeben)",
+     "type": "number",
+     "default": 5,
+     "min": 1,
+     "max": 20,
+     "step": 1
     }
    ],
    "presets": []
