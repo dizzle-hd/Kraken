@@ -28,6 +28,28 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             // NAUTILUS_QUICK=true → only the visuals screenshots (fast iteration on the looks)
             if ("true".equalsIgnoreCase(System.getenv("NAUTILUS_QUICK"))) {
                 sp.getServer().runCommand("item replace entity @a weapon.offhand with minecraft:totem_of_undying");
+                // the wheel with the 3D bust of the player in the centre
+                ctx.getInput().pressKey(InputConstants.KEY_RSHIFT);
+                ctx.waitForScreen(RadialScreen.class);
+                ctx.waitTicks(20);
+                ctx.takeScreenshot("00-wheel-bust");
+                ctx.setScreen(() -> null);
+                ctx.waitTicks(5);
+                // target HUD with a real target in the crosshair (3D head in the ring)
+                sp.getServer().runCommand("time set noon");
+                sp.getServer().runCommand("gamemode creative @a");
+                java.util.UUID qz = spawnZombie(sp, 0, 2.5, 20f);
+                sp.getServer().runCommand("effect give @e[type=minecraft:zombie] minecraft:fire_resistance 60 0 true");
+                ctx.runOnClient(c -> { c.player.setYRot(0); c.player.setXRot(15); });
+                ctx.waitTicks(20);
+                ctx.takeScreenshot("00b-target-hud");
+                sp.getServer().runCommand("kill @e[type=minecraft:zombie]");
+                // HUD editor preview (the target HUD shows yourself)
+                ctx.setScreen(dev.nautilus.gui.HudEditorScreen::new);
+                ctx.waitTicks(10);
+                ctx.takeScreenshot("00c-hud-editor");
+                ctx.setScreen(() -> null);
+                ctx.waitTicks(5);
                 visualsShots(ctx, sp);
                 return;
             }

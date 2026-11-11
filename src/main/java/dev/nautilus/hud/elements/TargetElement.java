@@ -135,15 +135,23 @@ public class TargetElement extends HudElement {
 
     /** Vanilla's inventory entity renderer, zoomed onto the eyes and cut to the square inside the disc. */
     private static void head(GuiGraphicsExtractor ctx, LivingEntity e, float cx, float cy) {
-        int half = Math.round(R * 0.74f);
-        int x0 = Math.round(cx) - half, y0 = Math.round(cy) - half, x1 = Math.round(cx) + half, y1 = Math.round(cy) + half;
+        // Minecraft's entity preview ignores the GUI pose (HUD scale, pop-in): work out the real screen
+        // position and size ourselves and draw it with an identity pose
+        var m = new org.joml.Matrix3x2f(ctx.pose());
+        org.joml.Vector2f c = m.transformPosition(cx, cy, new org.joml.Vector2f());
+        float k = (float) Math.sqrt(m.m00() * m.m00() + m.m01() * m.m01());
+        int half = Math.max(2, Math.round(R * 0.74f * k));
+        int x0 = Math.round(c.x) - half, y0 = Math.round(c.y) - half, x1 = Math.round(c.x) + half, y1 = Math.round(c.y) + half;
         float scale = Math.max(0.05f, e.getScale());
         float bbH = e.getBbHeight(), bbW = e.getBbWidth();
         // pixels per block: the head (about the width of the entity) fills the disc
-        int size = Math.max(4, Math.round(R * 2.2f / Math.max(0.55f, Math.min(bbW, bbH) * 1.05f)));
+        int size = Math.max(4, Math.round(R * k * 2.2f / Math.max(0.55f, Math.min(bbW, bbH) * 1.05f)));
         // vanilla centres the bounding box; move it so the eyes are in the middle
         float yOffset = (e.getEyeHeight() - bbH / 2f) / scale;
+        ctx.pose().pushMatrix();
+        ctx.pose().identity();
         // look slightly to the side of the viewer so the head reads as 3D
-        InventoryScreen.extractEntityInInventoryFollowsMouse(ctx, x0, y0, x1, y1, size, yOffset, cx + 14f, cy - 2f, e);
+        InventoryScreen.extractEntityInInventoryFollowsMouse(ctx, x0, y0, x1, y1, size, yOffset, c.x + 14f * k, c.y - 2f * k, e);
+        ctx.pose().popMatrix();
     }
 }
