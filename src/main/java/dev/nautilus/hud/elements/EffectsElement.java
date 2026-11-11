@@ -16,12 +16,12 @@ public class EffectsElement extends HudElement {
 
     private static final String[] ROMAN = {"", " II", " III", " IV", " V", " VI", " VII", " VIII", " IX", " X"};
     private static final List<Row> DEMO = List.of(
-            new Row("Stärke II", "1:24", 0xFFFFC700, false),
-            new Row("Feuerresistenz", "6:02", 0xFFFF9900, false),
+            new Row("Strength II", "1:24", 0xFFFFC700, false),
+            new Row("Fire Resistance", "6:02", 0xFFFF9900, false),
             new Row("Absorption", "0:07", 0xFF2552A5, true));
 
     public EffectsElement() {
-        super("effects", "Effekte", true, START, START, 5, 116);
+        super("effects", "Effects", true, START, START, 5, 116);
     }
 
     private static String time(MobEffectInstance e) {

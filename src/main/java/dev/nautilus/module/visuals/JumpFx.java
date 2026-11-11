@@ -16,16 +16,16 @@ import java.util.UUID;
 
 /** A glowing ring at your feet when you jump, and a shock wave with sparks when you land from a height. */
 public class JumpFx extends Module {
-    private final BoolSetting jump = add(new BoolSetting("Sprung", "Ring an den Füßen beim Abspringen", true));
-    private final BoolSetting land = add(new BoolSetting("Landung", "Druckwelle und Funken beim Landen (stärker, je tiefer der Fall)", true));
-    private final BoolSetting others = add(new BoolSetting("Andere Spieler", "Auch bei anderen Spielern in der Nähe", false));
+    private final BoolSetting jump = add(new BoolSetting("Jump ring", "Ring at your feet when you jump", true));
+    private final BoolSetting land = add(new BoolSetting("Landing", "Shock wave and sparks when landing (stronger the deeper the fall)", true));
+    private final BoolSetting others = add(new BoolSetting("Other players", "Also for other players nearby", false));
 
     private record State(boolean ground, double fall) {}
 
     private final Map<UUID, State> states = new HashMap<>();
 
     public JumpFx() {
-        super("Sprungeffekte", "Leuchtender Ring beim Springen, Druckwelle mit Funken beim Landen – je höher der Fall, desto größer.",
+        super("Jump effects", "Glowing ring when jumping, shock wave with sparks when landing – the higher the fall, the bigger.",
                 Category.VISUALS, Items.SLIME_BALL);
     }
 

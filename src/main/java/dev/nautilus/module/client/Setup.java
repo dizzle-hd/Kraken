@@ -8,7 +8,7 @@ import net.minecraft.world.item.Items;
 /** Not a toggle: clicking it in the wheel opens the first-start setup again. */
 public class Setup extends Module {
     public Setup() {
-        super("Einrichtung", "Ersteinrichtung erneut öffnen: Rad-Taste, Rad-Größe, Liquid Glass, Hinweise.", Category.CLIENT, Items.WRITABLE_BOOK);
+        super("Setup", "Open the first-start setup again: wheel key, wheel size, Liquid Glass, notes.", Category.CLIENT, Items.WRITABLE_BOOK);
     }
 
     @Override

@@ -25,16 +25,16 @@ import net.minecraft.world.phys.Vec3;
  * AnchorMacro right before it detonates.
  */
 public class SafeAnchor extends Module {
-    final ModeSetting block = add(new ModeSetting("Schutzblock", "Welcher Block als Schild gesetzt wird", "Glowstone", "Glowstone", "Obsidian", "Beliebig"));
-    final ModeSetting side = add(new ModeSetting("Seite", "Wo der Schild hin soll: zu dir hin (automatisch) oder zusätzlich auf Augenhöhe", "Zu dir", "Zu dir", "Zu dir + oben"));
-    private final NumberSetting delay = add(new NumberSetting("Verzögerung", "Ticks zwischen zwei gesetzten Blöcken (alleine)", 1, 0, 10, 1));
-    private final BoolSetting onlyCharged = add(new BoolSetting("Nur geladen", "Alleine nur geladene Anker absichern", true));
-    private final BoolSetting switchBack = add(new BoolSetting("Zurückwechseln", "Danach wieder den vorherigen Slot halten", true));
+    final ModeSetting block = add(new ModeSetting("Protection block", "Which block is placed as the shield", "Glowstone", "Glowstone", "Obsidian", "Any"));
+    final ModeSetting side = add(new ModeSetting("Side", "Where the shield goes: towards you (automatic) or also at eye level", "Towards you", "Towards you", "Towards you + top"));
+    private final NumberSetting delay = add(new NumberSetting("Delay", "Ticks between two placed blocks (on its own)", 1, 0, 10, 1));
+    private final BoolSetting onlyCharged = add(new BoolSetting("Only charged", "On its own, only protect charged anchors", true));
+    private final BoolSetting switchBack = add(new BoolSetting("Switch back", "Hold the previous slot again afterwards", true));
 
     private int wait;
 
     public SafeAnchor() {
-        super("SafeAnchor", "Setzt einen Schutzblock zwischen dich und den Anker, bevor er explodiert. Kombinierbar mit AnchorMacro.",
+        super("SafeAnchor", "Places a protection block between you and the anchor before it explodes. Works together with AnchorMacro.",
                 Category.CRYSTAL, Items.GLOWSTONE);
     }
 
@@ -57,7 +57,7 @@ public class SafeAnchor extends Module {
         Vec3 c = Vec3.atCenterOf(anchor);
         Direction toward = Direction.getApproximateNearest(eyes.x - c.x, 0, eyes.z - c.z);
         BlockPos main = anchor.relative(toward);
-        if (side.is("Zu dir + oben")) return new BlockPos[]{main, main.above()};
+        if (side.is("Towards you + top")) return new BlockPos[]{main, main.above()};
         return new BlockPos[]{main};
     }
 

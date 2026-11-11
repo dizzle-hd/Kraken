@@ -40,13 +40,13 @@ import java.util.Random;
  * never drawn on top of or through blocks.
  */
 public class Sky extends Module {
-    private final BoolSetting aurora = add(new BoolSetting("Polarlicht", "Wehende Polarlicht-Vorhänge am Himmel", true));
-    private final ModeSetting time = add(new ModeSetting("Zeit", "Wann das Polarlicht zu sehen ist", "Nachts", "Nachts", "Immer"));
-    private final ModeSetting colors = add(new ModeSetting("Farben", "Farben des Polarlichts", "Klassisch", "Klassisch", "HUD-Farbe", "Regenbogen"));
-    private final NumberSetting intensity = add(new NumberSetting("Stärke", "Helligkeit des Polarlichts", 70, 10, 100, 5));
-    private final BoolSetting shootingStars = add(new BoolSetting("Sternschnuppen", "Ab und zu eine Sternschnuppe – nachts", true));
-    private final NumberSetting stars = add(new NumberSetting("Sterne", "Mehr Sterne: schon in der Dämmerung und heller (0 = Vanilla)", 40, 0, 100, 10));
-    private final NumberSetting tint = add(new NumberSetting("Himmelsfarbe", "Wie stark der Himmel in der HUD-Farbe getönt wird (0 = Vanilla)", 0, 0, 100, 5));
+    private final BoolSetting aurora = add(new BoolSetting("Northern lights", "Waving curtains of northern lights in the sky", true));
+    private final ModeSetting time = add(new ModeSetting("Time", "When the northern lights are visible", "At night", "At night", "Always"));
+    private final ModeSetting colors = add(new ModeSetting("Colors", "Colors of the northern lights", "Classic", "Classic", "HUD color", "Rainbow"));
+    private final NumberSetting intensity = add(new NumberSetting("Strength", "Brightness of the northern lights", 70, 10, 100, 5));
+    private final BoolSetting shootingStars = add(new BoolSetting("Shooting stars", "Now and then a shooting star – at night", true));
+    private final NumberSetting stars = add(new NumberSetting("Stars", "More stars: already at dusk and brighter (0 = vanilla)", 40, 0, 100, 10));
+    private final NumberSetting tint = add(new NumberSetting("Sky color", "How strongly the sky is tinted in the HUD colour (0 = vanilla)", 0, 0, 100, 5));
 
     private static final RenderPipeline PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath("nautilusclient", "pipeline/sky_fx"))
@@ -68,7 +68,7 @@ public class Sky extends Module {
     private long starStart = -1;
 
     public Sky() {
-        super("Himmel", "Polarlichter am Nachthimmel, Sternschnuppen, mehr Sterne und auf Wunsch ein Himmel in der HUD-Farbe – nur im Himmel, nie auf Blöcken.",
+        super("Sky", "Northern lights in the night sky, shooting stars, more stars and optionally a sky in the HUD colour – only on the sky, never on blocks.",
                 Category.VISUALS, Items.FIREWORK_STAR);
         loadEnabled(true);
     }
@@ -125,8 +125,8 @@ public class Sky extends Module {
 
     private int[] palette(double u, float t) {
         return switch (colors.get()) {
-            case "HUD-Farbe" -> new int[]{HudStyle.accent(), HudStyle.hueShift(HudStyle.accent(), 0.15f)};
-            case "Regenbogen" -> {
+            case "HUD color" -> new int[]{HudStyle.accent(), HudStyle.hueShift(HudStyle.accent(), 0.15f)};
+            case "Rainbow" -> {
                 float h = (float) ((u * 0.6 + t * 0.02) % 1.0);
                 yield new int[]{net.minecraft.util.Mth.hsvToRgb(h, 0.75f, 1f), net.minecraft.util.Mth.hsvToRgb((h + 0.15f) % 1f, 0.6f, 1f)};
             }
@@ -202,7 +202,7 @@ public class Sky extends Module {
         float t = (now % 3_600_000L) / 1000f;
         // far behind the loaded terrain, well inside the far plane (≥ 4 × render distance)
         float d = Math.max(96f, mc.options.getEffectiveRenderDistance() * 16f * 1.8f);
-        float visible = time.is("Immer") ? Math.max(0.35f, night) : night;
+        float visible = time.is("Always") ? Math.max(0.35f, night) : night;
         float k = intensity.getFloat() / 100f * clear * visible;
         if (aurora.isOn() && k > 0.01f) {
             // three curtains: a big one in the north, two smaller, higher ones drifting around

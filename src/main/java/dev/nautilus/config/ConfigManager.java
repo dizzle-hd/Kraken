@@ -71,6 +71,17 @@ public final class ConfigManager {
         }
     }
 
+    /** Entry by its current name, or by one of its old German names (configs from before the translation). */
+    private static JsonElement find(JsonObject obj, String name) {
+        JsonElement el = obj.get(name);
+        if (el != null) return el;
+        for (String old : Legacy.oldNames(name)) {
+            el = obj.get(old);
+            if (el != null) return el;
+        }
+        return null;
+    }
+
     public static void load() {
         if (!Files.exists(FILE) && Files.exists(LEGACY_FILE)) {
             try {
@@ -91,14 +102,14 @@ public final class ConfigManager {
             JsonObject modules = root.getAsJsonObject("modules");
             if (modules == null) return;
             for (Module m : ModuleManager.get().getModules()) {
-                JsonElement el = modules.get(m.getName());
+                JsonElement el = find(modules, m.getName()); // also finds old German names
                 if (el == null || !el.isJsonObject()) continue;
                 JsonObject obj = el.getAsJsonObject();
                 JsonObject settings = obj.getAsJsonObject("settings");
                 if (settings != null) {
                     for (Setting<?> s : m.getSettings()) {
                         try {
-                            s.fromJson(settings.get(s.getName()));
+                            s.fromJson(find(settings, s.getName()));
                         } catch (Exception ignored) {
                         }
                     }

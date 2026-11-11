@@ -19,10 +19,10 @@ import net.minecraft.world.item.enchantment.Enchantments;
  * a time with a delay. Never takes off an elytra you are wearing (optional) or puts on cursed armor.
  */
 public class AutoArmor extends Module {
-    private final NumberSetting delay = add(new NumberSetting("Verzögerung", "Ticks zwischen zwei Rüstungsteilen", 3, 0, 20, 1));
-    private final BoolSetting keepElytra = add(new BoolSetting("Elytra behalten", "Eine getragene Elytra nicht gegen einen Brustpanzer tauschen", true));
-    private final BoolSetting blastPrio = add(new BoolSetting("Explosionsschutz", "Explosionsschutz höher bewerten (Crystal-PvP)", false));
-    private final BoolSetting onlyStill = add(new BoolSetting("Nur im Stehen", "Nur tauschen, während du dich nicht bewegst", false));
+    private final NumberSetting delay = add(new NumberSetting("Delay", "Ticks between two armor pieces", 3, 0, 20, 1));
+    private final BoolSetting keepElytra = add(new BoolSetting("Keep elytra", "Don't swap a worn elytra for a chestplate", true));
+    private final BoolSetting blastPrio = add(new BoolSetting("Blast protection", "Rate blast protection higher (crystal PvP)", false));
+    private final BoolSetting onlyStill = add(new BoolSetting("Only standing still", "Only swap while you are not moving", false));
 
     private static final EquipmentSlot[] SLOTS = {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     private static final int[] MENU_SLOT = {5, 6, 7, 8}; // armor slots of the player's inventory menu
@@ -30,7 +30,7 @@ public class AutoArmor extends Module {
     private int timer;
 
     public AutoArmor() {
-        super("AutoArmor", "Zieht automatisch die beste Rüstung aus deinem Inventar an (Rüstung, Härte, Schutz-Verzauberungen).", Category.PLAYER, Items.DIAMOND_CHESTPLATE);
+        super("AutoArmor", "Automatically puts on the best armor from your inventory (armor, toughness, protection enchantments).", Category.PLAYER, Items.DIAMOND_CHESTPLATE);
     }
 
     private double score(ItemStack st, EquipmentSlot slot) {

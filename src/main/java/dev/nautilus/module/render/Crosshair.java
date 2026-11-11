@@ -15,30 +15,30 @@ import net.minecraft.world.phys.EntityHitResult;
 
 /** Custom crosshair instead of the vanilla one: style, size, gap, thickness, colour, outline, attack cooldown. */
 public class Crosshair extends Module {
-    private final ModeSetting style = add(new ModeSetting("Stil", "Form des Fadenkreuzes", "Kreuz", "Kreuz", "Kreuz + Punkt", "Punkt", "Kreis", "T"));
-    private final NumberSetting size = add(new NumberSetting("Größe", "Länge der Striche bzw. Radius", 5, 1, 15, 0.5));
-    private final NumberSetting gap = add(new NumberSetting("Abstand", "Lücke in der Mitte", 2, 0, 10, 0.5));
-    private final NumberSetting thickness = add(new NumberSetting("Dicke", "Strichstärke", 1, 0.5, 4, 0.25));
-    private final ModeSetting color = add(new ModeSetting("Farbe", "Farbe des Fadenkreuzes", "Weiß", "Weiß", "HUD-Farbe", "Grün", "Rot", "Cyan", "Gelb"));
-    private final BoolSetting outline = add(new BoolSetting("Umrandung", "Dunkler Rand für bessere Sichtbarkeit", true));
-    private final BoolSetting targetColor = add(new BoolSetting("Ziel-Farbe", "Rot, solange du auf ein Lebewesen zielst", true));
-    private final BoolSetting dynamic = add(new BoolSetting("Dynamisch", "Lücke wird beim Laufen und Springen größer", false));
-    private final BoolSetting cooldown = add(new BoolSetting("Cooldown", "Kleiner Balken mit der Angriffs-Abklingzeit unter dem Fadenkreuz", true));
+    private final ModeSetting style = add(new ModeSetting("Style", "Shape of the crosshair", "Cross", "Cross", "Cross + dot", "Dot", "Circle", "T"));
+    private final NumberSetting size = add(new NumberSetting("Size", "Length of the lines or radius", 5, 1, 15, 0.5));
+    private final NumberSetting gap = add(new NumberSetting("Gap", "Gap in the middle", 2, 0, 10, 0.5));
+    private final NumberSetting thickness = add(new NumberSetting("Thickness", "Line thickness", 1, 0.5, 4, 0.25));
+    private final ModeSetting color = add(new ModeSetting("Color", "Color of the crosshair", "White", "White", "HUD color", "Green", "Red", "Cyan", "Yellow"));
+    private final BoolSetting outline = add(new BoolSetting("Outline", "Dark edge for better visibility", true));
+    private final BoolSetting targetColor = add(new BoolSetting("Target color", "Red while you aim at a living entity", true));
+    private final BoolSetting dynamic = add(new BoolSetting("Dynamic", "The gap grows while walking and jumping", false));
+    private final BoolSetting cooldown = add(new BoolSetting("Cooldown", "Small bar with the attack cooldown below the crosshair", true));
 
     private float spread;
 
     public Crosshair() {
-        super("Fadenkreuz", "Eigenes Fadenkreuz statt dem von Minecraft: Stil, Größe, Abstand, Dicke, Farbe, Umrandung und Cooldown-Anzeige.",
+        super("Crosshair", "Your own crosshair instead of Minecraft's: style, size, gap, thickness, colour, outline and cooldown bar.",
                 Category.RENDER, Items.TARGET);
     }
 
     private int baseColor() {
         return switch (color.get()) {
-            case "HUD-Farbe" -> HudStyle.accent();
-            case "Grün" -> 0xFF5BE38A;
-            case "Rot" -> 0xFFFF5A5A;
+            case "HUD color" -> HudStyle.accent();
+            case "Green" -> 0xFF5BE38A;
+            case "Red" -> 0xFFFF5A5A;
             case "Cyan" -> 0xFF22D3EE;
-            case "Gelb" -> 0xFFFFD27A;
+            case "Yellow" -> 0xFFFFD27A;
             default -> 0xFFFFFFFF;
         };
     }
@@ -70,15 +70,15 @@ public class Crosshair extends Module {
             boolean back = outline.isOn() && pass == 0;
             float o = back ? 0.6f : 0f;
             int c = back ? 0xB0000000 : col;
-            if (st.equals("Kreuz") || st.equals("Kreuz + Punkt") || st.equals("T")) {
+            if (st.equals("Cross") || st.equals("Cross + dot") || st.equals("T")) {
                 float h = t / 2f;
                 if (!st.equals("T")) s.rect(cx - h - o, cy - g - l - o, cx + h + o, cy - g + o, c); // top
                 s.rect(cx - h - o, cy + g - o, cx + h + o, cy + g + l + o, c);                     // bottom
                 s.rect(cx - g - l - o, cy - h - o, cx - g + o, cy + h + o, c);                     // left
                 s.rect(cx + g - o, cy - h - o, cx + g + l + o, cy + h + o, c);                     // right
             }
-            if (st.equals("Punkt") || st.equals("Kreuz + Punkt")) s.circle(cx, cy, Math.max(0.8f, t) + o, c);
-            if (st.equals("Kreis")) s.ring(cx, cy, l + g, t + o * 2f, c);
+            if (st.equals("Dot") || st.equals("Cross + dot")) s.circle(cx, cy, Math.max(0.8f, t) + o, c);
+            if (st.equals("Circle")) s.ring(cx, cy, l + g, t + o * 2f, c);
         }
         if (cooldown.isOn()) {
             float f = mc.player.getAttackStrengthScale(0f);

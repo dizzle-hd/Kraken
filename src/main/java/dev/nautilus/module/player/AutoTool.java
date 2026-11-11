@@ -13,15 +13,15 @@ import net.minecraft.world.phys.HitResult;
 
 /** While you mine, holds the fastest tool from the hotbar for the targeted block, then switches back. */
 public class AutoTool extends Module {
-    private final BoolSetting switchBack = add(new BoolSetting("Zurückwechseln", "Nach dem Abbauen wieder den vorherigen Slot halten", true));
-    private final BoolSetting saveTools = add(new BoolSetting("Werkzeug schonen", "Fast kaputte Werkzeuge nicht benutzen", true));
-    private final NumberSetting minDurability = add(new NumberSetting("Min. Haltbarkeit", "Werkzeuge mit weniger Resthaltbarkeit werden übersprungen", 10, 1, 100, 1));
-    private final BoolSetting keepSword = add(new BoolSetting("Nicht mit Schwert", "Nicht wechseln, solange du ein Schwert oder einen Streitkolben hältst", true));
+    private final BoolSetting switchBack = add(new BoolSetting("Switch back", "Hold the previous slot again after mining", true));
+    private final BoolSetting saveTools = add(new BoolSetting("Save tools", "Don't use almost broken tools", true));
+    private final NumberSetting minDurability = add(new NumberSetting("Min. durability", "Tools with less durability left are skipped", 10, 1, 100, 1));
+    private final BoolSetting keepSword = add(new BoolSetting("Not with sword", "Don't switch while you hold a sword or mace", true));
 
     private int prevSlot = -1;
 
     public AutoTool() {
-        super("AutoTool", "Nimmt beim Abbauen automatisch das schnellste Werkzeug aus der Hotbar und wechselt danach zurück.", Category.PLAYER, Items.DIAMOND_PICKAXE);
+        super("AutoTool", "Takes the fastest tool from the hotbar automatically while mining and switches back afterwards.", Category.PLAYER, Items.DIAMOND_PICKAXE);
     }
 
     private boolean usable(ItemStack s) {

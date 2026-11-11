@@ -8,7 +8,7 @@ import net.minecraft.world.item.Items;
 /** Everything bright like with night vision – client-side only, the server sees nothing. */
 public class Fullbright extends Module {
     public Fullbright() {
-        super("Fullbright", "Macht alles hell wie mit Nachtsicht – nur bei dir, der Server merkt nichts.", Category.RENDER, Items.GLOWSTONE);
+        super("Fullbright", "Makes everything bright like night vision – only for you, the server notices nothing.", Category.RENDER, Items.GLOWSTONE);
     }
 
     public static boolean active() {

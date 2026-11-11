@@ -18,10 +18,10 @@ import java.util.Set;
  * costs hunger. Holds the use key on the best food in the hotbar like a player, then switches back.
  */
 public class AutoEat extends Module {
-    private final NumberSetting threshold = add(new NumberSetting("Hunger-Grenze", "Essen, sobald der Hunger auf diesen Wert fällt (20 = voll, Lunge braucht 7)", 12, 1, 19, 1));
-    private final BoolSetting gapples = add(new BoolSetting("Goldäpfel", "Auch Goldäpfel essen (sonst nur normales Essen)", false));
-    private final BoolSetting pauseInFight = add(new BoolSetting("Nicht im Kampf", "Nicht essen, solange du die Angriffstaste hältst", true));
-    private final BoolSetting switchBack = add(new BoolSetting("Zurückwechseln", "Danach wieder den vorherigen Slot halten", true));
+    private final NumberSetting threshold = add(new NumberSetting("Hunger threshold", "Eat as soon as hunger drops to this value (20 = full, Lunge needs 7)", 12, 1, 19, 1));
+    private final BoolSetting gapples = add(new BoolSetting("Golden apples", "Also eat golden apples (otherwise only normal food)", false));
+    private final BoolSetting pauseInFight = add(new BoolSetting("Not in combat", "Don't eat while you hold the attack key", true));
+    private final BoolSetting switchBack = add(new BoolSetting("Switch back", "Hold the previous slot again afterwards", true));
 
     private static final Set<Item> BAD = Set.of(Items.ROTTEN_FLESH, Items.SPIDER_EYE, Items.POISONOUS_POTATO, Items.PUFFERFISH,
             Items.CHORUS_FRUIT, Items.SUSPICIOUS_STEW, Items.CHICKEN);
@@ -31,7 +31,7 @@ public class AutoEat extends Module {
     private int ticks;
 
     public AutoEat() {
-        super("AutoEat", "Isst automatisch, wenn der Hunger niedrig ist – damit Lunge und Sprinten weiter funktionieren.", Category.PLAYER, Items.COOKED_BEEF);
+        super("AutoEat", "Eats automatically when hunger is low – so Lunge and sprinting keep working.", Category.PLAYER, Items.COOKED_BEEF);
     }
 
     public boolean isEating() {
@@ -82,6 +82,6 @@ public class AutoEat extends Module {
 
     @Override
     public String getInfo() {
-        return eating ? "isst" : null;
+        return eating ? "eating" : null;
     }
 }

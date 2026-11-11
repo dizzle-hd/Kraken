@@ -18,9 +18,9 @@ import java.util.List;
 
 /** Elytra flight: glowing wind ribbons from both wing tips and streaks of wind rushing past you. */
 public class ElytraFx extends Module {
-    private final BoolSetting trails = add(new BoolSetting("Flügelspuren", "Leuchtende Bänder von beiden Flügelspitzen (in der 3. Person sichtbar)", true));
-    private final BoolSetting wind = add(new BoolSetting("Windlinien", "Windstreifen, die an dir vorbeirauschen – je schneller, desto mehr", true));
-    private final NumberSetting length = add(new NumberSetting("Länge", "Wie lange die Spuren bleiben (Sekunden)", 1.2, 0.3, 3.0, 0.1));
+    private final BoolSetting trails = add(new BoolSetting("Wing trails", "Glowing ribbons from both wing tips (visible in third person)", true));
+    private final BoolSetting wind = add(new BoolSetting("Wind lines", "Streaks of wind rushing past you – the faster, the more", true));
+    private final NumberSetting length = add(new NumberSetting("Length", "How long the trails stay (seconds)", 1.2, 0.3, 3.0, 0.1));
 
     private record Sample(long time, Vec3 left, Vec3 right) {}
 
@@ -28,7 +28,7 @@ public class ElytraFx extends Module {
     private long lastWind;
 
     public ElytraFx() {
-        super("Elytra-Spuren", "Beim Elytra-Flug ziehen beide Flügelspitzen leuchtende Windbänder hinter sich her, Windstreifen rauschen vorbei.",
+        super("Elytra trails", "While flying with an elytra, both wing tips pull glowing ribbons of wind behind them and streaks of wind rush past.",
                 Category.VISUALS, Items.ELYTRA);
     }
 

@@ -16,34 +16,34 @@ import net.minecraft.world.item.Items;
  * Wind charge jump for mace smashes: jumps and throws a wind charge straight down in the same tick –
  * it launches you high into the air. The throw only looks down for the server (the use packet carries
  * the rotation), your camera stays where it is.
- * Trigger "Einmal": every press of the module key boosts once (the module switches itself off again).
- * Trigger "Taste": the module stays on and boosts on every press of the boost key.
+ * Trigger "Once": every press of the module key boosts once (the module switches itself off again).
+ * Trigger "Key": the module stays on and boosts on every press of the boost key.
  */
 public class WindBoost extends Module {
-    private final ModeSetting trigger = add(new ModeSetting("Auslöser", "Einmal = Modul-Taste boostet einmal (Modul geht wieder aus), Taste = Modul bleibt an, die Boost-Taste boostet", "Einmal", "Einmal", "Taste"));
-    private final KeySetting boostKey = add(new KeySetting("Boost-Taste", "Taste für den Auslöser 'Taste'", -1).visibleWhen(() -> trigger.is("Taste")));
-    private final BoolSetting jump = add(new BoolSetting("Springen", "Am Boden im selben Tick springen (höher)", true));
-    private final BoolSetting back = add(new BoolSetting("Zurückwechseln", "Danach wieder den vorherigen Slot halten", true));
+    private final ModeSetting trigger = add(new ModeSetting("Trigger", "Once = the module key boosts once (the module turns off again), Key = the module stays on, the boost key boosts", "Once", "Once", "Key"));
+    private final KeySetting boostKey = add(new KeySetting("Boost key", "Key for the 'Key' trigger", -1).visibleWhen(() -> trigger.is("Key")));
+    private final BoolSetting jump = add(new BoolSetting("Jump", "Jump in the same tick when on the ground (higher)", true));
+    private final BoolSetting back = add(new BoolSetting("Switch back", "Hold the previous slot again afterwards", true));
 
     private boolean keyWas;
     private boolean pending;
 
     public WindBoost() {
-        super("WindBoost", "Springt und wirft eine Windkugel senkrecht nach unten – katapultiert dich für einen Streitkolben-Smash hoch.",
+        super("WindBoost", "Jumps and throws a wind charge straight down – launches you up for a mace smash.",
                 Category.MACE, Items.WIND_CHARGE);
     }
 
     @Override
     protected void onEnable() {
         keyWas = true; // a key held while enabling does not count as a press
-        pending = trigger.is("Einmal");
+        pending = trigger.is("Once");
     }
 
     @Override
     public void onPreTick() {
         var p = mc.player;
         if (p == null || mc.gameMode == null || mc.getConnection() == null) return;
-        if (trigger.is("Taste")) {
+        if (trigger.is("Key")) {
             boolean down = boostKey.isBound() && mc.gui.screen() == null && InputConstants.isKeyDown(boostKey.get());
             if (down && !keyWas) pending = true;
             keyWas = down;
@@ -51,7 +51,7 @@ public class WindBoost extends Module {
         if (!pending) return;
         pending = false;
         boost();
-        if (trigger.is("Einmal")) setEnabled(false);
+        if (trigger.is("Once")) setEnabled(false);
     }
 
     private void boost() {

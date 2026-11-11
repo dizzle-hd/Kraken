@@ -39,17 +39,17 @@ public class Waypoints extends Module {
     private static final List<Waypoint> POINTS = new ArrayList<>();
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("HH:mm");
 
-    private final KeySetting setKey = add(new KeySetting("Setzen-Taste", "Setzt einen Wegpunkt an deiner Position", -1));
-    private final KeySetting removeKey = add(new KeySetting("Löschen-Taste", "Löscht den nächsten Wegpunkt (in dieser Dimension)", -1));
-    private final BoolSetting deathPoints = add(new BoolSetting("Todespunkte", "Setzt automatisch einen Wegpunkt, wo du stirbst (die letzten 3)", true));
-    private final BoolSetting beam = add(new BoolSetting("Strahl", "Senkrechter Strahl und Box am Wegpunkt", true));
-    private final NumberSetting maxDist = add(new NumberSetting("Max. Distanz", "Weiter entfernte Wegpunkte werden ausgeblendet (0 = alle)", 0, 0, 10000, 250));
-    private final BoolSetting clearAll = add(new BoolSetting("Alle löschen", "Einschalten löscht alle Wegpunkte dieses Servers (springt danach wieder auf aus)", false));
+    private final KeySetting setKey = add(new KeySetting("Set key", "Sets a waypoint at your position", -1));
+    private final KeySetting removeKey = add(new KeySetting("Remove key", "Removes the nearest waypoint (in this dimension)", -1));
+    private final BoolSetting deathPoints = add(new BoolSetting("Death points", "Automatically sets a waypoint where you die (the last 3)", true));
+    private final BoolSetting beam = add(new BoolSetting("Beam", "Vertical beam and box at the waypoint", true));
+    private final NumberSetting maxDist = add(new NumberSetting("Max. distance", "Waypoints farther away are hidden (0 = all)", 0, 0, 10000, 250));
+    private final BoolSetting clearAll = add(new BoolSetting("Remove all", "Turning it on removes all waypoints of this server (then switches back off)", false));
 
     private boolean setWas, removeWas, wasDead;
 
     public Waypoints() {
-        super("Waypoints", "Wegpunkte pro Server und Dimension mit Entfernung, durch Wände sichtbar. Tasten zum Setzen/Löschen, automatischer Todespunkt.",
+        super("Waypoints", "Waypoints per server and dimension with distance, visible through walls. Keys to set/remove, automatic death point.",
                 Category.SMP, Items.RECOVERY_COMPASS);
         loadEnabled(true);
     }
@@ -118,7 +118,7 @@ public class Waypoints extends Module {
             clearAll.set(false);
             String srv = server();
             POINTS.removeIf(w -> w.server().equals(srv));
-            Notifications.push("Waypoints", "Alle Wegpunkte gelöscht", HudStyle.accent());
+            Notifications.push("Waypoints", "All waypoints removed", HudStyle.accent());
             dev.nautilus.config.ConfigManager.save();
         }
         boolean free = mc.gui.screen() == null;
@@ -126,7 +126,7 @@ public class Waypoints extends Module {
         if (s && !setWas) {
             String name = "WP " + (here().size() + 1);
             addPoint(name, mc.player.blockPosition(), false);
-            Notifications.push("Waypoints", name + " gesetzt", HudStyle.GOOD);
+            Notifications.push("Waypoints", name + " set", HudStyle.GOOD);
         }
         setWas = s;
         boolean r = free && removeKey.isBound() && InputConstants.isKeyDown(removeKey.get());
@@ -140,12 +140,12 @@ public class Waypoints extends Module {
             if (nearest != null) {
                 POINTS.remove(nearest);
                 dev.nautilus.config.ConfigManager.save();
-                Notifications.push("Waypoints", nearest.name() + " gelöscht", HudStyle.BAD);
+                Notifications.push("Waypoints", nearest.name() + " removed", HudStyle.BAD);
             }
         }
         removeWas = r;
         boolean dead = mc.player.isDeadOrDying();
-        if (dead && !wasDead && deathPoints.isOn()) addPoint("Tod " + LocalTime.now().format(TIME), mc.player.blockPosition(), true);
+        if (dead && !wasDead && deathPoints.isOn()) addPoint("Death " + LocalTime.now().format(TIME), mc.player.blockPosition(), true);
         wasDead = dead;
     }
 

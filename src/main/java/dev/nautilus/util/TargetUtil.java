@@ -90,9 +90,9 @@ public final class TargetUtil {
             angles.put((LivingEntity) e, angle);
         }
         Comparator<LivingEntity> cmp = switch (sort) {
-            case "Leben" -> Comparator.comparingDouble((LivingEntity e) -> e.getHealth() + e.getAbsorptionAmount())
+            case "Health" -> Comparator.comparingDouble((LivingEntity e) -> e.getHealth() + e.getAbsorptionAmount())
                     .thenComparingDouble(e -> eyes.distanceToSqr(RotationUtil.closestPoint(eyes, e)));
-            case "Winkel" -> Comparator.comparingDouble(angles::get);
+            case "Angle" -> Comparator.comparingDouble(angles::get);
             // distance, but a target right in front of you wins over one slightly closer behind you
             default -> Comparator.comparingDouble(e -> Math.sqrt(eyes.distanceToSqr(RotationUtil.closestPoint(eyes, e))) + angles.get(e) / 90.0);
         };

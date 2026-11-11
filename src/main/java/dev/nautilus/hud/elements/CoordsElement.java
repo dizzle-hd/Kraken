@@ -11,7 +11,7 @@ import java.util.List;
 /** XYZ plus the matching Nether / Overworld coordinates. */
 public class CoordsElement extends HudElement {
     public CoordsElement() {
-        super("coords", "Koordinaten", true, START, END, 5, 5);
+        super("coords", "Coordinates", true, START, END, 5, 5);
     }
 
     private String[] lines() {
@@ -20,7 +20,7 @@ public class CoordsElement extends HudElement {
         boolean nether = mc.level != null && mc.level.dimension() == Level.NETHER;
         double f = nether ? 8 : 1 / 8.0;
         return new String[]{"XYZ", String.format("%.0f  %.0f  %.0f", x, y, z),
-                nether ? "Oberwelt" : "Nether", String.format("%.0f  %.0f  %.0f", x * f, y, z * f)};
+                nether ? "Overworld" : "Nether", String.format("%.0f  %.0f  %.0f", x * f, y, z * f)};
     }
 
     @Override

@@ -14,15 +14,15 @@ public class NotificationsElement extends HudElement {
     private static final float H = 18f, GAP = 4f, MAX_W = 260f;
 
     public NotificationsElement() {
-        super("notifications", "Benachrichtigungen", true, END, END, 5, 30);
+        super("notifications", "Notifications", true, END, END, 5, 30);
     }
 
     private List<Notifications.Toast> toasts(boolean editor) {
         if (!editor) return Notifications.active();
         List<Notifications.Toast> demo = new ArrayList<>();
         long now = System.currentTimeMillis();
-        demo.add(new Notifications.Toast("TriggerBot", "aktiviert", HudStyle.GOOD, now, 999));
-        demo.add(new Notifications.Toast("Lager", "10 Lager-Blöcke @ 10 122 11", 0xFFFFB347, now, 999));
+        demo.add(new Notifications.Toast("TriggerBot", "enabled", HudStyle.GOOD, now, 999));
+        demo.add(new Notifications.Toast("Storage", "10 storage blocks @ 10 122 11", 0xFFFFB347, now, 999));
         return demo;
     }
 

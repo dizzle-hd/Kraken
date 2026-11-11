@@ -19,7 +19,7 @@ public class ModuleListElement extends HudElement {
     private final Map<Module, Float> anim = new HashMap<>();
 
     public ModuleListElement() {
-        super("modules", "Modulliste", true, END, START, 5, 5);
+        super("modules", "Module list", true, END, START, 5, 5);
     }
 
     // shown() is needed several times per frame (layout, width, height, render): compute it once per frame

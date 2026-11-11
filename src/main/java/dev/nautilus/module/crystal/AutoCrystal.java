@@ -35,34 +35,34 @@ import java.util.Set;
  * every crystal.
  */
 public class AutoCrystal extends Module {
-    private final ModeSetting mode = add(new ModeSetting("Modus", "Fadenkreuz = sobald du einen Kristall hältst und auf Obsidian/Bedrock schaust, wird sofort durchgecrystalt; Ziel = sucht selbst Gegner und den besten Platz", "Fadenkreuz", "Fadenkreuz", "Ziel"));
+    private final ModeSetting mode = add(new ModeSetting("Mode", "Crosshair = as soon as you hold a crystal and look at obsidian/bedrock it crystals instantly; Target = finds enemies and the best spot itself", "Crosshair", "Crosshair", "Target"));
     // --- targets
-    private final BoolSetting players = add(new BoolSetting("Spieler", "Spieler angreifen", true).visibleWhen(this::targetMode));
-    private final BoolSetting hostiles = add(new BoolSetting("Monster", "Feindliche Mobs angreifen", false).visibleWhen(this::targetMode));
-    private final BoolSetting passives = add(new BoolSetting("Tiere", "Friedliche Mobs angreifen", false).visibleWhen(this::targetMode));
-    private final NumberSetting targetRange = add(new NumberSetting("Ziel-Reichweite", "Wie weit Ziele entfernt sein dürfen", 10, 3, 16, 0.5).visibleWhen(this::targetMode));
+    private final BoolSetting players = add(new BoolSetting("Players", "Attack players", true).visibleWhen(this::targetMode));
+    private final BoolSetting hostiles = add(new BoolSetting("Monsters", "Attack hostile mobs", false).visibleWhen(this::targetMode));
+    private final BoolSetting passives = add(new BoolSetting("Animals", "Attack passive mobs", false).visibleWhen(this::targetMode));
+    private final NumberSetting targetRange = add(new NumberSetting("Target range", "How far away targets may be", 10, 3, 16, 0.5).visibleWhen(this::targetMode));
     // --- place / break
-    private final BoolSetting place = add(new BoolSetting("Platzieren", "Kristalle platzieren", true));
-    private final BoolSetting breakOn = add(new BoolSetting("Zerstören", "Kristalle zerstören", true));
-    private final NumberSetting placeRange = add(new NumberSetting("Platzier-Reichweite", "Reichweite zum Platzieren", 4.5, 1, 6, 0.1));
-    private final NumberSetting breakRange = add(new NumberSetting("Zerstör-Reichweite", "Reichweite zum Zerstören", 4.5, 1, 6, 0.1));
-    private final NumberSetting placeDelay = add(new NumberSetting("Platzier-Verzögerung", "Ticks zwischen zwei Platzierungen", 0, 0, 10, 1));
-    private final NumberSetting breakDelay = add(new NumberSetting("Zerstör-Verzögerung", "Ticks zwischen zwei Schlägen", 0, 0, 10, 1));
-    private final NumberSetting perTick = add(new NumberSetting("Pro Tick", "Wie viele Kristalle pro Tick platziert/zerstört werden", 1, 1, 3, 1));
-    private final BoolSetting instant = add(new BoolSetting("Sofort zerstören", "Kristall-Spam: Kristall im selben Moment zerstören, in dem er erscheint", true));
-    private final BoolSetting confirm = add(new BoolSetting("Auf Bestätigung warten", "An = den nächsten Kristall erst setzen, wenn der Server den alten entfernt hat (sicherer). Aus = sofort nachsetzen – schneller, aber höheres Flag-Risiko", true));
-    private final BoolSetting ownOnly = add(new BoolSetting("Nur eigene", "Nur Kristalle zerstören, die du selbst platziert hast", false));
+    private final BoolSetting place = add(new BoolSetting("Place", "Place crystals", true));
+    private final BoolSetting breakOn = add(new BoolSetting("Break", "Break crystals", true));
+    private final NumberSetting placeRange = add(new NumberSetting("Place range", "Range for placing", 4.5, 1, 6, 0.1));
+    private final NumberSetting breakRange = add(new NumberSetting("Break range", "Range for breaking", 4.5, 1, 6, 0.1));
+    private final NumberSetting placeDelay = add(new NumberSetting("Place delay", "Ticks between two placements", 0, 0, 10, 1));
+    private final NumberSetting breakDelay = add(new NumberSetting("Break delay", "Ticks between two hits", 0, 0, 10, 1));
+    private final NumberSetting perTick = add(new NumberSetting("Per tick", "How many crystals are placed/broken per tick", 1, 1, 3, 1));
+    private final BoolSetting instant = add(new BoolSetting("Instant break", "Crystal spam: break a crystal the moment it appears", true));
+    private final BoolSetting confirm = add(new BoolSetting("Wait for confirmation", "On = only place the next crystal after the server removed the old one (safer). Off = place again instantly – faster, but higher flag risk", true));
+    private final BoolSetting ownOnly = add(new BoolSetting("Only own", "Only break crystals you placed yourself", false));
     // --- damage
-    private final NumberSetting minDamage = add(new NumberSetting("Min. Schaden", "Mindestschaden am Ziel (Herzen ×2)", 6, 0, 36, 0.5).visibleWhen(this::targetMode));
-    private final NumberSetting maxSelf = add(new NumberSetting("Max. Eigenschaden", "Höchstens so viel Schaden an dir selbst (nur Modus Ziel)", 8, 0, 36, 0.5).visibleWhen(this::targetMode));
-    private final BoolSetting antiSuicide = add(new BoolSetting("Anti-Selbstmord", "Nie einen Kristall, der dich töten würde", true));
-    private final NumberSetting facePlace = add(new NumberSetting("Face-Place", "Unter diesem Leben des Ziels reicht 2 Schaden (0 = aus)", 8, 0, 36, 1).visibleWhen(this::targetMode));
+    private final NumberSetting minDamage = add(new NumberSetting("Min. damage", "Minimum damage to the target (hearts ×2)", 6, 0, 36, 0.5).visibleWhen(this::targetMode));
+    private final NumberSetting maxSelf = add(new NumberSetting("Max. self damage", "At most this much damage to yourself (Target mode only)", 8, 0, 36, 0.5).visibleWhen(this::targetMode));
+    private final BoolSetting antiSuicide = add(new BoolSetting("Anti-suicide", "Never a crystal that would kill you", true));
+    private final NumberSetting facePlace = add(new NumberSetting("Face-Place", "Below this target health 2 damage is enough (0 = off)", 8, 0, 36, 1).visibleWhen(this::targetMode));
     // --- handling
-    private final ModeSetting switchMode = add(new ModeSetting("Wechseln", "Keins = nur wenn du Kristalle hältst, Normal = auf Kristalle wechseln, Zurück = danach zurück", "Normal", "Keins", "Normal", "Zurück"));
-    private final ModeSetting rotate = add(new ModeSetting("Rotation", "Silent = Server sieht dich zum Kristall schauen, Keine = gar nicht drehen", "Silent", "Silent", "Keine").visibleWhen(this::targetMode));
-    private final BoolSetting throughWalls = add(new BoolSetting("Durch Wände", "Auch ohne Sichtlinie platzieren/zerstören", false));
-    private final BoolSetting pauseOnEat = add(new BoolSetting("Pause beim Essen", "Nicht während du isst / trinkst", true));
-    private final BoolSetting render = add(new BoolSetting("Anzeigen", "Platzier-Position als Box anzeigen", true));
+    private final ModeSetting switchMode = add(new ModeSetting("Switch", "None = only while you hold crystals, Normal = switch to crystals, Back = switch back afterwards", "Normal", "None", "Normal", "Back"));
+    private final ModeSetting rotate = add(new ModeSetting("Rotation", "Silent = the server sees you look at the crystal, Off = don't turn at all", "Silent", "Silent", "Off").visibleWhen(this::targetMode));
+    private final BoolSetting throughWalls = add(new BoolSetting("Through walls", "Also place/break without line of sight", false));
+    private final BoolSetting pauseOnEat = add(new BoolSetting("Pause while eating", "Not while you eat / drink", true));
+    private final BoolSetting render = add(new BoolSetting("Render", "Show the place position as a box", true));
 
     private int placeWait, breakWait;
     private LivingEntity target;
@@ -76,22 +76,22 @@ public class AutoCrystal extends Module {
     private BlockPos lookBase;
 
     private boolean targetMode() {
-        return mode.is("Ziel");
+        return mode.is("Target");
     }
 
     private boolean crosshairMode() {
-        return mode.is("Fadenkreuz");
+        return mode.is("Crosshair");
     }
 
     public AutoCrystal() {
-        super("AutoCrystal", "Kristall halten + auf Obsidian schauen = sofort durchcrystallen. Modus Ziel: sucht Gegner und den besten Platz selbst.",
+        super("AutoCrystal", "Hold a crystal + look at obsidian = instant crystalling. Target mode: finds enemies and the best spot itself.",
                 Category.CRYSTAL, Items.END_CRYSTAL);
-        preset("Legit", LOW, "Fadenkreuz, kleine Pausen, kein Sofort-Zerstören",
-                "Modus", "Fadenkreuz", "Platzier-Verzögerung", 2, "Zerstör-Verzögerung", 2, "Pro Tick", 1, "Sofort zerstören", false, "Auf Bestätigung warten", true);
-        preset("Normal", MEDIUM, "Fadenkreuz, Kristall-Spam mit kurzer Pause",
-                "Modus", "Fadenkreuz", "Platzier-Verzögerung", 1, "Zerstör-Verzögerung", 0, "Pro Tick", 1, "Sofort zerstören", true, "Auf Bestätigung warten", true);
-        preset("Rage", HIGH, "Sucht selbst Ziele, keine Pausen, mehrere pro Tick, durch Wände",
-                "Modus", "Ziel", "Platzier-Verzögerung", 0, "Zerstör-Verzögerung", 0, "Pro Tick", 2, "Sofort zerstören", true, "Durch Wände", true, "Auf Bestätigung warten", false);
+        preset("Legit", LOW, "Crosshair, small pauses, no instant break",
+                "Mode", "Crosshair", "Place delay", 2, "Break delay", 2, "Per tick", 1, "Instant break", false, "Wait for confirmation", true);
+        preset("Normal", MEDIUM, "Crosshair, crystal spam with a short pause",
+                "Mode", "Crosshair", "Place delay", 1, "Break delay", 0, "Per tick", 1, "Instant break", true, "Wait for confirmation", true);
+        preset("Rage", HIGH, "Finds targets itself, no pauses, several per tick, through walls",
+                "Mode", "Target", "Place delay", 0, "Break delay", 0, "Per tick", 2, "Instant break", true, "Through walls", true, "Wait for confirmation", false);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class AutoCrystal extends Module {
         target = null;
         if (paused() || crosshairMode()) return;
         List<LivingEntity> list = TargetUtil.find(new TargetUtil.Filter(players.isOn(), hostiles.isOn(), passives.isOn(), true, false),
-                targetRange.get(), 360f, true, "Distanz");
+                targetRange.get(), 360f, true, "Distance");
         if (list.isEmpty()) return;
         target = list.get(0);
 
@@ -142,7 +142,7 @@ public class AutoCrystal extends Module {
 
     private boolean hasCrystals() {
         if (mc.player.getOffhandItem().is(Items.END_CRYSTAL) || mc.player.getMainHandItem().is(Items.END_CRYSTAL)) return true;
-        return !switchMode.is("Keins") && InvUtil.hotbar(Items.END_CRYSTAL) >= 0;
+        return !switchMode.is("None") && InvUtil.hotbar(Items.END_CRYSTAL) >= 0;
     }
 
     private float needed() {
@@ -344,7 +344,7 @@ public class AutoCrystal extends Module {
         if (mc.player.getOffhandItem().is(Items.END_CRYSTAL)) hand = InteractionHand.OFF_HAND;
         else if (mc.player.getMainHandItem().is(Items.END_CRYSTAL)) hand = InteractionHand.MAIN_HAND;
         else {
-            if (switchMode.is("Keins")) return false;
+            if (switchMode.is("None")) return false;
             int slot = InvUtil.hotbar(Items.END_CRYSTAL);
             if (slot < 0) return false;
             InvUtil.select(slot);
@@ -353,7 +353,7 @@ public class AutoCrystal extends Module {
         boolean ok = WorldUtil.interact(base, Direction.UP, hand);
         if (ok) placedByUs.add(base.immutable());
         if (placedByUs.size() > 64) placedByUs.clear();
-        if (switchMode.is("Zurück") && hand == InteractionHand.MAIN_HAND) InvUtil.select(prev);
+        if (switchMode.is("Back") && hand == InteractionHand.MAIN_HAND) InvUtil.select(prev);
         return ok;
     }
 
@@ -401,7 +401,7 @@ public class AutoCrystal extends Module {
 
     @Override
     public String getInfo() {
-        if (crosshairMode()) return "Fadenkreuz";
+        if (crosshairMode()) return "Crosshair";
         return target == null ? null : target.getName().getString() + (plannedDamage > 0 ? String.format(java.util.Locale.ROOT, " %.1f", plannedDamage) : "");
     }
 }

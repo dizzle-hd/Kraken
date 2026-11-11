@@ -21,14 +21,14 @@ import java.util.Locale;
 
 /** Reconnects to the last server after a kick / disconnect, with a countdown on the disconnect screen. */
 public class AutoReconnect extends Module {
-    private final NumberSetting delay = add(new NumberSetting("Verzögerung", "Sekunden bis zum erneuten Verbinden", 5, 1, 60, 1));
-    private final NumberSetting attempts = add(new NumberSetting("Versuche", "So oft hintereinander versuchen (danach aufgeben)", 5, 1, 20, 1));
+    private final NumberSetting delay = add(new NumberSetting("Delay", "Seconds until reconnecting", 5, 1, 60, 1));
+    private final NumberSetting attempts = add(new NumberSetting("Attempts", "How many times in a row to try (then give up)", 5, 1, 20, 1));
 
     private static ServerData lastServer;
     private static int tries;
 
     public AutoReconnect() {
-        super("AutoReconnect", "Verbindet nach einem Kick oder Verbindungsabbruch automatisch neu – mit Countdown, Zurück-Knopf bricht ab.",
+        super("AutoReconnect", "Reconnects automatically after a kick or lost connection – with a countdown, the back button cancels.",
                 Category.CLIENT, Items.ENDER_PEARL);
     }
 
@@ -52,7 +52,7 @@ public class AutoReconnect extends Module {
             });
             ScreenEvents.afterExtract(screen).register((s, ctx, mx, my, delta) -> {
                 float left = Math.max(0f, (ms - (System.currentTimeMillis() - start)) / 1000f);
-                String text = String.format(Locale.GERMANY, "Neu verbinden mit %s in %.1f s  (Versuch %d/%d · Zurück = abbrechen)",
+                String text = String.format(Locale.ROOT, "Reconnecting to %s in %.1f s  (attempt %d/%d · Back = cancel)",
                         lastServer.ip, left, tries + 1, m.attempts.getInt());
                 UiText.centered(ctx, Minecraft.getInstance().font, text, s.width / 2f, 12f, 0.9f, HudStyle.accent(), false, true);
             });

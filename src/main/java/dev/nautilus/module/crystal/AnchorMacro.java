@@ -32,19 +32,19 @@ import java.util.concurrent.ThreadLocalRandom;
  * another item – then switches back. Outside the Nether only (there anchors set your spawn).
  */
 public class AnchorMacro extends Module {
-    private final ModeSetting trigger = add(new ModeSetting("Auslöser", "Halten = Anker in der Hand + auf einen Block schauen: setzt, lädt und sprengt selbst in Schleife. Neu = nur gerade platzierte Anker, Immer = jeder anvisierte Anker, Taste = nur mit Makro-Taste", "Halten", "Halten", "Neu", "Immer", "Taste"));
-    private final KeySetting macroKey = add(new KeySetting("Makro-Taste", "Taste für den Auslöser 'Taste'", -1).visibleWhen(() -> trigger.is("Taste")));
-    private final NumberSetting charges = add(new NumberSetting("Ladungen", "Mit wie viel Glowstone geladen wird (1 reicht zum Sprengen)", 1, 1, 4, 1));
-    private final NumberSetting delay = add(new NumberSetting("Verzögerung", "Ticks zwischen den Schritten (0 = so schnell wie möglich)", 1, 0, 10, 1));
-    private final NumberSetting randomDelay = add(new NumberSetting("Zufall", "Zufällige Extra-Ticks pro Schritt", 0, 0, 5, 1));
-    private final ModeSetting explodeWith = add(new ModeSetting("Sprengen mit", "Welches Item den Anker zündet", "Auto", "Auto", "Totem", "Slot"));
-    private final NumberSetting explodeSlot = add(new NumberSetting("Spreng-Slot", "Hotbar-Slot (1-9) für 'Slot'", 1, 1, 9, 1).visibleWhen(() -> explodeWith.is("Slot")));
-    private final BoolSetting explode = add(new BoolSetting("Sprengen", "Aus = nur laden", true));
-    private final BoolSetting useSafe = add(new BoolSetting("SafeAnchor nutzen", "Vor dem Sprengen einen Schutzblock setzen (wenn SafeAnchor an ist)", true));
-    private final NumberSetting maxSelf = add(new NumberSetting("Max. Eigenschaden", "Nicht sprengen, wenn du mehr Schaden bekommen würdest (Herzen ×2)", 10, 0, 36, 1));
-    private final BoolSetting antiSuicide = add(new BoolSetting("Anti-Selbstmord", "Nie sprengen, wenn dich die Explosion töten würde", true));
-    private final BoolSetting confirm = add(new BoolSetting("Auf Bestätigung warten", "An = erst laden/sprengen, wenn der Server Anker und Ladung bestätigt hat (sicherer). Aus = ohne Warten – schneller, aber höheres Flag-Risiko", true));
-    private final BoolSetting switchBack = add(new BoolSetting("Zurückwechseln", "Am Ende wieder den vorherigen Slot halten", true));
+    private final ModeSetting trigger = add(new ModeSetting("Trigger", "Hold = anchor in hand + look at a block: places, charges and blows up in a loop. New = only freshly placed anchors, Always = every targeted anchor, Key = only with the macro key", "Hold", "Hold", "New", "Always", "Key"));
+    private final KeySetting macroKey = add(new KeySetting("Macro key", "Key for the 'Key' trigger", -1).visibleWhen(() -> trigger.is("Key")));
+    private final NumberSetting charges = add(new NumberSetting("Charges", "How much glowstone to charge with (1 is enough to explode)", 1, 1, 4, 1));
+    private final NumberSetting delay = add(new NumberSetting("Delay", "Ticks between the steps (0 = as fast as possible)", 1, 0, 10, 1));
+    private final NumberSetting randomDelay = add(new NumberSetting("Randomness", "Random extra ticks per step", 0, 0, 5, 1));
+    private final ModeSetting explodeWith = add(new ModeSetting("Explode with", "Which item detonates the anchor", "Auto", "Auto", "Totem", "Slot"));
+    private final NumberSetting explodeSlot = add(new NumberSetting("Explode slot", "Hotbar slot (1-9) for 'Slot'", 1, 1, 9, 1).visibleWhen(() -> explodeWith.is("Slot")));
+    private final BoolSetting explode = add(new BoolSetting("Explode", "Off = only charge", true));
+    private final BoolSetting useSafe = add(new BoolSetting("Use SafeAnchor", "Place a protection block before exploding (when SafeAnchor is on)", true));
+    private final NumberSetting maxSelf = add(new NumberSetting("Max. self damage", "Don't explode if you would take more damage (hearts ×2)", 10, 0, 36, 1));
+    private final BoolSetting antiSuicide = add(new BoolSetting("Anti-suicide", "Never explode if the explosion would kill you", true));
+    private final BoolSetting confirm = add(new BoolSetting("Wait for confirmation", "On = only charge/explode after the server confirmed the anchor and charge (safer). Off = no waiting – faster, but higher flag risk", true));
+    private final BoolSetting switchBack = add(new BoolSetting("Switch back", "Hold the previous slot again at the end", true));
 
     private enum Step { IDLE, CHARGE, SHIELD, EXPLODE }
 
@@ -55,14 +55,14 @@ public class AnchorMacro extends Module {
     private boolean lastWasAnchor;
 
     public AnchorMacro() {
-        super("AnchorMacro", "Anker halten + auf einen Block schauen = setzt, lädt und sprengt Anker in Schleife. Kombinierbar mit SafeAnchor.",
+        super("AnchorMacro", "Hold an anchor + look at a block = places, charges and blows up anchors in a loop. Works together with SafeAnchor.",
                 Category.CRYSTAL, Items.RESPAWN_ANCHOR);
-        preset("Legit", LOW, "Menschliches Tempo mit zufälligen Pausen",
-                "Verzögerung", 3, "Zufall", 2, "Auf Bestätigung warten", true);
-        preset("Normal", MEDIUM, "Schnell mit etwas Zufall",
-                "Verzögerung", 1, "Zufall", 1, "Auf Bestätigung warten", true);
-        preset("Rage", HIGH, "So schnell wie möglich",
-                "Verzögerung", 0, "Zufall", 0, "Auf Bestätigung warten", false);
+        preset("Legit", LOW, "Human speed with random pauses",
+                "Delay", 3, "Randomness", 2, "Wait for confirmation", true);
+        preset("Normal", MEDIUM, "Fast with some randomness",
+                "Delay", 1, "Randomness", 1, "Wait for confirmation", true);
+        preset("Rage", HIGH, "As fast as possible",
+                "Delay", 0, "Randomness", 0, "Wait for confirmation", false);
     }
 
     boolean busy() {
@@ -75,7 +75,7 @@ public class AnchorMacro extends Module {
     }
 
     private void finish() {
-        if ((switchBack.isOn() || trigger.is("Halten")) && prevSlot >= 0 && mc.player != null) InvUtil.select(prevSlot);
+        if ((switchBack.isOn() || trigger.is("Hold")) && prevSlot >= 0 && mc.player != null) InvUtil.select(prevSlot);
         step = Step.IDLE;
         anchor = null;
         prevSlot = -1;
@@ -106,7 +106,7 @@ public class AnchorMacro extends Module {
         if (wait > 0) { wait--; return; }
         if (mc.gui.screen() != null) return;
 
-        if (step == Step.IDLE && trigger.is("Halten")) {
+        if (step == Step.IDLE && trigger.is("Hold")) {
             if (!mc.player.getMainHandItem().is(Items.RESPAWN_ANCHOR)) return;
             if (looked == null) {
                 // place the anchor where the crosshair points
@@ -134,8 +134,8 @@ public class AnchorMacro extends Module {
         if (step == Step.IDLE) {
             if (looked == null) return;
             boolean go = switch (trigger.get()) {
-                case "Immer" -> true;
-                case "Taste" -> macroKey.isBound() && InputConstants.isKeyDown(macroKey.get());
+                case "Always" -> true;
+                case "Key" -> macroKey.isBound() && InputConstants.isKeyDown(macroKey.get());
                 default -> fresh;
             };
             if (!go) return;

@@ -22,10 +22,10 @@ public class SmashElement extends HudElement {
     private boolean lastReady;
 
     public SmashElement() {
-        super("smash", "Smash-Vorschau", true, CENTER, CENTER, 0, -34);
+        super("smash", "Smash preview", true, CENTER, CENTER, 0, -34);
     }
 
-    @Override public float width(boolean editor) { return labelValueWidth("Smash", editor ? "5,0 m  ·  24,0 Schaden" : lastValue); }
+    @Override public float width(boolean editor) { return labelValueWidth("Smash", editor ? "5.0 m  ·  24.0 damage" : lastValue); }
     @Override public float height(boolean editor) { return HudStyle.PILL_H; }
 
     private String compute() {
@@ -42,7 +42,7 @@ public class SmashElement extends HudElement {
         }
         if (best == null) return null;
         lastReady = MaceUtil.canSmash(p, MaceUtil.SMASH_THRESHOLD);
-        return String.format(Locale.ROOT, "%.1f m  ·  %.1f Schaden", p.fallDistance, dmg).replace('.', ',');
+        return String.format(Locale.ROOT, "%.1f m  ·  %.1f damage", p.fallDistance, dmg);
     }
 
     private static float rawDamage(ItemStack mace, double fall) {
@@ -51,7 +51,7 @@ public class SmashElement extends HudElement {
 
     @Override
     public void render(GuiGraphicsExtractor ctx, Shapes s, List<Runnable> text, float x, float y, float dt, boolean editor) {
-        String v = editor ? "5,0 m  ·  24,0 Schaden" : compute();
+        String v = editor ? "5.0 m  ·  24.0 damage" : compute();
         if (v != null) lastValue = v;
         fade += ((v != null ? 1f : 0f) - fade) * Math.min(1f, dt * 12f);
         if (fade < 0.02f || lastValue.isEmpty()) return;

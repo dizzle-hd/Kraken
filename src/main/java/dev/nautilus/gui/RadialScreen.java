@@ -38,8 +38,8 @@ import java.util.List;
  */
 public class RadialScreen extends Screen {
     // ---- palette ---------------------------------------------------------------------------------
-    // Colours that follow the HUD colour (Client → HUD → "HUD-Farbe"); recomputed every frame in
-    // refreshPalette() so the whole wheel – not just the HUD – changes colour (incl. "Regenbogen").
+    // Colours that follow the HUD colour (Client → HUD → "HUD color"); recomputed every frame in
+    // refreshPalette() so the whole wheel – not just the HUD – changes colour (incl. "Rainbow").
     private static int ACCENT, TINT, GLASS_IN, GLASS_OUT, GLASS_HOVER_IN, GLASS_HOVER_OUT, GLASS_ON_IN, GLASS_ON_OUT, VALUE;
     private static final int RIM = 0x22FFFFFF;
     private static final int RIM_HOVER = 0x5CFFFFFF;
@@ -131,7 +131,7 @@ public class RadialScreen extends Screen {
     }
 
     private static final int[] RISK_COLORS = {0xFF5BE38A, 0xFFFFC94A, 0xFFFF5A5A};
-    private static final String[] RISK_NAMES = {"niedrig", "mittel", "hoch"};
+    private static final String[] RISK_NAMES = {"low", "medium", "high"};
 
     public RadialScreen() {
         super(Component.literal("Nautilus Client"));
@@ -153,7 +153,7 @@ public class RadialScreen extends Screen {
                 for (Category c : Category.values()) {
                     boolean any = false;
                     for (Module m : ModuleManager.get().getModules(c)) any |= m.isEnabled() && c != Category.CLIENT;
-                    list.add(new Entry(c.getDisplayName(), c.getIcon(), c.getDisplayName() + " öffnen" + (c.isExperimental() ? " · experimentell" : ""), any, c, null, null, false));
+                    list.add(new Entry(c.getDisplayName(), c.getIcon(), "Open " + c.getDisplayName() + (c.isExperimental() ? " · experimental" : ""), any, c, null, null, false));
                 }
             }
             case MODULES -> {
@@ -167,7 +167,7 @@ public class RadialScreen extends Screen {
                 }
             }
             case SETTINGS -> {
-                list.add(new Entry("Aktiv", null, "Modul an- oder ausschalten", module.isEnabled(), null, module, null, true));
+                list.add(new Entry("Active", null, "Turn the module on or off", module.isEnabled(), null, module, null, true));
                 for (Setting<?> s : module.getSettings()) {
                     if (!s.isVisible()) continue;
                     boolean on = s instanceof BoolSetting b && b.isOn();
@@ -201,7 +201,7 @@ public class RadialScreen extends Screen {
         return false;
     }
 
-    /** Lower case without accents and spaces, umlauts written out: "Rüstung" and "ruestung" both match. */
+    /** Lower case without accents and spaces, umlauts written out: "Armor" and "ruestung" both match. */
     private static String norm(String s) {
         String t = s.toLowerCase(java.util.Locale.ROOT).replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss");
         t = java.text.Normalizer.normalize(t, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
@@ -226,7 +226,7 @@ public class RadialScreen extends Screen {
     // Geometry
     // =============================================================================================
 
-    /** Radius of the wheel for a screen size, including the "Rad-Größe" setting (never larger than fits). */
+    /** Radius of the wheel for a screen size, including the "Wheel size" setting (never larger than fits). */
     /** Height of the search bar strip above the wheel. */
     public static final float SEARCH_STRIP = 22f;
 
@@ -405,7 +405,7 @@ public class RadialScreen extends Screen {
         return new Fit(new String[]{label}, s);
     }
 
-    /** "AutoCrystal" → {"Auto", "Crystal"}, "Min. Verzögerung" → {"Min.", "Verzögerung"}. */
+    /** "AutoCrystal" → {"Auto", "Crystal"}, "Min. delay" → {"Min.", "delay"}. */
     private static String[] splitLabel(String label) {
         int best = -1;
         for (int i = 1; i < label.length(); i++) {
@@ -653,19 +653,19 @@ public class RadialScreen extends Screen {
             }
             case MODULES -> {
                 centerText(ctx, category.getDisplayName(), cy + R * 0.165f, nameScale, ca, true);
-                centerText(ctx, "‹ zurück", cy + R * 0.265f, nameScale * 0.62f, backColor, false);
+                centerText(ctx, "‹ back", cy + R * 0.265f, nameScale * 0.62f, backColor, false);
             }
             case SEARCH -> {
                 int hits = searchResults().size();
-                centerText(ctx, hits == 0 ? "Nichts gefunden" : hits == 1 ? "1 Treffer" : hits + " Treffer", cy + R * 0.165f, nameScale * (hits == 0 ? 0.7f : 0.9f), ca, true);
-                centerText(ctx, "‹ zurück", cy + R * 0.265f, nameScale * 0.62f, backColor, false);
+                centerText(ctx, hits == 0 ? "Nothing found" : hits == 1 ? "1 result" : hits + " results", cy + R * 0.165f, nameScale * (hits == 0 ? 0.7f : 0.9f), ca, true);
+                centerText(ctx, "‹ back", cy + R * 0.265f, nameScale * 0.62f, backColor, false);
             }
             case SETTINGS -> {
                 centerText(ctx, module.getName(), cy + R * 0.12f, nameScale * 0.85f, ca, true);
                 int pages = pageCount(allEntries().size());
                 float backY = cy + R * 0.235f;
                 if (pages > 1) {
-                    // page dots instead of "Seite x/y"
+                    // page dots instead of "Page x/y"
                     Shapes dots = new Shapes();
                     float dr = Math.max(1.6f, R * 0.017f), sp = R * 0.07f;
                     float dx0 = cx - (pages - 1) * sp / 2f, dy = cy + R * 0.205f;
@@ -676,10 +676,10 @@ public class RadialScreen extends Screen {
                     dots.submit(ctx);
                     backY = cy + R * 0.275f;
                 }
-                centerText(ctx, "‹ zurück", backY, nameScale * 0.62f, backColor, false);
+                centerText(ctx, "‹ back", backY, nameScale * 0.62f, backColor, false);
             }
         }
-        if (hovered == -2 && level != Level.CATEGORIES) hint = level == Level.SEARCH ? "Suche beenden" : "Zurück";
+        if (hovered == -2 && level != Level.CATEGORIES) hint = level == Level.SEARCH ? "End search" : "Back";
         ctx.pose().popMatrix();
 
         renderSearchBar(ctx, close, mouseX, mouseY);
@@ -743,13 +743,13 @@ public class RadialScreen extends Screen {
         s.line(cxr - 3.5f, hy - 3.5f, cxr + 3.5f, hy + 3.5f, 1.3f, hotClose ? white : dim);
         s.line(cxr - 3.5f, hy + 3.5f, cxr + 3.5f, hy - 3.5f, 1.3f, hotClose ? white : dim);
         panelHits.add(new PanelHit(cxr - 8, hy - 8, cxr + 8, hy + 8, "close", null, null));
-        if (hotClose) hint = "Einstellungen schließen (ESC)";
+        if (hotClose) hint = "Close settings (ESC)";
         // active switch
         float sw = 26f, sh = 13f, sx2 = cxr - 16f, sx1 = sx2 - sw;
         drawSwitch(s, sx1, hy - sh / 2f, sw, sh, m.isEnabled(), a);
-        text.add(() -> rightText(ctx, m.isEnabled() ? "An" : "Aus", sx1 - 5f, hy, 0.72f, m.isEnabled() ? Shapes.alpha(0xFF5BE38A, a) : dim, false));
+        text.add(() -> rightText(ctx, m.isEnabled() ? "On" : "Off", sx1 - 5f, hy, 0.72f, m.isEnabled() ? Shapes.alpha(0xFF5BE38A, a) : dim, false));
         panelHits.add(new PanelHit(sx1 - 30f, hy - 8, sx2, hy + 8, "active", null, null));
-        if (mouseX >= sx1 - 30f && mouseX <= sx2 && mouseY >= hy - 8 && mouseY <= hy + 8) hint = "Modul an- oder ausschalten";
+        if (mouseX >= sx1 - 30f && mouseX <= sx2 && mouseY >= hy - 8 && mouseY <= hy + 8) hint = "Turn the module on or off";
 
         float y = hy + 13f;
         for (String line : wrapText(m.getDescription(), x2 - x1 - 2 * pad, 0.68f)) {
@@ -784,7 +784,7 @@ public class RadialScreen extends Screen {
                 float nx = c1 + 7f + 3 * lr * 2.4f + 1f, ny = (r1 + r2) / 2f;
                 text.add(() -> leftText(ctx, name, nx, ny, 0.78f, white, true));
                 panelHits.add(new PanelHit(c1, r1, c2, r2, "preset", null, p));
-                if (hot) hint = p.name() + " · Bann-Risiko " + RISK_NAMES[p.risk()] + " · " + p.note();
+                if (hot) hint = p.name() + " · ban risk " + RISK_NAMES[p.risk()] + " · " + p.note();
                 cxp = c2 + 5f;
             }
             y = cy0 + ch + 7f;
@@ -844,7 +844,7 @@ public class RadialScreen extends Screen {
                 }
                 panelHits.add(new PanelHit(c1, ry, cRight, ry + rowH, "mode", st, null));
             } else if (st instanceof KeySetting key) {
-                String v = key == listening ? "Taste drücken …" : key.display();
+                String v = key == listening ? "Press a key …" : key.display();
                 float kw = Math.max(44f, textWidth(v, true) * 0.78f + 16f);
                 s.roundRect(cRight - kw, my - 7f, cRight, my + 7f, 7f, Shapes.alpha(key == listening ? HudStyle.accent(0xCC) : 0x22FFFFFF, a));
                 s.roundRectRim(cRight - kw, my - 7f, cRight, my + 7f, 7f, 0.6f, Shapes.alpha(0x40FFFFFF, a));
@@ -894,7 +894,7 @@ public class RadialScreen extends Screen {
                 }
                 case "preset" -> {
                     m.applyPreset(h.preset());
-                    dev.nautilus.hud.Notifications.push(m.getName(), "Preset „" + h.preset().name() + "“ geladen", RISK_COLORS[h.preset().risk()]);
+                    dev.nautilus.hud.Notifications.push(m.getName(), "Preset “" + h.preset().name() + "” loaded", RISK_COLORS[h.preset().risk()]);
                     dev.nautilus.config.ConfigManager.save();
                 }
                 default -> {}
@@ -960,7 +960,7 @@ public class RadialScreen extends Screen {
             String name = (active ? "✓ " : "") + p.name();
             labels.add(() -> leftText(ctx, name, nx, my, 0.85f * s, Shapes.alpha(0xFFFFFFFF, appear), true));
             presetChips.add(new float[]{cx1, y1, cx2, y2});
-            if (hot) hint = p.name() + " · Bann-Risiko " + RISK_NAMES[p.risk()] + " · " + p.note();
+            if (hot) hint = p.name() + " · ban risk " + RISK_NAMES[p.risk()] + " · " + p.note();
             x = cx2 + gap;
         }
         bar.submit(ctx);
@@ -1006,7 +1006,7 @@ public class RadialScreen extends Screen {
             String shown = query;
             float maxW = pw - 26f - (active ? ph : 0f);
             while (shown.length() > 1 && textWidth(shown, false) * 0.95f * s > maxW) shown = shown.substring(1);
-            if (shown.isEmpty()) leftText(ctx, "Modulname, Kategorie oder Einstellung …", tx + 3f, ty, 0.9f * s, Shapes.alpha(0x66FFFFFF, appear), false);
+            if (shown.isEmpty()) leftText(ctx, "Module name, category or setting …", tx + 3f, ty, 0.9f * s, Shapes.alpha(0x66FFFFFF, appear), false);
             else leftText(ctx, shown, tx, ty, 0.95f * s, Shapes.alpha(0xFFFFFFFF, appear), false);
             if ((System.currentTimeMillis() - lastTypedAt) % 1000 < 550) {
                 float cxp = tx + textWidth(shown, false) * 0.95f * s + 1f;
@@ -1015,9 +1015,9 @@ public class RadialScreen extends Screen {
                 caret.submit(ctx);
             }
         } else {
-            leftText(ctx, "Modul suchen … (einfach tippen)", tx, ty, 0.9f * s, Shapes.alpha(0x99FFFFFF, appear), false);
+            leftText(ctx, "Search modules … (just type)", tx, ty, 0.9f * s, Shapes.alpha(0x99FFFFFF, appear), false);
         }
-        if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) hint = active ? "× oder ESC: Suche beenden  ·  Enter: ersten Treffer an/aus" : "Klicken oder einfach lostippen, um Module zu finden";
+        if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 && mouseY <= y2) hint = active ? "× or ESC: end search  ·  Enter: toggle the first result" : "Click or just start typing to find modules";
     }
 
     private static final ItemStack SEARCH_ICON = new ItemStack(net.minecraft.world.item.Items.SPYGLASS);
@@ -1123,7 +1123,7 @@ public class RadialScreen extends Screen {
         drawFit(ctx, fit, bx, labelY, color, false);
         String v = null;
         if (e.preset() != null) {
-            v = e.active() ? "✓ aktiv" : "Risiko " + RISK_NAMES[e.preset().risk()];
+            v = e.active() ? "✓ active" : "Risk " + RISK_NAMES[e.preset().risk()];
             float vy = by + R * 0.135f;
             Fit vf = fitLabel(v, bx, vy, base * 0.8f, a0, a1, true);
             drawFit(ctx, vf, bx, vy, Shapes.alpha(e.active() ? RISK_COLORS[e.preset().risk()] : 0xC0FFFFFF, alpha), false);
@@ -1131,7 +1131,7 @@ public class RadialScreen extends Screen {
         }
         if (e.setting() instanceof NumberSetting num) v = num.display();
         else if (e.setting() instanceof ModeSetting mode) v = "‹ " + mode.get() + " ›";
-        else if (e.setting() instanceof KeySetting key) v = key == listening ? "Taste drücken …" : key.display();
+        else if (e.setting() instanceof KeySetting key) v = key == listening ? "Press a key …" : key.display();
         if (v != null) {
             float vy = by + R * 0.075f;
             Fit vf = fitLabel(v, bx, vy, base * 1.05f, a0, a1, true);
@@ -1192,7 +1192,7 @@ public class RadialScreen extends Screen {
                 if (click.x() >= r[0] && click.x() <= r[2] && click.y() >= r[1] && click.y() <= r[3]) {
                     Module.Preset p = module.getPresets().get(i);
                     module.applyPreset(p);
-                    dev.nautilus.hud.Notifications.push(module.getName(), "Preset „" + p.name() + "“ geladen", RISK_COLORS[p.risk()]);
+                    dev.nautilus.hud.Notifications.push(module.getName(), "Preset “" + p.name() + "” loaded", RISK_COLORS[p.risk()]);
                     dev.nautilus.config.ConfigManager.save();
                     restartAnimations();
                     return true;
@@ -1225,7 +1225,7 @@ public class RadialScreen extends Screen {
             case SETTINGS -> {
                 if (e.preset() != null) {
                     module.applyPreset(e.preset());
-                    dev.nautilus.hud.Notifications.push(module.getName(), "Preset „" + e.preset().name() + "“ geladen", RISK_COLORS[e.preset().risk()]);
+                    dev.nautilus.hud.Notifications.push(module.getName(), "Preset “" + e.preset().name() + "” loaded", RISK_COLORS[e.preset().risk()]);
                     dev.nautilus.config.ConfigManager.save();
                 }
                 else if (e.moduleToggle()) module.toggle();

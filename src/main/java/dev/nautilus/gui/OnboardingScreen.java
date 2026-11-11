@@ -51,7 +51,7 @@ public class OnboardingScreen extends Screen {
 
     /** @param parent screen to return to (the title screen on the first start), null = back to the game */
     public OnboardingScreen(Screen parent) {
-        super(Component.literal("Nautilus Client – Einrichtung"));
+        super(Component.literal("Nautilus Client – Setup"));
         this.parent = parent;
     }
 
@@ -71,20 +71,20 @@ public class OnboardingScreen extends Screen {
 
     private static List<Warning> warnings() {
         List<Warning> list = new ArrayList<>();
-        list.add(new Warning(ORANGE, "Alpha – noch in Entwicklung",
-                "Funktionen können fehlen, sich ändern oder Fehler haben."));
-        list.add(new Warning(ORANGE, "Alle Module sind experimentell",
-                "Bitte zuerst im Einzelspieler ausprobieren, bevor du sie auf Servern nutzt."));
+        list.add(new Warning(ORANGE, "Alpha – still in development",
+                "Features may be missing, change or have bugs."));
+        list.add(new Warning(ORANGE, "All modules are experimental",
+                "Please try them in singleplayer before using them on servers."));
         if (XRay.SODIUM) {
-            list.add(new Warning(RED, "Sodium gefunden",
-                    "XRay funktioniert mit Sodium nicht und schaltet sich ab. Alles andere ist mit Sodium experimentell."));
+            list.add(new Warning(RED, "Sodium found",
+                    "XRay does not work with Sodium and turns itself off. Everything else is experimental with Sodium."));
         }
         if (FabricLoader.getInstance().isModLoaded("iris")) {
-            list.add(new Warning(RED, "Iris gefunden",
-                    "Shader können ESP-Boxen, HUD und Liquid Glass stören – bei Problemen Shader ausschalten."));
+            list.add(new Warning(RED, "Iris found",
+                    "Shaders can interfere with ESP boxes, the HUD and Liquid Glass – turn shaders off if you run into problems."));
         }
-        list.add(new Warning(RED, "Server-Regeln",
-                "Combat-, XRay- und BaseFinder-Module sind auf vielen Servern verboten – Nutzung auf eigenes Risiko."));
+        list.add(new Warning(RED, "Server rules",
+                "Combat, XRay and BaseFinder modules are banned on many servers – use at your own risk."));
         return list;
     }
 
@@ -133,14 +133,14 @@ public class OnboardingScreen extends Screen {
         float t = (System.currentTimeMillis() % 600000L) / 1000f;
         NautilusLogo.draw(s, px + 22f, py + 22f, 20f, t, HudStyle.accent(), 0xFFFFFFFF, dev.nautilus.hud.HudStyle.shade(0xFF, 0.84f));
         String title = switch (page) {
-            case 0 -> "Willkommen bei Nautilus Client";
-            case 1 -> "Einstellungen";
-            default -> "So funktioniert's";
+            case 0 -> "Welcome to Nautilus Client";
+            case 1 -> "Settings";
+            default -> "How it works";
         };
         String sub = switch (page) {
-            case 0 -> "Kurz vorab ein paar wichtige Hinweise";
-            case 1 -> "Alles kannst du später im Rad ändern";
-            default -> "Die wichtigsten Tasten";
+            case 0 -> "A few important notes first";
+            case 1 -> "You can change everything later in the wheel";
+            default -> "The most important keys";
         };
         text.add(() -> HudStyle.text(ctx, title, px + 40f, py + 18f, 1.15f, HudStyle.TEXT, true));
         text.add(() -> HudStyle.text(ctx, sub, px + 40f, py + 30f, 0.75f, HudStyle.TEXT_DIM, false));
@@ -159,8 +159,8 @@ public class OnboardingScreen extends Screen {
 
         // footer buttons
         float by = py + ph - 26f;
-        if (page > 0) button(ctx, s, text, px + 14f, by, "Zurück", false, mouseX, mouseY, () -> page--);
-        String next = page < PAGES - 1 ? "Weiter" : "Los geht's";
+        if (page > 0) button(ctx, s, text, px + 14f, by, "Back", false, mouseX, mouseY, () -> page--);
+        String next = page < PAGES - 1 ? "Next" : "Let's go";
         float nw = HudStyle.width(next, true, 0.85f) + 26f;
         button(ctx, s, text, px + pw - 14f - nw, by, next, true, mouseX, mouseY, () -> {
             if (page < PAGES - 1) page++;
@@ -217,14 +217,14 @@ public class OnboardingScreen extends Screen {
         float right = px + pw - 14f;
 
         // wheel key
-        label(ctx, text, px, y, "Rad-Taste", "Öffnet das Nautilus-Rad");
-        String key = listening ? "Taste drücken …" : NautilusClient.openWheel.getTranslatedKeyMessage().getString();
+        label(ctx, text, px, y, "Wheel key", "Opens the Nautilus wheel");
+        String key = listening ? "Press a key …" : NautilusClient.openWheel.getTranslatedKeyMessage().getString();
         float kw = Math.max(70f, HudStyle.width(key, true, 0.85f) + 26f);
         chip(ctx, s, text, right - kw, y - 2f, kw, key, listening, mouseX, mouseY, () -> listening = !listening);
         y += 30f;
 
         // wheel size: slider
-        label(ctx, text, px, y, "Rad-Größe", "Ziehen oder −/+ (Ring im Hintergrund = Vorschau)");
+        label(ctx, text, px, y, "Wheel size", "Drag or −/+ (ring in the background = preview)");
         String pct = hud.wheelSize.getInt() + " %";
         float bw = 110f;
         float bx2 = right - 22f, bx1 = bx2 - bw;
@@ -242,17 +242,17 @@ public class OnboardingScreen extends Screen {
         y += 30f;
 
         // liquid glass
-        label(ctx, text, px, y, "Liquid Glass", "Echte Glas-Unschärfe – aus = deutlich bessere FPS");
+        label(ctx, text, px, y, "Liquid Glass", "Real glass blur – off = much better FPS");
         toggle(ctx, s, text, right, y, hud.liquidGlass.isOn(), mouseX, mouseY, hud.liquidGlass::toggle);
         y += 30f;
 
         // HUD
-        label(ctx, text, px, y, "HUD anzeigen", "Logo, Modulliste, Koordinaten, FPS …");
+        label(ctx, text, px, y, "Show HUD", "Logo, module list, coordinates, FPS …");
         toggle(ctx, s, text, right, y, hud.isEnabled(), mouseX, mouseY, hud::toggle);
         y += 30f;
 
         // HUD colour: one swatch per colour, the whole setup shows the choice live
-        label(ctx, text, px, y, "HUD-Farbe", "Akzent für HUD, Logo und Glas");
+        label(ctx, text, px, y, "HUD color", "Accent for the HUD, logo and glass");
         String[] names = HudStyle.COLOR_NAMES;
         float step = 13f, sy = y + 6f;
         float sx0 = right - 5f - (names.length - 1) * step;
@@ -298,7 +298,7 @@ public class OnboardingScreen extends Screen {
         boolean hot = mouseX >= x && mouseX <= x + w && mouseY >= ty && mouseY <= ty + h;
         s.roundRect(x, ty, x + w, ty + h, h / 2f, on ? (hot ? HudStyle.accentHot(0xE6) : HudStyle.accent(0xCC)) : (hot ? 0x40FFFFFF : 0x26FFFFFF));
         s.circle(on ? x + w - h / 2f : x + h / 2f, ty + h / 2f, h / 2f - 2f, 0xFFFFFFFF);
-        String st = on ? "An" : "Aus";
+        String st = on ? "On" : "Off";
         float sw = HudStyle.width(st, false, 0.72f);
         text.add(() -> HudStyle.text(ctx, st, x - 6f - sw, ty + h / 2f, 0.72f, on ? GREEN : HudStyle.TEXT_DIM, false));
         buttons.add(new Button(x, ty, x + w, ty + h, action));
@@ -308,13 +308,13 @@ public class OnboardingScreen extends Screen {
 
     private void renderControls(GuiGraphicsExtractor ctx, Shapes s, List<Runnable> text, float px, float y, float pw) {
         String[][] rows = {
-                {NautilusClient.openWheel.getTranslatedKeyMessage().getString(), "Rad öffnen / schließen"},
-                {"Links-Klick", "Kategorie öffnen, Modul an/aus"},
-                {"Rechts-Klick", "Einstellungen eines Moduls"},
-                {"Presets (oben)", "In den Einstellungen: fertige Presets mit Ampel fürs Bann-Risiko"},
-                {"ESC / Mitte", "Zurück"},
-                {"Tippen im Rad", "Module suchen"},
-                {"Client → Einrichtung", "Diese Einrichtung erneut öffnen"},
+                {NautilusClient.openWheel.getTranslatedKeyMessage().getString(), "Open / close the wheel"},
+                {"Left-click", "Open a category, toggle a module"},
+                {"Right-click", "Settings of a module"},
+                {"Presets (top)", "In the settings: ready-made presets with a ban-risk traffic light"},
+                {"ESC / centre", "Back"},
+                {"Type in the wheel", "Search modules"},
+                {"Client → Setup", "Open this setup again"},
         };
         for (String[] r : rows) {
             float kw = HudStyle.width(r[0], true, 0.75f) + 14f;

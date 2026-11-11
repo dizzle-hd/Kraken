@@ -55,11 +55,11 @@ public final class HudManager {
         elements.add(new ValueElement("tps", "TPS", "TPS", true, START, START, 5, 65,
                 () -> String.format(Locale.ROOT, "%.1f", TpsTracker.tps()),
                 () -> TpsTracker.tps() >= 18 ? HudStyle.TEXT : TpsTracker.tps() >= 12 ? 0xFFFFD27A : HudStyle.BAD));
-        elements.add(new ValueElement("speed", "Geschwindigkeit", "Speed", false, START, END, 5, 39,
+        elements.add(new ValueElement("speed", "Speed", "Speed", false, START, END, 5, 39,
                 () -> String.format(Locale.ROOT, "%.1f b/s", speed), () -> HudStyle.TEXT));
-        elements.add(new ValueElement("direction", "Richtung", "Blick", false, CENTER, START, 0, 5,
+        elements.add(new ValueElement("direction", "Direction", "Facing", false, CENTER, START, 0, 5,
                 this::direction, () -> HudStyle.TEXT));
-        elements.add(new ValueElement("clock", "Uhrzeit", "Zeit", false, END, END, 5, 5,
+        elements.add(new ValueElement("clock", "Clock", "Time", false, END, END, 5, 5,
                 () -> LocalTime.now().format(CLOCK), () -> HudStyle.TEXT));
         elements.add(new NotificationsElement());
         elements.add(new dev.nautilus.hud.elements.TargetElement());
@@ -74,9 +74,9 @@ public final class HudManager {
                 () -> ClickTracker.left() + " | " + ClickTracker.right(), () -> HudStyle.TEXT));
         elements.add(new ValueElement("server", "Server", "Server", false, START, START, 5, 99,
                 this::server, () -> HudStyle.TEXT));
-        elements.add(new ValueElement("day", "Tag", "Tag", false, CENTER, START, 0, 22,
+        elements.add(new ValueElement("day", "Day", "Day", false, CENTER, START, 0, 22,
                 () -> mc.level == null ? "1" : String.valueOf(mc.level.getOverworldClockTime() / 24000L + 1), () -> HudStyle.TEXT));
-        elements.add(new ValueElement("death", "Todespunkt", "Tod", false, START, END, 5, 38,
+        elements.add(new ValueElement("death", "Death point", "Death", false, START, END, 5, 38,
                 this::deathPoint, () -> HudStyle.TEXT));
     }
 
@@ -91,7 +91,7 @@ public final class HudManager {
 
     private String server() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.isLocalServer() || mc.getCurrentServer() == null) return "Einzelspieler";
+        if (mc.isLocalServer() || mc.getCurrentServer() == null) return "Singleplayer";
         return mc.getCurrentServer().ip;
     }
 
@@ -113,13 +113,13 @@ public final class HudManager {
 
     private String direction() {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null) return "Norden";
+        if (mc.player == null) return "North";
         Direction d = mc.player.getDirection();
         String name = switch (d) {
-            case NORTH -> "Norden  -Z";
-            case SOUTH -> "Süden  +Z";
-            case WEST -> "Westen  -X";
-            case EAST -> "Osten  +X";
+            case NORTH -> "North  -Z";
+            case SOUTH -> "South  +Z";
+            case WEST -> "West  -X";
+            case EAST -> "East  +X";
             default -> d.getName();
         };
         return name;

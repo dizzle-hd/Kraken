@@ -32,7 +32,7 @@ public class HudEditorScreen extends Screen {
     private record Chip(float x1, float y1, float x2, float y2, HudElement element, String action) {}
 
     public HudEditorScreen() {
-        super(Component.literal("HUD-Editor"));
+        super(Component.literal("HUD editor"));
     }
 
     @Override
@@ -105,7 +105,7 @@ public class HudEditorScreen extends Screen {
         float scale = 0.8f, h = 14f, gap = 4f;
         List<String> names = new ArrayList<>();
         for (HudElement e : hud.elements()) names.add(e.name());
-        names.add("Zurücksetzen");
+        names.add("Reset");
         float maxRow = Math.min(width - 60f, 330f);
         List<List<Integer>> rows = new ArrayList<>();
         List<Integer> row = new ArrayList<>();
@@ -124,8 +124,8 @@ public class HudEditorScreen extends Screen {
         float contentW = 0;
         for (List<Integer> r : rows) contentW = Math.max(contentW, rowWidth(r, names, scale, gap));
 
-        String title = "HUD-Editor";
-        String help = "Ziehen: verschieben  ·  Rechts-Klick: ausblenden  ·  ESC: fertig";
+        String title = "HUD editor";
+        String help = "Drag: move  ·  Right-click: hide  ·  ESC: done";
         float tw = HudStyle.width(title, true, 1.1f), hw = HudStyle.width(help, false, 0.72f);
         float pw = Math.max(contentW, Math.max(tw, hw)) + 24f;
         float ph = 12f + 11f + 9f + 8f + rows.size() * (h + gap) - gap + 12f;

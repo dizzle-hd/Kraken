@@ -27,6 +27,9 @@ public class ModeSetting extends Setting<String> {
 
     @Override
     public void fromJson(JsonElement element) {
-        if (element != null && element.isJsonPrimitive() && modes.contains(element.getAsString())) set(element.getAsString());
+        if (element == null || !element.isJsonPrimitive()) return;
+        String v = element.getAsString();
+        if (!modes.contains(v)) v = dev.nautilus.config.Legacy.translate(v); // old German value
+        if (modes.contains(v)) set(v);
     }
 }

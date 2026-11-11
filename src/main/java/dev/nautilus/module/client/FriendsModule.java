@@ -15,14 +15,14 @@ import net.minecraft.world.phys.EntityHitResult;
  * TriggerBot, SilentAim, AutoCrystal, AutoSmash …) ignores friends; ESP and nametags show them green.
  */
 public class FriendsModule extends Module {
-    public final BoolSetting protect = add(new BoolSetting("Schützen", "Combat-, Crystal- und Mace-Module greifen Freunde nie an", true));
-    private final BoolSetting middleClick = add(new BoolSetting("Mittelklick", "Mittelklick auf einen Spieler fügt ihn hinzu bzw. entfernt ihn", true));
-    private final BoolSetting clearAll = add(new BoolSetting("Alle entfernen", "Einschalten leert die Freundesliste (springt danach wieder auf aus)", false));
+    public final BoolSetting protect = add(new BoolSetting("Protect", "Combat, crystal and mace modules never attack friends", true));
+    private final BoolSetting middleClick = add(new BoolSetting("Middle-click", "Middle-click a player to add or remove them", true));
+    private final BoolSetting clearAll = add(new BoolSetting("Remove all", "Turning it on clears the friend list (then switches back off)", false));
 
     private boolean wasDown;
 
     public FriendsModule() {
-        super("Freunde", "Freundesliste: Mittelklick auf einen Spieler = Freund an/aus. Freunde werden von Combat-Modulen nicht angegriffen und grün markiert.",
+        super("Friends", "Friend list: middle-click a player to add/remove them. Combat modules never attack friends, and they are marked green.",
                 Category.CLIENT, Items.POPPY);
         loadEnabled(true);
     }
@@ -33,7 +33,7 @@ public class FriendsModule extends Module {
             clearAll.set(false);
             int n = Friends.size();
             Friends.clear();
-            Notifications.push("Freunde", n + (n == 1 ? " Freund" : " Freunde") + " entfernt", HudStyle.accent());
+            Notifications.push("Friends", n + (n == 1 ? " friend" : " friends") + " removed", HudStyle.accent());
             dev.nautilus.config.ConfigManager.save();
         }
         if (mc.player == null) return;
@@ -41,7 +41,7 @@ public class FriendsModule extends Module {
         if (down && !wasDown && mc.hitResult instanceof EntityHitResult hit && hit.getEntity() instanceof Player p) {
             String name = p.getGameProfile().name();
             boolean now = Friends.toggle(name);
-            Notifications.push("Freunde", name + (now ? " ist jetzt dein Freund" : " ist kein Freund mehr"), now ? HudStyle.GOOD : HudStyle.BAD);
+            Notifications.push("Friends", name + (now ? " is now your friend" : " is no longer your friend"), now ? HudStyle.GOOD : HudStyle.BAD);
             dev.nautilus.config.ConfigManager.save();
         }
         wasDown = down;

@@ -23,9 +23,9 @@ import java.util.Locale;
  * as thin bars above them, and the XP as a line with the level in a small badge.
  */
 public class Hotbar extends Module {
-    private final BoolSetting bars = add(new BoolSetting("Leisten", "Leben und Hunger als Glas-Leisten über der Hotbar statt Herzen und Keulen", true));
-    private final BoolSetting xp = add(new BoolSetting("XP-Leiste", "Eigene XP-Linie mit Level (ersetzt auch die Ortungsleiste)", true));
-    private final BoolSetting numbers = add(new BoolSetting("Slot-Nummern", "Kleine Nummern 1–9 in den Slots", false));
+    private final BoolSetting bars = add(new BoolSetting("Bars", "Health and hunger as glass bars above the hotbar instead of hearts and drumsticks", true));
+    private final BoolSetting xp = add(new BoolSetting("XP bar", "Own XP line with level (also replaces the locator bar)", true));
+    private final BoolSetting numbers = add(new BoolSetting("Slot numbers", "Small numbers 1–9 in the slots", false));
 
     private static final float S = 20f, G = 2f, P = 3f;
     private static final float BAR_H = 9f, THIN = 3f;
@@ -36,7 +36,7 @@ public class Hotbar extends Module {
     private long lastFrame;
 
     public Hotbar() {
-        super("Hotbar", "Glas-Hotbar mit quadratischen Slots, darüber Leisten für Leben, Hunger, Rüstung, Luft und XP – im Nautilus-Glasdesign.",
+        super("Hotbar", "Glass hotbar with square slots, with bars for health, hunger, armor, air and XP above it – in the Nautilus glass design.",
                 Category.VISUALS, Items.CHEST);
         loadEnabled(true);
     }

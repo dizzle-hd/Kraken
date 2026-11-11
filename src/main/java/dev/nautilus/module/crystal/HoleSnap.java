@@ -15,16 +15,16 @@ import net.minecraft.world.phys.Vec3;
  * Best on a key: press, get pulled in, done.
  */
 public class HoleSnap extends Module {
-    private final NumberSetting range = add(new NumberSetting("Reichweite", "Maximale Entfernung zum Loch", 4, 1, 8, 0.5));
-    private final NumberSetting speed = add(new NumberSetting("Tempo", "Geschwindigkeit in Blöcken pro Tick (Gehen ≈ 0,22)", 0.25, 0.1, 0.6, 0.05));
-    private final BoolSetting onlyBedrock = add(new BoolSetting("Nur Bedrock", "Nur Löcher aus reinem Bedrock", false));
-    private final NumberSetting timeout = add(new NumberSetting("Timeout", "Nach so vielen Ticks ohne Erfolg aufgeben", 30, 5, 100, 5));
+    private final NumberSetting range = add(new NumberSetting("Range", "Maximum distance to the hole", 4, 1, 8, 0.5));
+    private final NumberSetting speed = add(new NumberSetting("Speed", "Speed in blocks per tick (walking ≈ 0.22)", 0.25, 0.1, 0.6, 0.05));
+    private final BoolSetting onlyBedrock = add(new BoolSetting("Only bedrock", "Only holes of pure bedrock", false));
+    private final NumberSetting timeout = add(new NumberSetting("Timeout", "Give up after this many ticks without success", 30, 5, 100, 5));
 
     private BlockPos hole;
     private int ticks;
 
     public HoleSnap() {
-        super("HoleSnap", "Zieht dich ins nächste sichere Loch (Bedrock/Obsidian) und schaltet sich danach selbst aus – am besten auf eine Taste legen.",
+        super("HoleSnap", "Pulls you into the nearest safe hole (bedrock/obsidian) and then turns itself off – best put it on a key.",
                 Category.CRYSTAL, Items.CRYING_OBSIDIAN);
     }
 
@@ -49,7 +49,7 @@ public class HoleSnap extends Module {
         ticks = 0;
         hole = mc.player == null || mc.level == null ? null : find();
         if (hole == null && mc.player != null) {
-            Notifications.push("HoleSnap", "Kein Loch in Reichweite", HudStyle.BAD);
+            Notifications.push("HoleSnap", "No hole in range", HudStyle.BAD);
             setEnabled(false);
         }
     }

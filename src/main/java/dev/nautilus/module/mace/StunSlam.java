@@ -16,13 +16,13 @@ import net.minecraft.world.phys.Vec3;
  * damage, so the second hit is not reduced by the hurt cooldown.
  */
 public class StunSlam extends Module {
-    private final BoolSetting onlyFalling = add(new BoolSetting("Nur beim Fallen", "Nur bei einem Smash (Fallhöhe > 1,5), sonst bei jedem Schlag", true));
-    private final BoolSetting checkFacing = add(new BoolSetting("Schild-Richtung", "Nur wenn der Schild wirklich zu dir zeigt", true));
+    private final BoolSetting onlyFalling = add(new BoolSetting("Only while falling", "Only on a smash (fall height > 1.5), otherwise on every hit", true));
+    private final BoolSetting checkFacing = add(new BoolSetting("Shield direction", "Only when the shield really faces you", true));
 
     private int count;
 
     public StunSlam() {
-        super("StunSlam", "Ziel blockt mit Schild: erst Axt (Schild aus), im selben Tick der Streitkolben-Schlag.",
+        super("StunSlam", "Target blocks with a shield: axe first (shield disabled), the mace hit in the same tick.",
                 Category.MACE, Items.SHIELD);
     }
 

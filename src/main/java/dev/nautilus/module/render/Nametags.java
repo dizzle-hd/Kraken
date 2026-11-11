@@ -24,20 +24,20 @@ import java.util.Locale;
 
 /** Glass nametags above players, visible through walls: name, health, distance, ping, totem pops and armor. */
 public class Nametags extends Module {
-    private final NumberSetting range = add(new NumberSetting("Reichweite", "Maximale Entfernung in Blöcken", 64, 8, 256, 8));
-    private final NumberSetting scale = add(new NumberSetting("Größe", "Größe der Schilder", 1.0, 0.5, 2.0, 0.1));
-    private final BoolSetting health = add(new BoolSetting("Leben", "Leben (inkl. Absorption) anzeigen", true));
-    private final BoolSetting distance = add(new BoolSetting("Distanz", "Entfernung in Blöcken anzeigen", true));
-    private final BoolSetting ping = add(new BoolSetting("Ping", "Ping des Spielers anzeigen", false));
-    private final BoolSetting pops = add(new BoolSetting("Pops", "Totem-Pops anzeigen (mit PopCounter)", true));
-    private final BoolSetting armor = add(new BoolSetting("Rüstung", "Rüstung und Items in der Hand über dem Schild", true));
-    private final BoolSetting self = add(new BoolSetting("Eigenes", "Auch dein eigenes Schild (nur in der dritten Person)", false));
+    private final NumberSetting range = add(new NumberSetting("Range", "Maximum distance in blocks", 64, 8, 256, 8));
+    private final NumberSetting scale = add(new NumberSetting("Size", "Size of the tags", 1.0, 0.5, 2.0, 0.1));
+    private final BoolSetting health = add(new BoolSetting("Health", "Show health (incl. absorption)", true));
+    private final BoolSetting distance = add(new BoolSetting("Distance", "Show distance in blocks", true));
+    private final BoolSetting ping = add(new BoolSetting("Ping", "Show the player's ping", false));
+    private final BoolSetting pops = add(new BoolSetting("Pops", "Show totem pops (with PopCounter)", true));
+    private final BoolSetting armor = add(new BoolSetting("Armor", "Armor and held items above the tag", true));
+    private final BoolSetting self = add(new BoolSetting("Own", "Also your own tag (only in third person)", false));
 
     private static final EquipmentSlot[] SLOTS = {EquipmentSlot.MAINHAND, EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS,
             EquipmentSlot.FEET, EquipmentSlot.OFFHAND};
 
     public Nametags() {
-        super("Nametags", "Zeigt über Spielern ein Glas-Schild mit Name, Leben, Distanz, Pops und Rüstung – auch durch Wände.", Category.RENDER, Items.NAME_TAG);
+        super("Nametags", "Shows a glass tag above players with name, health, distance, pops and armor – also through walls.", Category.RENDER, Items.NAME_TAG);
     }
 
     private static int ping(Player p) {

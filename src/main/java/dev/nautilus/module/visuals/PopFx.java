@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 /** Totem pops: golden-green rings rush up around the player, with a burst of sparks. */
 public class PopFx extends Module {
     public PopFx() {
-        super("Totem-Effekt", "Wenn jemand ein Totem verbraucht: goldene und grüne Ringe schießen an ihm hoch, dazu ein Funkenregen.",
+        super("Totem effect", "When someone pops a totem: golden and green rings shoot up around them, with a shower of sparks.",
                 Category.VISUALS, Items.TOTEM_OF_UNDYING);
     }
 

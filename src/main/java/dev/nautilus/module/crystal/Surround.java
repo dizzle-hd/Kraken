@@ -17,19 +17,19 @@ import java.util.List;
 
 /** Surround: places blast-proof blocks around your feet so crystals cannot be placed next to you. */
 public class Surround extends Module {
-    private final ModeSetting blockMode = add(new ModeSetting("Block", "Welcher Block gesetzt wird", "Obsidian", "Obsidian", "Weinender Obsidian", "Beide"));
-    private final NumberSetting perTick = add(new NumberSetting("Blöcke pro Tick", "Wie viele Blöcke pro Tick gesetzt werden", 2, 1, 4, 1));
-    private final NumberSetting delay = add(new NumberSetting("Verzögerung", "Ticks zwischen zwei Durchgängen", 0, 0, 10, 1));
-    private final BoolSetting center = add(new BoolSetting("Zentrieren", "Beim Einschalten per Tastendruck (W/A/S/D antippen, schleichend) zur Blockmitte laufen, damit alle vier Seiten frei sind", true));
-    private final NumberSetting tapTicks = add(new NumberSetting("Tipp-Länge", "Wie viele Ticks eine Bewegungstaste beim Zentrieren gedrückt wird", 1, 1, 4, 1).visibleWhen(center::isOn));
-    private final BoolSetting support = add(new BoolSetting("Stützblöcke", "Auch Blöcke unter den Ringblöcken setzen, falls dort Luft ist", true));
-    private final BoolSetting doubleHeight = add(new BoolSetting("Doppelt", "Zweite Reihe auf Kopfhöhe (gegen Kristalle auf Kopfhöhe)", false));
-    private final BoolSetting disableOnMove = add(new BoolSetting("Aus beim Verlassen", "Ausschalten, sobald du den Block verlässt oder springst", true));
-    private final BoolSetting switchBack = add(new BoolSetting("Zurückwechseln", "Danach wieder den vorherigen Slot halten", true));
-    private final ModeSetting placeMode = add(new ModeSetting("Platzieren", "Mit Blick = Kamera dreht sich zu jedem Block und setzt ihn per Rechtsklick wie von Hand, Direkt = ohne hinzuschauen", "Mit Blick", "Mit Blick", "Direkt"));
-    private final NumberSetting turnSpeed = add(new NumberSetting("Dreh-Tempo", "Wie schnell die Kamera zum nächsten Block schaut (Grad pro Sekunde)", 900, 180, 2000, 30).visibleWhen(() -> placeMode.is("Mit Blick")));
-    private final NumberSetting smooth = add(new NumberSetting("Glätte", "Wie weich die Kamera dreht (höher = weicher)", 3, 1, 10, 0.5).visibleWhen(() -> placeMode.is("Mit Blick")));
-    private final BoolSetting lookBack = add(new BoolSetting("Blick zurück", "Danach wieder dorthin schauen, wo du vorher hingeschaut hast", true).visibleWhen(() -> placeMode.is("Mit Blick")));
+    private final ModeSetting blockMode = add(new ModeSetting("Block", "Which block is placed", "Obsidian", "Obsidian", "Crying obsidian", "Both"));
+    private final NumberSetting perTick = add(new NumberSetting("Blocks per tick", "How many blocks are placed per tick", 2, 1, 4, 1));
+    private final NumberSetting delay = add(new NumberSetting("Delay", "Ticks between two passes", 0, 0, 10, 1));
+    private final BoolSetting center = add(new BoolSetting("Center", "When turned on, walk to the centre of the block by tapping W/A/S/D (sneaking) so all four sides are free", true));
+    private final NumberSetting tapTicks = add(new NumberSetting("Tap length", "How many ticks a movement key is pressed while centering", 1, 1, 4, 1).visibleWhen(center::isOn));
+    private final BoolSetting support = add(new BoolSetting("Support blocks", "Also place blocks under the ring blocks if there is air", true));
+    private final BoolSetting doubleHeight = add(new BoolSetting("Double", "Second row at head height (against crystals at head height)", false));
+    private final BoolSetting disableOnMove = add(new BoolSetting("Off when leaving", "Turn off as soon as you leave the block or jump", true));
+    private final BoolSetting switchBack = add(new BoolSetting("Switch back", "Hold the previous slot again afterwards", true));
+    private final ModeSetting placeMode = add(new ModeSetting("Place", "With view = the camera turns to each block and places it with a right-click like by hand, Direct = without looking", "With view", "With view", "Direct"));
+    private final NumberSetting turnSpeed = add(new NumberSetting("Turn speed", "How fast the camera turns to the next block (degrees per second)", 900, 180, 2000, 30).visibleWhen(() -> placeMode.is("With view")));
+    private final NumberSetting smooth = add(new NumberSetting("Smoothness", "How smoothly the camera turns (higher = smoother)", 3, 1, 10, 0.5).visibleWhen(() -> placeMode.is("With view")));
+    private final BoolSetting lookBack = add(new BoolSetting("Look back", "Look back to where you looked before afterwards", true).visibleWhen(() -> placeMode.is("With view")));
 
     private BlockPos start;
     /** Ticks left to walk to the block centre (0 = done). */
@@ -46,13 +46,13 @@ public class Surround extends Module {
     private int aimTicks;
 
     public Surround() {
-        super("Surround", "Umgibt deine Füße mit Obsidian, damit niemand Kristalle direkt neben dir platzieren kann.", Category.CRYSTAL, Items.OBSIDIAN);
-        preset("Legit", LOW, "Mit Blick, ruhige Kamera, ein Block nach dem anderen",
-                "Platzieren", "Mit Blick", "Dreh-Tempo", 540, "Glätte", 4, "Blöcke pro Tick", 1, "Zentrieren", true);
-        preset("Normal", MEDIUM, "Mit Blick, schnelle Kamera",
-                "Platzieren", "Mit Blick", "Dreh-Tempo", 900, "Glätte", 3, "Blöcke pro Tick", 2, "Zentrieren", true);
-        preset("Rage", HIGH, "Ohne hinzuschauen, alles auf einmal",
-                "Platzieren", "Direkt", "Blöcke pro Tick", 4, "Zentrieren", true);
+        super("Surround", "Surrounds your feet with obsidian so nobody can place crystals right next to you.", Category.CRYSTAL, Items.OBSIDIAN);
+        preset("Legit", LOW, "With view, calm camera, one block after the other",
+                "Place", "With view", "Turn speed", 540, "Smoothness", 4, "Blocks per tick", 1, "Center", true);
+        preset("Normal", MEDIUM, "With view, fast camera",
+                "Place", "With view", "Turn speed", 900, "Smoothness", 3, "Blocks per tick", 2, "Center", true);
+        preset("Rage", HIGH, "Without looking, everything at once",
+                "Place", "Direct", "Blocks per tick", 4, "Center", true);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class Surround extends Module {
     private boolean isBlock(ItemStack s) {
         return switch (blockMode.get()) {
             case "Obsidian" -> s.is(Items.OBSIDIAN);
-            case "Weinender Obsidian" -> s.is(Items.CRYING_OBSIDIAN);
+            case "Crying obsidian" -> s.is(Items.CRYING_OBSIDIAN);
             default -> s.is(Items.OBSIDIAN) || s.is(Items.CRYING_OBSIDIAN);
         };
     }
@@ -232,7 +232,7 @@ public class Surround extends Module {
         if (wait > 0) { wait--; return; }
         int slot = InvUtil.hotbar(this::isBlock);
         if (slot < 0) return;
-        if (placeMode.is("Mit Blick")) {
+        if (placeMode.is("With view")) {
             placeWithView(feet, slot);
             return;
         }
@@ -253,6 +253,6 @@ public class Surround extends Module {
         if (mc.player == null) return null;
         int missing = 0;
         for (BlockPos p : positions(mc.player.blockPosition())) if (WorldUtil.isReplaceable(p)) missing++;
-        return missing == 0 ? "sicher" : missing + " fehlen";
+        return missing == 0 ? "safe" : missing + " missing";
     }
 }

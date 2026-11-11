@@ -19,18 +19,18 @@ import net.minecraft.world.item.Items;
  * armor) or the one you prefer.
  */
 public class MaceSwap extends Module {
-    private final NumberSetting minFall = add(new NumberSetting("Min. Fallhöhe", "Erst ab dieser Fallhöhe auf den Streitkolben wechseln (Smash ab 1,5 Blöcken)", 1.5, 1.5, 20, 0.5));
-    private final ModeSetting choice = add(new ModeSetting("Auswahl", "Welcher Streitkolben: Auto = meister Schaden fürs Ziel (Dichte/Bresche), sonst bevorzugt die Verzauberung", "Auto", "Auto", "Dichte", "Bresche", "Windstoß"));
-    private final BoolSetting withoutFall = add(new BoolSetting("Auch ohne Fall", "Auch normale Schläge mit dem Streitkolben ausführen (6 Schaden, langsam)", false));
-    private final BoolSetting onlyPlayers = add(new BoolSetting("Nur Spieler", "Nur wechseln, wenn du einen Spieler schlägst", false));
-    private final BoolSetting back = add(new BoolSetting("Zurückwechseln", "Nach dem Schlag wieder den vorherigen Slot halten", true));
+    private final NumberSetting minFall = add(new NumberSetting("Min. fall height", "Only switch to the mace from this fall height on (smash from 1.5 blocks)", 1.5, 1.5, 20, 0.5));
+    private final ModeSetting choice = add(new ModeSetting("Choice", "Which mace: Auto = most damage for the target (Density/Breach), otherwise prefers the enchantment", "Auto", "Auto", "Density", "Breach", "Wind Burst"));
+    private final BoolSetting withoutFall = add(new BoolSetting("Also without falling", "Also do normal hits with the mace (6 damage, slow)", false));
+    private final BoolSetting onlyPlayers = add(new BoolSetting("Only players", "Only switch when you hit a player", false));
+    private final BoolSetting back = add(new BoolSetting("Switch back", "Hold the previous slot again after the hit", true));
 
     public MaceSwap() {
-        super("MaceSwap", "Schlägt beim Fallen automatisch mit dem Streitkolben zu und wechselt danach zurück – Schwert bleibt in der Hand.",
+        super("MaceSwap", "Hits with the mace automatically while falling and switches back afterwards – your sword stays in hand.",
                 Category.MACE, Items.MACE);
-        preset("Legit", LOW, "Nur bei richtigen Smashes ab 3 Blöcken, Spieler", "Min. Fallhöhe", 3.0, "Auch ohne Fall", false, "Nur Spieler", true);
-        preset("Normal", MEDIUM, "Jeder Smash ab 1,5 Blöcken", "Min. Fallhöhe", 1.5, "Auch ohne Fall", false, "Nur Spieler", false);
-        preset("Rage", HIGH, "Immer mit dem Streitkolben", "Min. Fallhöhe", 1.5, "Auch ohne Fall", true, "Nur Spieler", false);
+        preset("Legit", LOW, "Only on real smashes from 3 blocks, players", "Min. fall height", 3.0, "Also without falling", false, "Only players", true);
+        preset("Normal", MEDIUM, "Every smash from 1.5 blocks", "Min. fall height", 1.5, "Also without falling", false, "Only players", false);
+        preset("Rage", HIGH, "Always with the mace", "Min. fall height", 1.5, "Also without falling", true, "Only players", false);
     }
 
     boolean switchBack() { return back.isOn(); }
@@ -50,9 +50,9 @@ public class MaceSwap extends Module {
             if (!MaceUtil.isMace(s)) continue;
             float score = MaceUtil.estimate(s, target, smash ? p.fallDistance : 0);
             switch (choice.get()) {
-                case "Dichte" -> score += MaceUtil.density(s) * 1000;
-                case "Bresche" -> score += MaceUtil.breach(s) * 1000;
-                case "Windstoß" -> score += MaceUtil.windBurst(s) * 1000;
+                case "Density" -> score += MaceUtil.density(s) * 1000;
+                case "Breach" -> score += MaceUtil.breach(s) * 1000;
+                case "Wind Burst" -> score += MaceUtil.windBurst(s) * 1000;
                 default -> {}
             }
             if (i == InvUtil.selected()) score += 0.01f; // a tie keeps the held one

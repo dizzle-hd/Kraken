@@ -23,10 +23,10 @@ import java.util.List;
  * Read-only: scans the loaded world, sends nothing.
  */
 public class HoleESP extends Module {
-    private final NumberSetting range = add(new NumberSetting("Reichweite", "Suchradius um dich in Blöcken", 8, 3, 16, 1));
-    private final NumberSetting height = add(new NumberSetting("Höhe", "Wie viele Blöcke über/unter dir gesucht wird", 4, 1, 8, 1));
-    private final BoolSetting onlyBedrock = add(new BoolSetting("Nur Bedrock", "Nur Löcher aus reinem Bedrock zeigen (unzerstörbar)", false));
-    private final BoolSetting flat = add(new BoolSetting("Flach", "Nur den Boden markieren statt eines ganzen Blocks", true));
+    private final NumberSetting range = add(new NumberSetting("Range", "Search radius around you in blocks", 8, 3, 16, 1));
+    private final NumberSetting height = add(new NumberSetting("Height", "How many blocks above/below you are searched", 4, 1, 8, 1));
+    private final BoolSetting onlyBedrock = add(new BoolSetting("Only bedrock", "Only show holes of pure bedrock (unbreakable)", false));
+    private final BoolSetting flat = add(new BoolSetting("Flat", "Only mark the floor instead of a whole block", true));
 
     private record Hole(BlockPos pos, boolean bedrock) {}
 
@@ -34,7 +34,7 @@ public class HoleESP extends Module {
     private int timer;
 
     public HoleESP() {
-        super("HoleESP", "Zeigt sichere Löcher aus Bedrock (grün) oder Obsidian (Akzentfarbe) in deiner Nähe – darin treffen dich Kristalle nur von oben.",
+        super("HoleESP", "Shows safe holes of bedrock (green) or obsidian (accent colour) near you – inside, crystals can only hit you from above.",
                 Category.CRYSTAL, Items.BEDROCK);
     }
 

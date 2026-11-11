@@ -22,17 +22,17 @@ import java.util.concurrent.ThreadLocalRandom;
  * "swap with off hand" key (F by default, whatever it is bound to), then closes the inventory again.
  */
 public class AutoTotem extends Module {
-    private final ModeSetting mode = add(new ModeSetting("Modus", "Immer = Totem bleibt immer in der Zweithand, Leben = nur unter der Leben-Grenze", "Immer", "Immer", "Leben"));
-    private final NumberSetting health = add(new NumberSetting("Leben-Grenze", "Unter diesem Leben (inkl. Absorption) kommt das Totem in die Zweithand", 12, 1, 36, 1)
-            .visibleWhen(() -> mode.is("Leben")));
-    private final ModeSetting otherItem = add(new ModeSetting("Sonst", "Was über der Grenze in die Zweithand kommt", "Kristall", "Kristall", "Goldapfel", "Nichts")
-            .visibleWhen(() -> mode.is("Leben")));
-    private final BoolSetting openInventory = add(new BoolSetting("Inventar öffnen", "Inventar öffnen und das Totem mit der Zweithand-Taste (F) tauschen – wie per Hand. Aus = ohne sichtbares Inventar", true));
-    private final NumberSetting openDelay = add(new NumberSetting("Öffnen-Verzögerung", "Ticks zwischen Inventar öffnen und Taste drücken", 1, 0, 10, 1).visibleWhen(openInventory::isOn));
-    private final NumberSetting closeDelay = add(new NumberSetting("Schließen-Verzögerung", "Ticks zwischen Taste drücken und Inventar schließen", 1, 0, 10, 1).visibleWhen(openInventory::isOn));
-    private final NumberSetting randomDelay = add(new NumberSetting("Zufall", "Zufällige Extra-Ticks pro Schritt", 0, 0, 5, 1));
-    private final NumberSetting delay = add(new NumberSetting("Verzögerung", "Ticks Pause nach einem Wechsel", 0, 0, 20, 1));
-    private final BoolSetting inInventory = add(new BoolSetting("Im Inventar", "Auch wechseln, während du dein Inventar selbst offen hast", true));
+    private final ModeSetting mode = add(new ModeSetting("Mode", "Always = keep a totem in the off hand, Health = only below the health threshold", "Always", "Always", "Health"));
+    private final NumberSetting health = add(new NumberSetting("Health threshold", "Below this health (incl. absorption) the totem goes into the off hand", 12, 1, 36, 1)
+            .visibleWhen(() -> mode.is("Health")));
+    private final ModeSetting otherItem = add(new ModeSetting("Otherwise", "What goes into the off hand above the threshold", "Crystal", "Crystal", "Golden apple", "Nothing")
+            .visibleWhen(() -> mode.is("Health")));
+    private final BoolSetting openInventory = add(new BoolSetting("Open inventory", "Open the inventory and swap the totem with the off-hand key (F) – like by hand. Off = without a visible inventory", true));
+    private final NumberSetting openDelay = add(new NumberSetting("Open delay", "Ticks between opening the inventory and pressing the key", 1, 0, 10, 1).visibleWhen(openInventory::isOn));
+    private final NumberSetting closeDelay = add(new NumberSetting("Close delay", "Ticks between pressing the key and closing the inventory", 1, 0, 10, 1).visibleWhen(openInventory::isOn));
+    private final NumberSetting randomDelay = add(new NumberSetting("Randomness", "Random extra ticks per step", 0, 0, 5, 1));
+    private final NumberSetting delay = add(new NumberSetting("Delay", "Ticks of pause after a swap", 0, 0, 20, 1));
+    private final BoolSetting inInventory = add(new BoolSetting("In inventory", "Also swap while you have your inventory open yourself", true));
 
     private enum Step { IDLE, PRESS, CLOSE }
 
@@ -42,14 +42,14 @@ public class AutoTotem extends Module {
     private Item want;
 
     public AutoTotem() {
-        super("AutoTotem", "Legt automatisch ein Totem in die Zweithand – öffnet dazu das Inventar und drückt die Zweithand-Taste (F).",
+        super("AutoTotem", "Automatically puts a totem into your off hand – opens the inventory and presses the off-hand key (F).",
                 Category.COMBAT, Items.TOTEM_OF_UNDYING);
-        preset("Legit", LOW, "Inventar öffnen, F drücken, mit menschlichen Pausen",
-                "Inventar öffnen", true, "Öffnen-Verzögerung", 2, "Schließen-Verzögerung", 2, "Zufall", 2, "Verzögerung", 2);
-        preset("Normal", MEDIUM, "Inventar öffnen, schnell",
-                "Inventar öffnen", true, "Öffnen-Verzögerung", 1, "Schließen-Verzögerung", 1, "Zufall", 1, "Verzögerung", 0);
-        preset("Rage", HIGH, "Unsichtbar ohne Inventar, sofort",
-                "Inventar öffnen", false, "Zufall", 0, "Verzögerung", 0);
+        preset("Legit", LOW, "Open inventory, press F, with human pauses",
+                "Open inventory", true, "Open delay", 2, "Close delay", 2, "Randomness", 2, "Delay", 2);
+        preset("Normal", MEDIUM, "Open inventory, fast",
+                "Open inventory", true, "Open delay", 1, "Close delay", 1, "Randomness", 1, "Delay", 0);
+        preset("Rage", HIGH, "Invisible without inventory, instant",
+                "Open inventory", false, "Randomness", 0, "Delay", 0);
     }
 
     @Override
@@ -67,10 +67,10 @@ public class AutoTotem extends Module {
     /** Item the off hand should hold right now, null = nothing to do. */
     private Item wanted() {
         float hp = mc.player.getHealth() + mc.player.getAbsorptionAmount();
-        boolean needTotem = mode.is("Immer") || hp <= health.get();
+        boolean needTotem = mode.is("Always") || hp <= health.get();
         Item w = needTotem ? Items.TOTEM_OF_UNDYING : switch (otherItem.get()) {
-            case "Kristall" -> Items.END_CRYSTAL;
-            case "Goldapfel" -> Items.GOLDEN_APPLE;
+            case "Crystal" -> Items.END_CRYSTAL;
+            case "Golden apple" -> Items.GOLDEN_APPLE;
             default -> null;
         };
         return w == null || mc.player.getOffhandItem().is(w) ? null : w;

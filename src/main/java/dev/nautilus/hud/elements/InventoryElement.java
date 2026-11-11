@@ -15,7 +15,7 @@ public class InventoryElement extends HudElement {
     private static ItemStack[] demo;
 
     public InventoryElement() {
-        super("inventory", "Inventar", false, CENTER, START, 0, 40);
+        super("inventory", "Inventory", false, CENTER, START, 0, 40);
     }
 
     private static ItemStack demo(int i) {

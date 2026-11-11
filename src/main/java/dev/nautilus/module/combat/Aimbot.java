@@ -30,25 +30,25 @@ import java.util.List;
  */
 public class Aimbot extends Module {
     // aiming
-    private final NumberSetting range = add(new NumberSetting("Reichweite", "Ziele bis zu dieser Entfernung anvisieren (Blöcke)", 4.5, 1.0, 8.0, 0.1));
-    private final NumberSetting fov = add(new NumberSetting("FOV", "Nur Ziele innerhalb dieses Sichtwinkels (360 = rundum)", 90, 10, 360, 5));
-    private final NumberSetting smoothness = add(new NumberSetting("Glätte", "Wie weich die Kamera zum Ziel gleitet (höher = weicher, langsamer)", 5, 1, 20, 0.5));
-    private final NumberSetting maxTurn = add(new NumberSetting("Max. Drehung", "Höchste Drehgeschwindigkeit in Grad pro Sekunde", 360, 30, 1440, 30));
-    private final ModeSetting aimPart = add(new ModeSetting("Zielpunkt", "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine", "Auto", "Auto", "Kopf", "Brust", "Beine"));
-    private final NumberSetting prediction = add(new NumberSetting("Vorhersage", "Bewegung des Ziels vorhalten (Ticks, 0 = aus)", 1, 0, 4, 0.5));
-    private final BoolSetting vertical = add(new BoolSetting("Vertikal", "Auch nach oben/unten zielen (aus = nur seitlich)", true));
+    private final NumberSetting range = add(new NumberSetting("Range", "Aim at targets up to this distance (blocks)", 4.5, 1.0, 8.0, 0.1));
+    private final NumberSetting fov = add(new NumberSetting("FOV", "Only targets within this view angle (360 = all around)", 90, 10, 360, 5));
+    private final NumberSetting smoothness = add(new NumberSetting("Smoothness", "How smoothly the camera glides to the target (higher = smoother, slower)", 5, 1, 20, 0.5));
+    private final NumberSetting maxTurn = add(new NumberSetting("Max. turn speed", "Highest turn speed in degrees per second", 360, 30, 1440, 30));
+    private final ModeSetting aimPart = add(new ModeSetting("Aim point", "Where to aim: Auto = smallest turn, otherwise head / chest / legs", "Auto", "Auto", "Head", "Chest", "Legs"));
+    private final NumberSetting prediction = add(new NumberSetting("Prediction", "Lead the target's movement (ticks, 0 = off)", 1, 0, 4, 0.5));
+    private final BoolSetting vertical = add(new BoolSetting("Vertical", "Also aim up/down (off = sideways only)", true));
     // targets
-    private final ModeSetting sort = add(new ModeSetting("Sortierung", "Welches Ziel zuerst anvisiert wird", "Distanz", "Distanz", "Leben", "Winkel"));
-    private final BoolSetting players = add(new BoolSetting("Spieler", "Spieler anvisieren", true));
-    private final BoolSetting hostiles = add(new BoolSetting("Monster", "Feindliche Mobs anvisieren", true));
-    private final BoolSetting passives = add(new BoolSetting("Tiere", "Friedliche Mobs anvisieren", false));
-    private final BoolSetting invisibles = add(new BoolSetting("Unsichtbare", "Unsichtbare Ziele anvisieren", true));
-    private final BoolSetting teammates = add(new BoolSetting("Teammates", "Auch Spieler aus deinem Team anvisieren", false));
-    private final BoolSetting throughWalls = add(new BoolSetting("Durch Wände", "Auch Ziele hinter Blöcken anvisieren", false));
+    private final ModeSetting sort = add(new ModeSetting("Sort by", "Which target is aimed at first", "Distance", "Distance", "Health", "Angle"));
+    private final BoolSetting players = add(new BoolSetting("Players", "Aim at players", true));
+    private final BoolSetting hostiles = add(new BoolSetting("Monsters", "Aim at hostile mobs", true));
+    private final BoolSetting passives = add(new BoolSetting("Animals", "Aim at passive mobs", false));
+    private final BoolSetting invisibles = add(new BoolSetting("Invisibles", "Aim at invisible targets", true));
+    private final BoolSetting teammates = add(new BoolSetting("Teammates", "Also aim at players of your team", false));
+    private final BoolSetting throughWalls = add(new BoolSetting("Through walls", "Also aim at targets behind blocks", false));
     // behaviour
-    private final BoolSetting lockTarget = add(new BoolSetting("Ziel halten", "Beim aktuellen Ziel bleiben statt ständig zu wechseln", true));
-    private final BoolSetting onlyClick = add(new BoolSetting("Nur beim Klicken", "Nur zielen, während die Angriffstaste gedrückt ist", false));
-    private final BoolSetting pauseOnUse = add(new BoolSetting("Pause beim Benutzen", "Nicht zielen während du isst / blockst", true));
+    private final BoolSetting lockTarget = add(new BoolSetting("Target lock", "Stay on the current target instead of switching all the time", true));
+    private final BoolSetting onlyClick = add(new BoolSetting("Only while clicking", "Only aim while the attack key is held", false));
+    private final BoolSetting pauseOnUse = add(new BoolSetting("Pause while using", "Don't aim while eating / blocking", true));
 
     private final List<LivingEntity> targets = new ArrayList<>();
     private long lastFrame;
@@ -60,14 +60,14 @@ public class Aimbot extends Module {
     private Vec3 visOffset;
 
     public Aimbot() {
-        super("Aimbot", "Zieht dein Fadenkreuz weich auf das beste Ziel in deinem Sichtkegel – mit Vorhersage und Ziel-Lock.",
+        super("Aimbot", "Smoothly pulls your crosshair onto the best target in your view cone – with prediction and target lock.",
                 Category.COMBAT, Items.SPYGLASS);
-        preset("Legit", LOW, "Leichte Zielhilfe: kleiner Kegel, langsam, nur beim Klicken",
-                "Glätte", 14, "Max. Drehung", 120, "Nur beim Klicken", true, "FOV", 35, "Vorhersage", 0.5, "Durch Wände", false);
-        preset("Normal", MEDIUM, "Deutliche Zielhilfe, mittleres Tempo",
-                "Glätte", 6, "Max. Drehung", 360, "Nur beim Klicken", false, "FOV", 70, "Vorhersage", 1, "Durch Wände", false);
-        preset("Rage", HIGH, "Rastet sofort ein, auch durch Wände",
-                "Glätte", 2, "Max. Drehung", 1080, "Nur beim Klicken", false, "FOV", 180, "Vorhersage", 1.5, "Durch Wände", true);
+        preset("Legit", LOW, "Light aim assist: small cone, slow, only while clicking",
+                "Smoothness", 14, "Max. turn speed", 120, "Only while clicking", true, "FOV", 35, "Prediction", 0.5, "Through walls", false);
+        preset("Normal", MEDIUM, "Clear aim assist, medium speed",
+                "Smoothness", 6, "Max. turn speed", 360, "Only while clicking", false, "FOV", 70, "Prediction", 1, "Through walls", false);
+        preset("Rage", HIGH, "Snaps on instantly, also through walls",
+                "Smoothness", 2, "Max. turn speed", 1080, "Only while clicking", false, "FOV", 180, "Prediction", 1.5, "Through walls", true);
     }
 
     @Override

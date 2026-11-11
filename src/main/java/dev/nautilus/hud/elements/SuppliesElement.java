@@ -21,7 +21,7 @@ public class SuppliesElement extends HudElement {
     private long frame = -1;
 
     public SuppliesElement() {
-        super("supplies", "Vorrat", false, CENTER, END, 0, 92);
+        super("supplies", "Supplies", false, CENTER, END, 0, 92);
     }
 
     private List<ItemStack> list(boolean editor) {

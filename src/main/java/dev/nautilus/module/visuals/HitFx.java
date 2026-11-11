@@ -22,15 +22,15 @@ import java.util.Map;
  * target you killed dissolves into rising rings and a column of light.
  */
 public class HitFx extends Module {
-    private final NumberSetting amount = add(new NumberSetting("Funken", "Funken pro Treffer", 12, 4, 40, 2));
-    private final BoolSetting rings = add(new BoolSetting("Trefferring", "Ring, der sich am Treffpunkt zu dir hin öffnet", true));
-    private final BoolSetting kills = add(new BoolSetting("Kill-Effekt", "Getötete Ziele lösen sich in aufsteigende Ringe und eine Lichtsäule auf", true));
+    private final NumberSetting amount = add(new NumberSetting("Sparks", "Sparks per hit", 12, 4, 40, 2));
+    private final BoolSetting rings = add(new BoolSetting("Hit ring", "Ring that opens towards you at the hit point", true));
+    private final BoolSetting kills = add(new BoolSetting("Kill effect", "Killed targets dissolve into rising rings and a pillar of light", true));
 
     /** Entities you hit recently (id → time), to notice when they die. */
     private final Map<Integer, Long> recent = new HashMap<>();
 
     public HitFx() {
-        super("Treffereffekte", "Treffer sprühen leuchtende Funken mit einem Ring (Krits in Gold), Kills lösen sich in aufsteigende Ringe und eine Lichtsäule auf.",
+        super("Hit effects", "Hits spray glowing sparks with a ring (crits in gold), kills dissolve into rising rings and a pillar of light.",
                 Category.VISUALS, Items.BLAZE_POWDER);
     }
 

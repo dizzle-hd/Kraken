@@ -15,9 +15,9 @@ import net.minecraft.world.phys.Vec3;
  * blocks. The player stands still and stays visible; the mouse turns the camera instead of the player.
  */
 public class Freecam extends Module {
-    private final NumberSetting speed = add(new NumberSetting("Tempo", "Fluggeschwindigkeit in Blöcken pro Sekunde", 12, 1, 60, 1));
-    private final NumberSetting sprintFactor = add(new NumberSetting("Sprint-Faktor", "Wie viel schneller mit gedrückter Sprint-Taste", 3, 1, 10, 0.5));
-    private final BoolSetting vertical = add(new BoolSetting("Blickrichtung", "Vorwärts fliegt in Blickrichtung (auch hoch/runter), aus = nur waagerecht", true));
+    private final NumberSetting speed = add(new NumberSetting("Speed", "Flight speed in blocks per second", 12, 1, 60, 1));
+    private final NumberSetting sprintFactor = add(new NumberSetting("Sprint factor", "How much faster with the sprint key held", 3, 1, 10, 0.5));
+    private final BoolSetting vertical = add(new BoolSetting("Look direction", "Forward flies where you look (also up/down), off = horizontal only", true));
 
     private static Freecam instance;
 
@@ -27,7 +27,7 @@ public class Freecam extends Module {
     private Level world;
 
     public Freecam() {
-        super("Freecam", "Kamera löst sich vom Spieler und fliegt frei – auch durch Blöcke. Dein Spieler bleibt stehen.", Category.RENDER, Items.ENDER_EYE);
+        super("Freecam", "The camera detaches from the player and flies freely – also through blocks. Your player stays in place.", Category.RENDER, Items.ENDER_EYE);
         instance = this;
     }
 

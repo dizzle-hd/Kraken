@@ -15,10 +15,10 @@ import java.util.Random;
 
 /** Glowing motes floating around you – slowly rising, swaying and twinkling like fireflies. */
 public class GlowParticles extends Module {
-    private final NumberSetting count = add(new NumberSetting("Anzahl", "Wie viele Lichter gleichzeitig schweben", 60, 10, 250, 10));
-    private final NumberSetting radius = add(new NumberSetting("Radius", "Bereich um dich in Blöcken", 10, 4, 24, 1));
-    private final NumberSetting size = add(new NumberSetting("Größe", "Größe der Lichter", 1.0, 0.4, 3.0, 0.1));
-    private final ModeSetting colors = add(new ModeSetting("Farben", "Farbe der Lichter", "HUD-Farbe", "HUD-Farbe", "Regenbogen", "Glühwürmchen", "Weiß"));
+    private final NumberSetting count = add(new NumberSetting("Count", "How many lights float at the same time", 60, 10, 250, 10));
+    private final NumberSetting radius = add(new NumberSetting("Radius", "Area around you in blocks", 10, 4, 24, 1));
+    private final NumberSetting size = add(new NumberSetting("Size", "Size of the lights", 1.0, 0.4, 3.0, 0.1));
+    private final ModeSetting colors = add(new ModeSetting("Colors", "Color of the lights", "HUD color", "HUD color", "Rainbow", "Fireflies", "White"));
 
     private final Random random = new Random();
     private double[] x = new double[0], y, z, phase, rise, born, life;
@@ -26,7 +26,7 @@ public class GlowParticles extends Module {
     private long last;
 
     public GlowParticles() {
-        super("Lichtpartikel", "Leuchtende Lichter schweben um dich herum, steigen langsam auf, schwanken und funkeln – wie Glühwürmchen.",
+        super("Glow particles", "Glowing lights float around you, slowly rise, sway and twinkle – like fireflies.",
                 Category.VISUALS, Items.GLOWSTONE_DUST);
     }
 
@@ -45,9 +45,9 @@ public class GlowParticles extends Module {
 
     private int color(int i) {
         return switch (colors.get()) {
-            case "Regenbogen" -> net.minecraft.util.Mth.hsvToRgb(hue[i], 0.6f, 1f) & 0xFFFFFF;
-            case "Glühwürmchen" -> hue[i] < 0.5f ? 0xD8FF6A : 0xFFE27A;
-            case "Weiß" -> 0xFFFFFF;
+            case "Rainbow" -> net.minecraft.util.Mth.hsvToRgb(hue[i], 0.6f, 1f) & 0xFFFFFF;
+            case "Fireflies" -> hue[i] < 0.5f ? 0xD8FF6A : 0xFFE27A;
+            case "White" -> 0xFFFFFF;
             default -> (hue[i] < 0.55f ? HudStyle.accent() : hue[i] < 0.85f ? HudStyle.accent2() : 0xFFFFFF) & 0xFFFFFF;
         };
     }

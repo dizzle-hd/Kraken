@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-/** The friend list (player names, case-insensitive). Saved in the config; managed by the "Freunde" module. */
+/** The friend list (player names, case-insensitive). Saved in the config; managed by the "Friends" module. */
 public final class Friends {
     private static final Set<String> NAMES = new LinkedHashSet<>();
 

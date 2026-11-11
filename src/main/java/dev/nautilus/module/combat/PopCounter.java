@@ -15,14 +15,14 @@ import net.minecraft.world.item.Items;
  * Only reads incoming packets – it never sends anything.
  */
 public class PopCounter extends Module {
-    private final BoolSetting self = add(new BoolSetting("Eigene Pops", "Auch deine eigenen Totem-Pops melden", true));
-    private final BoolSetting deaths = add(new BoolSetting("Tode melden", "Melden, wenn ein Spieler nach Pops stirbt", true));
-    private final BoolSetting onlyNear = add(new BoolSetting("Nur in der Nähe", "Nur Spieler innerhalb von 32 Blöcken melden", false));
+    private final BoolSetting self = add(new BoolSetting("Own pops", "Also report your own totem pops", true));
+    private final BoolSetting deaths = add(new BoolSetting("Report deaths", "Report when a player dies after popping", true));
+    private final BoolSetting onlyNear = add(new BoolSetting("Only nearby", "Only report players within 32 blocks", false));
 
     private int total;
 
     public PopCounter() {
-        super("PopCounter", "Zählt Totem-Pops anderer Spieler und meldet, nach wie vielen Pops jemand stirbt.",
+        super("PopCounter", "Counts the totem pops of other players and reports after how many pops someone dies.",
                 Category.COMBAT, Items.TOTEM_OF_UNDYING);
     }
 
@@ -39,15 +39,15 @@ public class PopCounter extends Module {
     public void onPop(Player p, int count) {
         if (!report(p)) return;
         total++;
-        String who = p == mc.player ? "Du" : p.getName().getString();
-        Notifications.push("Totem-Pop", who + (p == mc.player ? " hast " : " hat ") + count + (count == 1 ? " Totem" : " Totems") + " verbraucht",
+        String who = p == mc.player ? "You" : p.getName().getString();
+        Notifications.push("Totem pop", who + " popped " + count + (count == 1 ? " totem" : " totems"),
                 HudStyle.accent(), 2.5f);
     }
 
     public void onDeath(Player p, int count) {
         if (!deaths.isOn() || count <= 0 || !report(p)) return;
-        String who = p == mc.player ? "Du bist" : p.getName().getString() + " ist";
-        Notifications.push("Tod", who + " nach " + count + (count == 1 ? " Pop" : " Pops") + " gestorben", HudStyle.BAD, 4f);
+        String who = p == mc.player ? "You" : p.getName().getString();
+        Notifications.push("Death", who + " died after " + count + (count == 1 ? " pop" : " pops"), HudStyle.BAD, 4f);
     }
 
     @Override

@@ -61,9 +61,9 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(3);
             ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
             ctx.waitTicks(5);
-            ctx.getInput().typeChars("ruest");
+            ctx.getInput().typeChars("armor");
             ctx.waitTicks(12);
-            ctx.takeScreenshot("01f-search-click-umlaut");
+            ctx.takeScreenshot("01f-search-click-armor");
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
             ctx.waitTicks(5);
             ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
@@ -240,7 +240,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
 
             // --- HUD colour: blue, then the cycling rainbow, back to orange ---
             var hudColor = ctx.computeOnClient(c -> ModuleManager.get().get(Hud.class).color);
-            ctx.runOnClient(c -> hudColor.set("Blau"));
+            ctx.runOnClient(c -> hudColor.set("Blue"));
             ctx.waitTicks(5);
             ctx.takeScreenshot("09b-hud-blue");
             // the wheel follows the HUD colour too (accent, glass tint, panels) – not only the HUD
@@ -254,11 +254,11 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.takeScreenshot("09d-wheel-blue");
             ctx.setScreen(() -> null);
             ctx.waitTicks(5);
-            ctx.runOnClient(c -> hudColor.set("Regenbogen"));
+            ctx.runOnClient(c -> hudColor.set("Rainbow"));
             ctx.waitTicks(5);
             ctx.takeScreenshot("09c-hud-rainbow");
-            System.out.println("[NautilusTest] HUD colour: accent blue/rainbow/orange = " + ctx.computeOnClient(c -> { hudColor.set("Blau"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
-                    + " / " + ctx.computeOnClient(c -> { hudColor.set("Regenbogen"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
+            System.out.println("[NautilusTest] HUD colour: accent blue/rainbow/orange = " + ctx.computeOnClient(c -> { hudColor.set("Blue"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
+                    + " / " + ctx.computeOnClient(c -> { hudColor.set("Rainbow"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
                     + " / " + ctx.computeOnClient(c -> { hudColor.set("Orange"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); }));
 
             // --- HUD editor: open it from the wheel (Client > HUD-Editor) and drag the coordinates ---
@@ -301,7 +301,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(5);
             ctx.takeScreenshot("13-onboarding-2");
             // the colour choice is shown live in the whole setup
-            ctx.runOnClient(c -> hudColor.set("Lila"));
+            ctx.runOnClient(c -> hudColor.set("Purple"));
             ctx.waitTicks(3);
             ctx.takeScreenshot("13-onboarding-2-purple");
             ctx.runOnClient(c -> hudColor.set("Orange"));
@@ -357,7 +357,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         ctx.waitTicks(5);
         ctx.runOnClient(c -> {
             var tb = mm.get(dev.nautilus.module.combat.TriggerBot.class);
-            set(tb, "Monster", true);
+            set(tb, "Monsters", true);
             tb.applyPreset(tb.getPresets().get(0)); // Legit
             tb.setEnabled(true);
         });
@@ -412,9 +412,9 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         float hpBefore = playerHp(sp);
         ctx.runOnClient(c -> {
             var ac = mm.get(dev.nautilus.module.crystal.AutoCrystal.class);
-            set(ac, "Modus", "Ziel");
-            set(ac, "Monster", true);
-            set(ac, "Min. Schaden", 4.0);
+            set(ac, "Mode", "Target");
+            set(ac, "Monsters", true);
+            set(ac, "Min. damage", 4.0);
             ac.setEnabled(true);
         });
         ctx.waitTicks(40);
@@ -444,7 +444,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             c.player.setYRot(rot[0]);
             c.player.setXRot(rot[1]);
             var ac = mm.get(dev.nautilus.module.crystal.AutoCrystal.class);
-            set(ac, "Modus", "Fadenkreuz");
+            set(ac, "Mode", "Crosshair");
             ac.setEnabled(true);
         });
         StringBuilder xlog = new StringBuilder();
@@ -587,9 +587,9 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         ctx.runOnClient(c -> {
             mm.get(dev.nautilus.module.mace.MaceSwap.class).setEnabled(true);
             var as = mm.get(dev.nautilus.module.mace.AutoSmash.class);
-            set(as, "Monster", true);
-            set(as, "Zielen", "Silent");
-            set(as, "Min. Fallhöhe", 3.0);
+            set(as, "Monsters", true);
+            set(as, "Aiming", "Silent");
+            set(as, "Min. fall height", 3.0);
             as.setEnabled(true);
         });
         srv.runCommand("execute at @a run tp @a ~ ~8 ~");

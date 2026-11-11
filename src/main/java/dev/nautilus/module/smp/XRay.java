@@ -18,22 +18,22 @@ public class XRay extends Module {
     private static volatile Set<Block> visible = Set.of();
     private static volatile boolean active;
 
-    private final BoolSetting diamonds = add(new BoolSetting("Diamant", "Diamanterz anzeigen", true).onChange(this::rebuild));
-    private final BoolSetting debris = add(new BoolSetting("Antiker Schrott", "Antiken Schrott anzeigen", true).onChange(this::rebuild));
-    private final BoolSetting emerald = add(new BoolSetting("Smaragd", "Smaragderz anzeigen", true).onChange(this::rebuild));
-    private final BoolSetting gold = add(new BoolSetting("Gold", "Golderz (inkl. Nether-Gold) anzeigen", true).onChange(this::rebuild));
-    private final BoolSetting iron = add(new BoolSetting("Eisen", "Eisenerz anzeigen", true).onChange(this::rebuild));
-    private final BoolSetting redstone = add(new BoolSetting("Redstone", "Redstoneerz anzeigen", false).onChange(this::rebuild));
-    private final BoolSetting lapis = add(new BoolSetting("Lapis", "Lapiserz anzeigen", false).onChange(this::rebuild));
-    private final BoolSetting copper = add(new BoolSetting("Kupfer", "Kupfererz anzeigen", false).onChange(this::rebuild));
-    private final BoolSetting coal = add(new BoolSetting("Kohle", "Kohleerz anzeigen", false).onChange(this::rebuild));
-    private final BoolSetting quartz = add(new BoolSetting("Quarz", "Netherquarz anzeigen", false).onChange(this::rebuild));
-    private final BoolSetting storage = add(new BoolSetting("Kisten & Spawner", "Truhen, Fässer, Shulker, Spawner anzeigen", true).onChange(this::rebuild));
-    private final BoolSetting fluids = add(new BoolSetting("Flüssigkeiten", "Wasser und Lava weiterhin anzeigen", false).onChange(this::rebuild));
-    private final BoolSetting bright = add(new BoolSetting("Fullbright", "Alles hell machen", true));
+    private final BoolSetting diamonds = add(new BoolSetting("Diamond", "Show diamond ore", true).onChange(this::rebuild));
+    private final BoolSetting debris = add(new BoolSetting("Ancient debris", "Show ancient debris", true).onChange(this::rebuild));
+    private final BoolSetting emerald = add(new BoolSetting("Emerald", "Show emerald ore", true).onChange(this::rebuild));
+    private final BoolSetting gold = add(new BoolSetting("Gold", "Show gold ore (incl. nether gold)", true).onChange(this::rebuild));
+    private final BoolSetting iron = add(new BoolSetting("Iron", "Show iron ore", true).onChange(this::rebuild));
+    private final BoolSetting redstone = add(new BoolSetting("Redstone", "Show redstone ore", false).onChange(this::rebuild));
+    private final BoolSetting lapis = add(new BoolSetting("Lapis", "Show lapis ore", false).onChange(this::rebuild));
+    private final BoolSetting copper = add(new BoolSetting("Copper", "Show copper ore", false).onChange(this::rebuild));
+    private final BoolSetting coal = add(new BoolSetting("Coal", "Show coal ore", false).onChange(this::rebuild));
+    private final BoolSetting quartz = add(new BoolSetting("Quartz", "Show nether quartz", false).onChange(this::rebuild));
+    private final BoolSetting storage = add(new BoolSetting("Chests & spawners", "Show chests, barrels, shulkers, spawners", true).onChange(this::rebuild));
+    private final BoolSetting fluids = add(new BoolSetting("Fluids", "Keep showing water and lava", false).onChange(this::rebuild));
+    private final BoolSetting bright = add(new BoolSetting("Fullbright", "Make everything bright", true));
 
     public XRay() {
-        super("XRay", "Blendet alle Blöcke außer Erzen und Kisten aus. (Funktioniert nicht mit Sodium)", Category.SMP, Items.DIAMOND_ORE);
+        super("XRay", "Hides all blocks except ores and chests. (Does not work with Sodium)", Category.SMP, Items.DIAMOND_ORE);
         instance = this;
         updateBlocks();
     }
@@ -79,7 +79,7 @@ public class XRay extends Module {
     @Override
     protected void onEnable() {
         if (SODIUM) {
-            dev.nautilus.hud.Notifications.push("XRay", "Funktioniert nicht mit Sodium", 0xFFFF5A5A, 4f);
+            dev.nautilus.hud.Notifications.push("XRay", "Does not work with Sodium", 0xFFFF5A5A, 4f);
             setEnabled(false);
             return;
         }

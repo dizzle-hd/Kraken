@@ -27,23 +27,23 @@ import java.util.concurrent.ThreadLocalRandom;
  * Lunge only works on foot (not riding, not gliding, not in water) with at least 7 hunger.
  */
 public class SpearSwitch extends Module {
-    private final ModeSetting trigger = add(new ModeSetting("Auslöser", "An = lunget, solange das Modul an ist (per Modul-Taste toggeln), Halten = nur solange die Lunge-Taste gedrückt ist, Angriff = solange die Angriffstaste gedrückt ist", "An", "An", "Halten", "Angriff"));
-    private final KeySetting lungeKey = add(new KeySetting("Lunge-Taste", "Taste für den Auslöser 'Halten'", -1).visibleWhen(() -> trigger.is("Halten")));
-    private final NumberSetting interval = add(new NumberSetting("Intervall", "Ticks zwischen zwei Lunges (leere Hand: 5 = voll aufgeladen)", 5, 1, 20, 1));
-    private final NumberSetting random = add(new NumberSetting("Zufall", "Zufällige Extra-Ticks pro Lunge", 0, 0, 4, 1));
-    private final ModeSetting park = add(new ModeSetting("Parken auf", "Welcher Slot zwischen den Lunges gehalten wird", "Leerer Slot", "Leerer Slot", "Vorheriger Slot"));
-    private final BoolSetting onlyLunge = add(new BoolSetting("Nur mit Lunge", "Nur Speere mit der Lunge-Verzauberung benutzen", true));
-    private final BoolSetting hungerGuard = add(new BoolSetting("Hunger-Schutz", "Pausieren unter 7 Hunger (dort wirkt Lunge nicht)", true));
+    private final ModeSetting trigger = add(new ModeSetting("Trigger", "On = lunges while the module is on (toggle with the module key), Hold = only while the lunge key is held, Attack = while the attack key is held", "On", "On", "Hold", "Attack"));
+    private final KeySetting lungeKey = add(new KeySetting("Lunge key", "Key for the 'Hold' trigger", -1).visibleWhen(() -> trigger.is("Hold")));
+    private final NumberSetting interval = add(new NumberSetting("Interval", "Ticks between two lunges (empty hand: 5 = fully charged)", 5, 1, 20, 1));
+    private final NumberSetting random = add(new NumberSetting("Randomness", "Random extra ticks per lunge", 0, 0, 4, 1));
+    private final ModeSetting park = add(new ModeSetting("Park on", "Which slot is held between the lunges", "Empty slot", "Empty slot", "Previous slot"));
+    private final BoolSetting onlyLunge = add(new BoolSetting("Only with Lunge", "Only use spears with the Lunge enchantment", true));
+    private final BoolSetting hungerGuard = add(new BoolSetting("Hunger guard", "Pause below 7 hunger (Lunge does not work there)", true));
 
     private int wait;
     private int startSlot = -1;
 
     public SpearSwitch() {
-        super("SpearSwitch", "Lunge im Dauerfeuer: wechselt pro Stoß kurz auf den Speer und zurück. Per Modul-Taste an/aus.",
+        super("SpearSwitch", "Lunge on repeat: swaps to the spear for each thrust and back. Toggle with the module key.",
                 Category.COMBAT, Items.IRON_SPEAR);
-        preset("Legit", LOW, "Volle Aufladung der leeren Hand + Zufall", "Intervall", 6, "Zufall", 2);
-        preset("Normal", MEDIUM, "Alle 5 Ticks, wenig Zufall", "Intervall", 5, "Zufall", 1);
-        preset("Rage", HIGH, "So schnell wie möglich", "Intervall", 3, "Zufall", 0);
+        preset("Legit", LOW, "Full charge of the empty hand + randomness", "Interval", 6, "Randomness", 2);
+        preset("Normal", MEDIUM, "Every 5 ticks, little randomness", "Interval", 5, "Randomness", 1);
+        preset("Rage", HIGH, "As fast as possible", "Interval", 3, "Randomness", 0);
     }
 
     @Override
@@ -71,8 +71,8 @@ public class SpearSwitch extends Module {
 
     private boolean active() {
         return switch (trigger.get()) {
-            case "Halten" -> lungeKey.isBound() && InputConstants.isKeyDown(lungeKey.get());
-            case "Angriff" -> mc.options.keyAttack.isDown();
+            case "Hold" -> lungeKey.isBound() && InputConstants.isKeyDown(lungeKey.get());
+            case "Attack" -> mc.options.keyAttack.isDown();
             default -> true;
         };
     }
@@ -91,7 +91,7 @@ public class SpearSwitch extends Module {
 
         int spear = InvUtil.hotbar(this::isSpear);
         if (spear < 0) return;
-        int parkSlot = park.is("Leerer Slot") ? InvUtil.hotbar(ItemStack::isEmpty) : -1;
+        int parkSlot = park.is("Empty slot") ? InvUtil.hotbar(ItemStack::isEmpty) : -1;
         if (parkSlot < 0) parkSlot = InvUtil.selected() != spear ? InvUtil.selected() : InvUtil.hotbar(s -> !isSpear(s));
         if (parkSlot < 0) return;
 

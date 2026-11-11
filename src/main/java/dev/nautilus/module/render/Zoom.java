@@ -14,12 +14,12 @@ import net.minecraft.world.item.Items;
  * the mouse gets slower the further you zoom in.
  */
 public class Zoom extends Module {
-    private final KeySetting zoomKey = add(new KeySetting("Zoom-Taste", "Taste zum Zoomen (Rechtsklick im Feld = entfernen)", 67 /* C */));
-    private final ModeSetting mode = add(new ModeSetting("Modus", "Halten = zoomt solange die Taste gedrückt ist, Umschalten = ein Druck an, ein Druck aus", "Halten", "Halten", "Umschalten"));
-    private final NumberSetting strength = add(new NumberSetting("Stärke", "Vergrößerung (3 = dreifach)", 4, 1.5, 50, 0.5));
-    private final BoolSetting scroll = add(new BoolSetting("Mausrad", "Beim Zoomen mit dem Mausrad näher/weiter zoomen", true));
-    private final BoolSetting smooth = add(new BoolSetting("Weich", "Weiches Ein- und Auszoomen", true));
-    private final BoolSetting slowMouse = add(new BoolSetting("Langsame Maus", "Maus beim Zoomen entsprechend langsamer", true));
+    private final KeySetting zoomKey = add(new KeySetting("Zoom key", "Key to zoom (right-click the field = remove)", 67 /* C */));
+    private final ModeSetting mode = add(new ModeSetting("Mode", "Hold = zooms while the key is held, Toggle = press once on, once off", "Hold", "Hold", "Toggle"));
+    private final NumberSetting strength = add(new NumberSetting("Strength", "Magnification (3 = three times)", 4, 1.5, 50, 0.5));
+    private final BoolSetting scroll = add(new BoolSetting("Mouse wheel", "Zoom in/out with the mouse wheel while zooming", true));
+    private final BoolSetting smooth = add(new BoolSetting("Smooth", "Smooth zooming in and out", true));
+    private final BoolSetting slowMouse = add(new BoolSetting("Slow mouse", "Slower mouse while zoomed in", true));
 
     private boolean toggled, wasDown;
     private double scrollFactor = 1;
@@ -29,7 +29,7 @@ public class Zoom extends Module {
     private static Zoom instance;
 
     public Zoom() {
-        super("Zoom", "Zoomt auf Tastendruck heran (Standard: C) – Taste, Stärke und Modus im Rad einstellbar.", Category.RENDER, Items.SPYGLASS);
+        super("Zoom", "Zooms in on a key press (default: C) – key, strength and mode can be set in the wheel.", Category.RENDER, Items.SPYGLASS);
         instance = this;
         loadEnabled(true); // on by default: only the zoom key does something
     }
@@ -41,8 +41,8 @@ public class Zoom extends Module {
     @Override
     public void onTick() {
         boolean down = keyDown();
-        if (mode.is("Umschalten") && down && !wasDown) toggled = !toggled;
-        if (mode.is("Halten")) toggled = false;
+        if (mode.is("Toggle") && down && !wasDown) toggled = !toggled;
+        if (mode.is("Hold")) toggled = false;
         wasDown = down;
         if (!isZooming()) scrollFactor = 1;
     }
@@ -55,7 +55,7 @@ public class Zoom extends Module {
     }
 
     private boolean isZooming() {
-        return isEnabled() && (mode.is("Halten") ? keyDown() : toggled);
+        return isEnabled() && (mode.is("Hold") ? keyDown() : toggled);
     }
 
     /** Current zoom factor (1 = none), animated per frame. */

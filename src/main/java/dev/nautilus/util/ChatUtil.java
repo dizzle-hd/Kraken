@@ -17,6 +17,6 @@ public final class ChatUtil {
     }
 
     public static void toggle(String module, boolean on) {
-        Notifications.push(module, on ? "aktiviert" : "deaktiviert", on ? HudStyle.GOOD : HudStyle.BAD, 2.2f);
+        Notifications.push(module, on ? "enabled" : "disabled", on ? HudStyle.GOOD : HudStyle.BAD, 2.2f);
     }
 }

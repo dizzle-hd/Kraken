@@ -10,10 +10,10 @@ import net.minecraft.world.phys.Vec3;
 
 /** A trail of glowing motes behind your feet while you run. */
 public class TrailFx extends Module {
-    private final BoolSetting onlySprint = add(new BoolSetting("Nur Sprinten", "Nur beim Sprinten (sonst bei jeder Bewegung)", true));
+    private final BoolSetting onlySprint = add(new BoolSetting("Only sprinting", "Only while sprinting (otherwise on every movement)", true));
 
     public TrailFx() {
-        super("Laufspur", "Beim Laufen bleibt eine Spur aus leuchtenden Punkten hinter deinen Füßen, die langsam aufsteigt und verblasst.",
+        super("Run trail", "While running, a trail of glowing dots stays behind your feet, slowly rising and fading.",
                 Category.VISUALS, Items.GLOW_INK_SAC);
     }
 

@@ -8,10 +8,10 @@ import net.minecraft.world.item.Items;
 
 /** Sprints for you whenever you walk forward (like holding the sprint key). */
 public class AutoSprint extends Module {
-    private final BoolSetting allDirections = add(new BoolSetting("Alle Richtungen", "Auch seitlich/rückwärts die Sprint-Taste halten (Vanilla sprintet trotzdem nur vorwärts)", false));
+    private final BoolSetting allDirections = add(new BoolSetting("All directions", "Also hold the sprint key sideways/backwards (vanilla still only sprints forwards)", false));
 
     public AutoSprint() {
-        super("AutoSprint", "Hält beim Vorwärtslaufen automatisch die Sprint-Taste – für mehr Rückstoß im Kampf.", Category.PLAYER, Items.FEATHER);
+        super("AutoSprint", "Automatically holds the sprint key while walking forwards – for more knockback in fights.", Category.PLAYER, Items.FEATHER);
     }
 
     @Override

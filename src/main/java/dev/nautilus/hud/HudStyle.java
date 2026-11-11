@@ -30,12 +30,12 @@ public final class HudStyle {
 
     private HudStyle() {}
 
-    // ---- colour theme (Client → HUD → "HUD-Farbe") ---------------------------------------------
+    // ---- colour theme (Client → HUD → "HUD color") ---------------------------------------------
 
     /** Names of the colour choices, in the order of the setting; the last one cycles through all hues. */
-    public static final String[] COLOR_NAMES = {"Orange", "Rot", "Pink", "Lila", "Blau", "Türkis", "Grün", "Gold", "Weiß", "Regenbogen"};
+    public static final String[] COLOR_NAMES = {"Orange", "Red", "Pink", "Purple", "Blue", "Turquoise", "Green", "Gold", "White", "Rainbow"};
     private static final int[] COLORS = {0xFFFF5A2A, 0xFFFF3B3B, 0xFFFF4FA3, 0xFFA66BFF, 0xFF3D8BFF, 0xFF22D3C5, 0xFF3DDC6A, 0xFFFFC23D, 0xFFF2F2F2};
-    public static final String RAINBOW = "Regenbogen";
+    public static final String RAINBOW = "Rainbow";
 
     /** Colour of a choice (for swatches); the rainbow swatch shows the current hue. */
     public static int colorOf(String name) {
@@ -57,7 +57,7 @@ public final class HudStyle {
     /** The accent colour of the HUD (dots, logo, sliders, active buttons). */
     public static int accent() { return accent(0f); }
 
-    /** Accent with a hue offset – only differs for "Regenbogen" (e.g. one step per row of the module list). */
+    /** Accent with a hue offset – only differs for "Rainbow" (e.g. one step per row of the module list). */
     public static int accent(float rainbowOffset) {
         String c = current();
         return RAINBOW.equals(c) ? rainbow(rainbowOffset) : colorOf(c);
@@ -106,7 +106,7 @@ public final class HudStyle {
     /** Dark, semi-transparent panel background (settings panel, editor, onboarding) in the accent's hue. */
     public static int panel(int alpha) { return shade(alpha, 0.9f); }
 
-    /** Values next to settings ("12.5", "Kopf", …): a light pastel of the accent. */
+    /** Values next to settings ("12.5", "Head", …): a light pastel of the accent. */
     public static int value() { return tintedWhite(0xFF, 0.37f); }
 
     public static void pill(GuiGraphicsExtractor ctx, Shapes s, float x1, float y1, float x2, float y2, float alpha) {

@@ -28,7 +28,7 @@ public class TargetElement extends HudElement {
     private float fade;
 
     public TargetElement() {
-        super("target", "Ziel", true, CENTER, CENTER, 0, 50);
+        super("target", "Target", true, CENTER, CENTER, 0, 50);
     }
 
     @Override public float width(boolean editor) { return W; }
@@ -49,7 +49,7 @@ public class TargetElement extends HudElement {
         int armor, pops;
         double dist;
         if (e == null) {
-            name = "Gegner"; hp = 13f; abs = 4f; max = 20f; armor = 20; pops = 2; dist = 3.2;
+            name = "Enemy"; hp = 13f; abs = 4f; max = 20f; armor = 20; pops = 2; dist = 3.2;
         } else {
             name = e instanceof Player p ? p.getGameProfile().name() : e.getName().getString();
             hp = e.getHealth(); abs = e.getAbsorptionAmount(); max = Math.max(1f, e.getMaxHealth());
@@ -89,7 +89,7 @@ public class TargetElement extends HudElement {
 
         // text column
         float tx = cx + R + 9f, maxW = x + W - 6f - tx;
-        String distText = String.format(Locale.ROOT, "%.1f m", dist).replace('.', ',');
+        String distText = String.format(Locale.ROOT, "%.1f m", dist);
         StringBuilder extra = new StringBuilder();
         if (armor > 0) extra.append("⛨ ").append(armor);
         if (pops > 0) extra.append(extra.isEmpty() ? "" : "   ").append("✦ ").append(pops).append(pops == 1 ? " Pop" : " Pops");

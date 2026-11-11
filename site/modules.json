@@ -46,35 +46,35 @@
    "id": "TriggerBot",
    "name": "TriggerBot",
    "category": "COMBAT",
-   "description": "Schlägt automatisch zu, sobald dein Fadenkreuz auf einem Ziel liegt – mit Reaktionszeit und zufälliger Reichweite.",
+   "description": "Hits automatically as soon as your crosshair is on a target – with reaction time and random range.",
    "settings": [
     {
-     "name": "Spieler",
-     "desc": "Spieler angreifen",
+     "name": "Players",
+     "desc": "Attack players",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Monster",
-     "desc": "Feindliche Mobs angreifen",
+     "name": "Monsters",
+     "desc": "Attack hostile mobs",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Tiere",
-     "desc": "Friedliche Mobs angreifen",
+     "name": "Animals",
+     "desc": "Attack passive mobs",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Unsichtbare",
-     "desc": "Unsichtbare Ziele angreifen",
+     "name": "Invisibles",
+     "desc": "Attack invisible targets",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Abklingzeit",
-     "desc": "Angriff erst ab dieser Aufladung (1.0 = voll)",
+     "name": "Cooldown",
+     "desc": "Only attack from this charge on (1.0 = full)",
      "type": "number",
      "default": 0.95,
      "min": 0.1,
@@ -82,8 +82,8 @@
      "step": 0.05
     },
     {
-     "name": "Min. Verzögerung",
-     "desc": "Extra-Ticks NACH dem Aufladen, bevor geschlagen wird (min)",
+     "name": "Min. delay",
+     "desc": "Extra ticks AFTER charging before hitting (min)",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -91,8 +91,8 @@
      "step": 1
     },
     {
-     "name": "Max. Verzögerung",
-     "desc": "Extra-Ticks NACH dem Aufladen, bevor geschlagen wird (max)",
+     "name": "Max. delay",
+     "desc": "Extra ticks AFTER charging before hitting (max)",
      "type": "number",
      "default": 2,
      "min": 0,
@@ -100,8 +100,8 @@
      "step": 1
     },
     {
-     "name": "Min. Reaktion",
-     "desc": "Ticks, bis auf ein neues Ziel im Fadenkreuz reagiert wird (min)",
+     "name": "Min. reaction",
+     "desc": "Ticks until reacting to a new target in the crosshair (min)",
      "type": "number",
      "default": 1,
      "min": 0,
@@ -109,8 +109,8 @@
      "step": 1
     },
     {
-     "name": "Max. Reaktion",
-     "desc": "Ticks, bis auf ein neues Ziel im Fadenkreuz reagiert wird (max)",
+     "name": "Max. reaction",
+     "desc": "Ticks until reacting to a new target in the crosshair (max)",
      "type": "number",
      "default": 3,
      "min": 0,
@@ -118,8 +118,8 @@
      "step": 1
     },
     {
-     "name": "Min. Reichweite",
-     "desc": "Zufällige Reichweite pro Schlag, untere Grenze (Blöcke)",
+     "name": "Min. range",
+     "desc": "Random range per hit, lower limit (blocks)",
      "type": "number",
      "default": 2.6,
      "min": 1,
@@ -127,8 +127,8 @@
      "step": 0.05
     },
     {
-     "name": "Max. Reichweite",
-     "desc": "Zufällige Reichweite pro Schlag, obere Grenze (Blöcke)",
+     "name": "Max. range",
+     "desc": "Random range per hit, upper limit (blocks)",
      "type": "number",
      "default": 2.95,
      "min": 1,
@@ -136,8 +136,8 @@
      "step": 0.05
     },
     {
-     "name": "Auslassen",
-     "desc": "Chance in %, eine Gelegenheit absichtlich auszulassen",
+     "name": "Skip chance",
+     "desc": "Chance in % to skip an opportunity on purpose",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -145,14 +145,14 @@
      "step": 1
     },
     {
-     "name": "Nur Krits",
-     "desc": "Nur zuschlagen während du fällst (kritischer Treffer)",
+     "name": "Only crits",
+     "desc": "Only hit while you are falling (critical hit)",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Pause beim Benutzen",
-     "desc": "Nicht angreifen während du isst / blockst",
+     "name": "Pause while using",
+     "desc": "Don't attack while eating / blocking",
      "type": "bool",
      "default": true
     }
@@ -161,49 +161,49 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Volle Aufladung + 1–4 Ticks, Reaktion 3–6 Ticks, Reichweite 2,4–2,85",
+     "note": "Full charge + 1–4 ticks, reaction 3–6 ticks, range 2.4–2.85",
      "values": {
-      "Abklingzeit": 1,
-      "Min. Verzögerung": 1,
-      "Max. Verzögerung": 4,
-      "Min. Reaktion": 3,
-      "Max. Reaktion": 6,
-      "Min. Reichweite": 2.4,
-      "Max. Reichweite": 2.85,
-      "Auslassen": 5,
-      "Nur Krits": false
+      "Cooldown": 1,
+      "Min. delay": 1,
+      "Max. delay": 4,
+      "Min. reaction": 3,
+      "Max. reaction": 6,
+      "Min. range": 2.4,
+      "Max. range": 2.85,
+      "Skip chance": 5,
+      "Only crits": false
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Fast volle Aufladung + 0–2 Ticks, Reaktion 1–3 Ticks, Reichweite 2,6–2,95",
+     "note": "Almost full charge + 0–2 ticks, reaction 1–3 ticks, range 2.6–2.95",
      "values": {
-      "Abklingzeit": 0.95,
-      "Min. Verzögerung": 0,
-      "Max. Verzögerung": 2,
-      "Min. Reaktion": 1,
-      "Max. Reaktion": 3,
-      "Min. Reichweite": 2.6,
-      "Max. Reichweite": 2.95,
-      "Auslassen": 0,
-      "Nur Krits": false
+      "Cooldown": 0.95,
+      "Min. delay": 0,
+      "Max. delay": 2,
+      "Min. reaction": 1,
+      "Max. reaction": 3,
+      "Min. range": 2.6,
+      "Max. range": 2.95,
+      "Skip chance": 0,
+      "Only crits": false
      }
     },
     {
-     "name": "Schnell",
+     "name": "Rage",
      "risk": 2,
-     "note": "Sofort, früh und immer bei voller Reichweite",
+     "note": "Instant, early and always at full range",
      "values": {
-      "Abklingzeit": 0.8,
-      "Min. Verzögerung": 0,
-      "Max. Verzögerung": 0,
-      "Min. Reaktion": 0,
-      "Max. Reaktion": 0,
-      "Min. Reichweite": 3,
-      "Max. Reichweite": 3,
-      "Auslassen": 0,
-      "Nur Krits": false
+      "Cooldown": 0.8,
+      "Min. delay": 0,
+      "Max. delay": 0,
+      "Min. reaction": 0,
+      "Max. reaction": 0,
+      "Min. range": 3,
+      "Max. range": 3,
+      "Skip chance": 0,
+      "Only crits": false
      }
     }
    ]
@@ -212,11 +212,11 @@
    "id": "SilentAim",
    "name": "SilentAim",
    "category": "COMBAT",
-   "description": "Lenkt deine Klicks unsichtbar auf das nächste Ziel in deinem Sichtkegel.",
+   "description": "Invisibly redirects your clicks to the nearest target in your view cone.",
    "settings": [
     {
      "name": "FOV",
-     "desc": "Kegel um dein Fadenkreuz, in dem Ziele erfasst werden (Grad)",
+     "desc": "Cone around your crosshair in which targets are picked up (degrees)",
      "type": "number",
      "default": 40,
      "min": 5,
@@ -224,8 +224,8 @@
      "step": 1
     },
     {
-     "name": "Reichweite",
-     "desc": "Maximale Reichweite in Blöcken",
+     "name": "Range",
+     "desc": "Maximum range in blocks",
      "type": "number",
      "default": 3,
      "min": 2,
@@ -233,32 +233,32 @@
      "step": 0.1
     },
     {
-     "name": "Spieler",
-     "desc": "Spieler anvisieren",
+     "name": "Players",
+     "desc": "Aim at players",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Monster",
-     "desc": "Feindliche Mobs anvisieren",
+     "name": "Monsters",
+     "desc": "Aim at hostile mobs",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Tiere",
-     "desc": "Friedliche Mobs anvisieren",
+     "name": "Animals",
+     "desc": "Aim at passive mobs",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Durch Wände",
-     "desc": "Auch Ziele hinter Blöcken treffen",
+     "name": "Through walls",
+     "desc": "Also hit targets behind blocks",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Nur bei Fehlschlag",
-     "desc": "Nur eingreifen wenn du sonst danebenschlagen würdest",
+     "name": "Only on miss",
+     "desc": "Only step in when you would otherwise miss",
      "type": "bool",
      "default": true
     }
@@ -267,34 +267,34 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Nur knapp verfehlte Schläge, kleiner Kegel",
+     "note": "Only near misses, small cone",
      "values": {
       "FOV": 15,
-      "Reichweite": 3,
-      "Durch Wände": false,
-      "Nur bei Fehlschlag": true
+      "Range": 3,
+      "Through walls": false,
+      "Only on miss": true
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Mittlerer Kegel",
+     "note": "Medium cone",
      "values": {
       "FOV": 40,
-      "Reichweite": 3,
-      "Durch Wände": false,
-      "Nur bei Fehlschlag": true
+      "Range": 3,
+      "Through walls": false,
+      "Only on miss": true
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "Großer Kegel, mehr Reichweite, durch Wände",
+     "note": "Large cone, more range, through walls",
      "values": {
       "FOV": 120,
-      "Reichweite": 4.5,
-      "Durch Wände": true,
-      "Nur bei Fehlschlag": false
+      "Range": 4.5,
+      "Through walls": true,
+      "Only on miss": false
      }
     }
    ]
@@ -303,11 +303,11 @@
    "id": "Aimbot",
    "name": "Aimbot",
    "category": "COMBAT",
-   "description": "Zieht dein Fadenkreuz weich auf das beste Ziel in deinem Sichtkegel – mit Vorhersage und Ziel-Lock.",
+   "description": "Smoothly pulls your crosshair onto the best target in your view cone – with prediction and target lock.",
    "settings": [
     {
-     "name": "Reichweite",
-     "desc": "Ziele bis zu dieser Entfernung anvisieren (Blöcke)",
+     "name": "Range",
+     "desc": "Aim at targets up to this distance (blocks)",
      "type": "number",
      "default": 4.5,
      "min": 1,
@@ -316,7 +316,7 @@
     },
     {
      "name": "FOV",
-     "desc": "Nur Ziele innerhalb dieses Sichtwinkels (360 = rundum)",
+     "desc": "Only targets within this view angle (360 = all around)",
      "type": "number",
      "default": 90,
      "min": 10,
@@ -324,8 +324,8 @@
      "step": 5
     },
     {
-     "name": "Glätte",
-     "desc": "Wie weich die Kamera zum Ziel gleitet (höher = weicher, langsamer)",
+     "name": "Smoothness",
+     "desc": "How smoothly the camera glides to the target (higher = smoother, slower)",
      "type": "number",
      "default": 5,
      "min": 1,
@@ -333,8 +333,8 @@
      "step": 0.5
     },
     {
-     "name": "Max. Drehung",
-     "desc": "Höchste Drehgeschwindigkeit in Grad pro Sekunde",
+     "name": "Max. turn speed",
+     "desc": "Highest turn speed in degrees per second",
      "type": "number",
      "default": 360,
      "min": 30,
@@ -342,20 +342,20 @@
      "step": 30
     },
     {
-     "name": "Zielpunkt",
-     "desc": "Wohin gezielt wird: Auto = kleinste Drehung, sonst Kopf / Brust / Beine",
+     "name": "Aim point",
+     "desc": "Where to aim: Auto = smallest turn, otherwise head / chest / legs",
      "type": "mode",
      "default": "Auto",
      "modes": [
       "Auto",
-      "Kopf",
-      "Brust",
-      "Beine"
+      "Head",
+      "Chest",
+      "Legs"
      ]
     },
     {
-     "name": "Vorhersage",
-     "desc": "Bewegung des Ziels vorhalten (Ticks, 0 = aus)",
+     "name": "Prediction",
+     "desc": "Lead the target's movement (ticks, 0 = off)",
      "type": "number",
      "default": 1,
      "min": 0,
@@ -363,73 +363,73 @@
      "step": 0.5
     },
     {
-     "name": "Vertikal",
-     "desc": "Auch nach oben/unten zielen (aus = nur seitlich)",
+     "name": "Vertical",
+     "desc": "Also aim up/down (off = sideways only)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Sortierung",
-     "desc": "Welches Ziel zuerst anvisiert wird",
+     "name": "Sort by",
+     "desc": "Which target is aimed at first",
      "type": "mode",
-     "default": "Distanz",
+     "default": "Distance",
      "modes": [
-      "Distanz",
-      "Leben",
-      "Winkel"
+      "Distance",
+      "Health",
+      "Angle"
      ]
     },
     {
-     "name": "Spieler",
-     "desc": "Spieler anvisieren",
+     "name": "Players",
+     "desc": "Aim at players",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Monster",
-     "desc": "Feindliche Mobs anvisieren",
+     "name": "Monsters",
+     "desc": "Aim at hostile mobs",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Tiere",
-     "desc": "Friedliche Mobs anvisieren",
+     "name": "Animals",
+     "desc": "Aim at passive mobs",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Unsichtbare",
-     "desc": "Unsichtbare Ziele anvisieren",
+     "name": "Invisibles",
+     "desc": "Aim at invisible targets",
      "type": "bool",
      "default": true
     },
     {
      "name": "Teammates",
-     "desc": "Auch Spieler aus deinem Team anvisieren",
+     "desc": "Also aim at players of your team",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Durch Wände",
-     "desc": "Auch Ziele hinter Blöcken anvisieren",
+     "name": "Through walls",
+     "desc": "Also aim at targets behind blocks",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Ziel halten",
-     "desc": "Beim aktuellen Ziel bleiben statt ständig zu wechseln",
+     "name": "Target lock",
+     "desc": "Stay on the current target instead of switching all the time",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Nur beim Klicken",
-     "desc": "Nur zielen, während die Angriffstaste gedrückt ist",
+     "name": "Only while clicking",
+     "desc": "Only aim while the attack key is held",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Pause beim Benutzen",
-     "desc": "Nicht zielen während du isst / blockst",
+     "name": "Pause while using",
+     "desc": "Don't aim while eating / blocking",
      "type": "bool",
      "default": true
     }
@@ -438,40 +438,40 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Leichte Zielhilfe: kleiner Kegel, langsam, nur beim Klicken",
+     "note": "Light aim assist: small cone, slow, only while clicking",
      "values": {
-      "Glätte": 14,
-      "Max. Drehung": 120,
-      "Nur beim Klicken": true,
+      "Smoothness": 14,
+      "Max. turn speed": 120,
+      "Only while clicking": true,
       "FOV": 35,
-      "Vorhersage": 0.5,
-      "Durch Wände": false
+      "Prediction": 0.5,
+      "Through walls": false
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Deutliche Zielhilfe, mittleres Tempo",
+     "note": "Clear aim assist, medium speed",
      "values": {
-      "Glätte": 6,
-      "Max. Drehung": 360,
-      "Nur beim Klicken": false,
+      "Smoothness": 6,
+      "Max. turn speed": 360,
+      "Only while clicking": false,
       "FOV": 70,
-      "Vorhersage": 1,
-      "Durch Wände": false
+      "Prediction": 1,
+      "Through walls": false
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "Rastet sofort ein, auch durch Wände",
+     "note": "Snaps on instantly, also through walls",
      "values": {
-      "Glätte": 2,
-      "Max. Drehung": 1080,
-      "Nur beim Klicken": false,
+      "Smoothness": 2,
+      "Max. turn speed": 1080,
+      "Only while clicking": false,
       "FOV": 180,
-      "Vorhersage": 1.5,
-      "Durch Wände": true
+      "Prediction": 1.5,
+      "Through walls": true
      }
     }
    ]
@@ -480,28 +480,28 @@
    "id": "SpearSwitch",
    "name": "SpearSwitch",
    "category": "COMBAT",
-   "description": "Lunge im Dauerfeuer: wechselt pro Stoß kurz auf den Speer und zurück. Per Modul-Taste an/aus.",
+   "description": "Lunge on repeat: swaps to the spear for each thrust and back. Toggle with the module key.",
    "settings": [
     {
-     "name": "Auslöser",
-     "desc": "An = lunget, solange das Modul an ist (per Modul-Taste toggeln), Halten = nur solange die Lunge-Taste gedrückt ist, Angriff = solange die Angriffstaste gedrückt ist",
+     "name": "Trigger",
+     "desc": "On = lunges while the module is on (toggle with the module key), Hold = only while the lunge key is held, Attack = while the attack key is held",
      "type": "mode",
-     "default": "An",
+     "default": "On",
      "modes": [
-      "An",
-      "Halten",
-      "Angriff"
+      "On",
+      "Hold",
+      "Attack"
      ]
     },
     {
-     "name": "Lunge-Taste",
-     "desc": "Taste für den Auslöser 'Halten'",
+     "name": "Lunge key",
+     "desc": "Key for the 'Hold' trigger",
      "type": "key",
      "conditional": true
     },
     {
-     "name": "Intervall",
-     "desc": "Ticks zwischen zwei Lunges (leere Hand: 5 = voll aufgeladen)",
+     "name": "Interval",
+     "desc": "Ticks between two lunges (empty hand: 5 = fully charged)",
      "type": "number",
      "default": 5,
      "min": 1,
@@ -509,8 +509,8 @@
      "step": 1
     },
     {
-     "name": "Zufall",
-     "desc": "Zufällige Extra-Ticks pro Lunge",
+     "name": "Randomness",
+     "desc": "Random extra ticks per lunge",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -518,24 +518,24 @@
      "step": 1
     },
     {
-     "name": "Parken auf",
-     "desc": "Welcher Slot zwischen den Lunges gehalten wird",
+     "name": "Park on",
+     "desc": "Which slot is held between the lunges",
      "type": "mode",
-     "default": "Leerer Slot",
+     "default": "Empty slot",
      "modes": [
-      "Leerer Slot",
-      "Vorheriger Slot"
+      "Empty slot",
+      "Previous slot"
      ]
     },
     {
-     "name": "Nur mit Lunge",
-     "desc": "Nur Speere mit der Lunge-Verzauberung benutzen",
+     "name": "Only with Lunge",
+     "desc": "Only use spears with the Lunge enchantment",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Hunger-Schutz",
-     "desc": "Pausieren unter 7 Hunger (dort wirkt Lunge nicht)",
+     "name": "Hunger guard",
+     "desc": "Pause below 7 hunger (Lunge does not work there)",
      "type": "bool",
      "default": true
     }
@@ -544,28 +544,28 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Volle Aufladung der leeren Hand + Zufall",
+     "note": "Full charge of the empty hand + randomness",
      "values": {
-      "Intervall": 6,
-      "Zufall": 2
+      "Interval": 6,
+      "Randomness": 2
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Alle 5 Ticks, wenig Zufall",
+     "note": "Every 5 ticks, little randomness",
      "values": {
-      "Intervall": 5,
-      "Zufall": 1
+      "Interval": 5,
+      "Randomness": 1
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "So schnell wie möglich",
+     "note": "As fast as possible",
      "values": {
-      "Intervall": 3,
-      "Zufall": 0
+      "Interval": 3,
+      "Randomness": 0
      }
     }
    ]
@@ -574,21 +574,21 @@
    "id": "AutoTotem",
    "name": "AutoTotem",
    "category": "COMBAT",
-   "description": "Legt automatisch ein Totem in die Zweithand – öffnet dazu das Inventar und drückt die Zweithand-Taste (F).",
+   "description": "Automatically puts a totem into your off hand – opens the inventory and presses the off-hand key (F).",
    "settings": [
     {
-     "name": "Modus",
-     "desc": "Immer = Totem bleibt immer in der Zweithand, Leben = nur unter der Leben-Grenze",
+     "name": "Mode",
+     "desc": "Always = keep a totem in the off hand, Health = only below the health threshold",
      "type": "mode",
-     "default": "Immer",
+     "default": "Always",
      "modes": [
-      "Immer",
-      "Leben"
+      "Always",
+      "Health"
      ]
     },
     {
-     "name": "Leben-Grenze",
-     "desc": "Unter diesem Leben (inkl. Absorption) kommt das Totem in die Zweithand",
+     "name": "Health threshold",
+     "desc": "Below this health (incl. absorption) the totem goes into the off hand",
      "type": "number",
      "default": 12,
      "min": 1,
@@ -597,26 +597,26 @@
      "conditional": true
     },
     {
-     "name": "Sonst",
-     "desc": "Was über der Grenze in die Zweithand kommt",
+     "name": "Otherwise",
+     "desc": "What goes into the off hand above the threshold",
      "type": "mode",
-     "default": "Kristall",
+     "default": "Crystal",
      "modes": [
-      "Kristall",
-      "Goldapfel",
-      "Nichts"
+      "Crystal",
+      "Golden apple",
+      "Nothing"
      ],
      "conditional": true
     },
     {
-     "name": "Inventar öffnen",
-     "desc": "Inventar öffnen und das Totem mit der Zweithand-Taste (F) tauschen – wie per Hand. Aus = ohne sichtbares Inventar",
+     "name": "Open inventory",
+     "desc": "Open the inventory and swap the totem with the off-hand key (F) – like by hand. Off = without a visible inventory",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Öffnen-Verzögerung",
-     "desc": "Ticks zwischen Inventar öffnen und Taste drücken",
+     "name": "Open delay",
+     "desc": "Ticks between opening the inventory and pressing the key",
      "type": "number",
      "default": 1,
      "min": 0,
@@ -625,8 +625,8 @@
      "conditional": true
     },
     {
-     "name": "Schließen-Verzögerung",
-     "desc": "Ticks zwischen Taste drücken und Inventar schließen",
+     "name": "Close delay",
+     "desc": "Ticks between pressing the key and closing the inventory",
      "type": "number",
      "default": 1,
      "min": 0,
@@ -635,8 +635,8 @@
      "conditional": true
     },
     {
-     "name": "Zufall",
-     "desc": "Zufällige Extra-Ticks pro Schritt",
+     "name": "Randomness",
+     "desc": "Random extra ticks per step",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -644,8 +644,8 @@
      "step": 1
     },
     {
-     "name": "Verzögerung",
-     "desc": "Ticks Pause nach einem Wechsel",
+     "name": "Delay",
+     "desc": "Ticks of pause after a swap",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -653,8 +653,8 @@
      "step": 1
     },
     {
-     "name": "Im Inventar",
-     "desc": "Auch wechseln, während du dein Inventar selbst offen hast",
+     "name": "In inventory",
+     "desc": "Also swap while you have your inventory open yourself",
      "type": "bool",
      "default": true
     }
@@ -663,35 +663,35 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Inventar öffnen, F drücken, mit menschlichen Pausen",
+     "note": "Open inventory, press F, with human pauses",
      "values": {
-      "Inventar öffnen": true,
-      "Öffnen-Verzögerung": 2,
-      "Schließen-Verzögerung": 2,
-      "Zufall": 2,
-      "Verzögerung": 2
+      "Open inventory": true,
+      "Open delay": 2,
+      "Close delay": 2,
+      "Randomness": 2,
+      "Delay": 2
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Inventar öffnen, schnell",
+     "note": "Open inventory, fast",
      "values": {
-      "Inventar öffnen": true,
-      "Öffnen-Verzögerung": 1,
-      "Schließen-Verzögerung": 1,
-      "Zufall": 1,
-      "Verzögerung": 0
+      "Open inventory": true,
+      "Open delay": 1,
+      "Close delay": 1,
+      "Randomness": 1,
+      "Delay": 0
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "Unsichtbar ohne Inventar, sofort",
+     "note": "Invisible without inventory, instant",
      "values": {
-      "Inventar öffnen": false,
-      "Zufall": 0,
-      "Verzögerung": 0
+      "Open inventory": false,
+      "Randomness": 0,
+      "Delay": 0
      }
     }
    ]
@@ -700,23 +700,23 @@
    "id": "PopCounter",
    "name": "PopCounter",
    "category": "COMBAT",
-   "description": "Zählt Totem-Pops anderer Spieler und meldet, nach wie vielen Pops jemand stirbt.",
+   "description": "Counts the totem pops of other players and reports after how many pops someone dies.",
    "settings": [
     {
-     "name": "Eigene Pops",
-     "desc": "Auch deine eigenen Totem-Pops melden",
+     "name": "Own pops",
+     "desc": "Also report your own totem pops",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Tode melden",
-     "desc": "Melden, wenn ein Spieler nach Pops stirbt",
+     "name": "Report deaths",
+     "desc": "Report when a player dies after popping",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Nur in der Nähe",
-     "desc": "Nur Spieler innerhalb von 32 Blöcken melden",
+     "name": "Only nearby",
+     "desc": "Only report players within 32 blocks",
      "type": "bool",
      "default": false
     }
@@ -727,42 +727,42 @@
    "id": "AutoCrystal",
    "name": "AutoCrystal",
    "category": "CRYSTAL",
-   "description": "Kristall halten + auf Obsidian schauen = sofort durchcrystallen. Modus Ziel: sucht Gegner und den besten Platz selbst.",
+   "description": "Hold a crystal + look at obsidian = instant crystalling. Target mode: finds enemies and the best spot itself.",
    "settings": [
     {
-     "name": "Modus",
-     "desc": "Fadenkreuz = sobald du einen Kristall hältst und auf Obsidian/Bedrock schaust, wird sofort durchgecrystalt; Ziel = sucht selbst Gegner und den besten Platz",
+     "name": "Mode",
+     "desc": "Crosshair = as soon as you hold a crystal and look at obsidian/bedrock it crystals instantly; Target = finds enemies and the best spot itself",
      "type": "mode",
-     "default": "Fadenkreuz",
+     "default": "Crosshair",
      "modes": [
-      "Fadenkreuz",
-      "Ziel"
+      "Crosshair",
+      "Target"
      ]
     },
     {
-     "name": "Spieler",
-     "desc": "Spieler angreifen",
+     "name": "Players",
+     "desc": "Attack players",
      "type": "bool",
      "default": true,
      "conditional": true
     },
     {
-     "name": "Monster",
-     "desc": "Feindliche Mobs angreifen",
+     "name": "Monsters",
+     "desc": "Attack hostile mobs",
      "type": "bool",
      "default": false,
      "conditional": true
     },
     {
-     "name": "Tiere",
-     "desc": "Friedliche Mobs angreifen",
+     "name": "Animals",
+     "desc": "Attack passive mobs",
      "type": "bool",
      "default": false,
      "conditional": true
     },
     {
-     "name": "Ziel-Reichweite",
-     "desc": "Wie weit Ziele entfernt sein dürfen",
+     "name": "Target range",
+     "desc": "How far away targets may be",
      "type": "number",
      "default": 10,
      "min": 3,
@@ -771,20 +771,20 @@
      "conditional": true
     },
     {
-     "name": "Platzieren",
-     "desc": "Kristalle platzieren",
+     "name": "Place",
+     "desc": "Place crystals",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Zerstören",
-     "desc": "Kristalle zerstören",
+     "name": "Break",
+     "desc": "Break crystals",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Platzier-Reichweite",
-     "desc": "Reichweite zum Platzieren",
+     "name": "Place range",
+     "desc": "Range for placing",
      "type": "number",
      "default": 4.5,
      "min": 1,
@@ -792,8 +792,8 @@
      "step": 0.1
     },
     {
-     "name": "Zerstör-Reichweite",
-     "desc": "Reichweite zum Zerstören",
+     "name": "Break range",
+     "desc": "Range for breaking",
      "type": "number",
      "default": 4.5,
      "min": 1,
@@ -801,8 +801,8 @@
      "step": 0.1
     },
     {
-     "name": "Platzier-Verzögerung",
-     "desc": "Ticks zwischen zwei Platzierungen",
+     "name": "Place delay",
+     "desc": "Ticks between two placements",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -810,8 +810,8 @@
      "step": 1
     },
     {
-     "name": "Zerstör-Verzögerung",
-     "desc": "Ticks zwischen zwei Schlägen",
+     "name": "Break delay",
+     "desc": "Ticks between two hits",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -819,8 +819,8 @@
      "step": 1
     },
     {
-     "name": "Pro Tick",
-     "desc": "Wie viele Kristalle pro Tick platziert/zerstört werden",
+     "name": "Per tick",
+     "desc": "How many crystals are placed/broken per tick",
      "type": "number",
      "default": 1,
      "min": 1,
@@ -828,26 +828,26 @@
      "step": 1
     },
     {
-     "name": "Sofort zerstören",
-     "desc": "Kristall-Spam: Kristall im selben Moment zerstören, in dem er erscheint",
+     "name": "Instant break",
+     "desc": "Crystal spam: break a crystal the moment it appears",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Auf Bestätigung warten",
-     "desc": "An = den nächsten Kristall erst setzen, wenn der Server den alten entfernt hat (sicherer). Aus = sofort nachsetzen – schneller, aber höheres Flag-Risiko",
+     "name": "Wait for confirmation",
+     "desc": "On = only place the next crystal after the server removed the old one (safer). Off = place again instantly – faster, but higher flag risk",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Nur eigene",
-     "desc": "Nur Kristalle zerstören, die du selbst platziert hast",
+     "name": "Only own",
+     "desc": "Only break crystals you placed yourself",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Min. Schaden",
-     "desc": "Mindestschaden am Ziel (Herzen ×2)",
+     "name": "Min. damage",
+     "desc": "Minimum damage to the target (hearts ×2)",
      "type": "number",
      "default": 6,
      "min": 0,
@@ -856,8 +856,8 @@
      "conditional": true
     },
     {
-     "name": "Max. Eigenschaden",
-     "desc": "Höchstens so viel Schaden an dir selbst (nur Modus Ziel)",
+     "name": "Max. self damage",
+     "desc": "At most this much damage to yourself (Target mode only)",
      "type": "number",
      "default": 8,
      "min": 0,
@@ -866,14 +866,14 @@
      "conditional": true
     },
     {
-     "name": "Anti-Selbstmord",
-     "desc": "Nie einen Kristall, der dich töten würde",
+     "name": "Anti-suicide",
+     "desc": "Never a crystal that would kill you",
      "type": "bool",
      "default": true
     },
     {
      "name": "Face-Place",
-     "desc": "Unter diesem Leben des Ziels reicht 2 Schaden (0 = aus)",
+     "desc": "Below this target health 2 damage is enough (0 = off)",
      "type": "number",
      "default": 8,
      "min": 0,
@@ -882,42 +882,42 @@
      "conditional": true
     },
     {
-     "name": "Wechseln",
-     "desc": "Keins = nur wenn du Kristalle hältst, Normal = auf Kristalle wechseln, Zurück = danach zurück",
+     "name": "Switch",
+     "desc": "None = only while you hold crystals, Normal = switch to crystals, Back = switch back afterwards",
      "type": "mode",
      "default": "Normal",
      "modes": [
-      "Keins",
+      "None",
       "Normal",
-      "Zurück"
+      "Back"
      ]
     },
     {
      "name": "Rotation",
-     "desc": "Silent = Server sieht dich zum Kristall schauen, Keine = gar nicht drehen",
+     "desc": "Silent = the server sees you look at the crystal, Off = don't turn at all",
      "type": "mode",
      "default": "Silent",
      "modes": [
       "Silent",
-      "Keine"
+      "Off"
      ],
      "conditional": true
     },
     {
-     "name": "Durch Wände",
-     "desc": "Auch ohne Sichtlinie platzieren/zerstören",
+     "name": "Through walls",
+     "desc": "Also place/break without line of sight",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Pause beim Essen",
-     "desc": "Nicht während du isst / trinkst",
+     "name": "Pause while eating",
+     "desc": "Not while you eat / drink",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Anzeigen",
-     "desc": "Platzier-Position als Box anzeigen",
+     "name": "Render",
+     "desc": "Show the place position as a box",
      "type": "bool",
      "default": true
     }
@@ -926,41 +926,41 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Fadenkreuz, kleine Pausen, kein Sofort-Zerstören",
+     "note": "Crosshair, small pauses, no instant break",
      "values": {
-      "Modus": "Fadenkreuz",
-      "Platzier-Verzögerung": 2,
-      "Zerstör-Verzögerung": 2,
-      "Pro Tick": 1,
-      "Sofort zerstören": false,
-      "Auf Bestätigung warten": true
+      "Mode": "Crosshair",
+      "Place delay": 2,
+      "Break delay": 2,
+      "Per tick": 1,
+      "Instant break": false,
+      "Wait for confirmation": true
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Fadenkreuz, Kristall-Spam mit kurzer Pause",
+     "note": "Crosshair, crystal spam with a short pause",
      "values": {
-      "Modus": "Fadenkreuz",
-      "Platzier-Verzögerung": 1,
-      "Zerstör-Verzögerung": 0,
-      "Pro Tick": 1,
-      "Sofort zerstören": true,
-      "Auf Bestätigung warten": true
+      "Mode": "Crosshair",
+      "Place delay": 1,
+      "Break delay": 0,
+      "Per tick": 1,
+      "Instant break": true,
+      "Wait for confirmation": true
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "Sucht selbst Ziele, keine Pausen, mehrere pro Tick, durch Wände",
+     "note": "Finds targets itself, no pauses, several per tick, through walls",
      "values": {
-      "Modus": "Ziel",
-      "Platzier-Verzögerung": 0,
-      "Zerstör-Verzögerung": 0,
-      "Pro Tick": 2,
-      "Sofort zerstören": true,
-      "Durch Wände": true,
-      "Auf Bestätigung warten": false
+      "Mode": "Target",
+      "Place delay": 0,
+      "Break delay": 0,
+      "Per tick": 2,
+      "Instant break": true,
+      "Through walls": true,
+      "Wait for confirmation": false
      }
     }
    ]
@@ -969,29 +969,29 @@
    "id": "AnchorMacro",
    "name": "AnchorMacro",
    "category": "CRYSTAL",
-   "description": "Anker halten + auf einen Block schauen = setzt, lädt und sprengt Anker in Schleife. Kombinierbar mit SafeAnchor.",
+   "description": "Hold an anchor + look at a block = places, charges and blows up anchors in a loop. Works together with SafeAnchor.",
    "settings": [
     {
-     "name": "Auslöser",
-     "desc": "Halten = Anker in der Hand + auf einen Block schauen: setzt, lädt und sprengt selbst in Schleife. Neu = nur gerade platzierte Anker, Immer = jeder anvisierte Anker, Taste = nur mit Makro-Taste",
+     "name": "Trigger",
+     "desc": "Hold = anchor in hand + look at a block: places, charges and blows up in a loop. New = only freshly placed anchors, Always = every targeted anchor, Key = only with the macro key",
      "type": "mode",
-     "default": "Halten",
+     "default": "Hold",
      "modes": [
-      "Halten",
-      "Neu",
-      "Immer",
-      "Taste"
+      "Hold",
+      "New",
+      "Always",
+      "Key"
      ]
     },
     {
-     "name": "Makro-Taste",
-     "desc": "Taste für den Auslöser 'Taste'",
+     "name": "Macro key",
+     "desc": "Key for the 'Key' trigger",
      "type": "key",
      "conditional": true
     },
     {
-     "name": "Ladungen",
-     "desc": "Mit wie viel Glowstone geladen wird (1 reicht zum Sprengen)",
+     "name": "Charges",
+     "desc": "How much glowstone to charge with (1 is enough to explode)",
      "type": "number",
      "default": 1,
      "min": 1,
@@ -999,8 +999,8 @@
      "step": 1
     },
     {
-     "name": "Verzögerung",
-     "desc": "Ticks zwischen den Schritten (0 = so schnell wie möglich)",
+     "name": "Delay",
+     "desc": "Ticks between the steps (0 = as fast as possible)",
      "type": "number",
      "default": 1,
      "min": 0,
@@ -1008,8 +1008,8 @@
      "step": 1
     },
     {
-     "name": "Zufall",
-     "desc": "Zufällige Extra-Ticks pro Schritt",
+     "name": "Randomness",
+     "desc": "Random extra ticks per step",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -1017,8 +1017,8 @@
      "step": 1
     },
     {
-     "name": "Sprengen mit",
-     "desc": "Welches Item den Anker zündet",
+     "name": "Explode with",
+     "desc": "Which item detonates the anchor",
      "type": "mode",
      "default": "Auto",
      "modes": [
@@ -1028,8 +1028,8 @@
      ]
     },
     {
-     "name": "Spreng-Slot",
-     "desc": "Hotbar-Slot (1-9) für 'Slot'",
+     "name": "Explode slot",
+     "desc": "Hotbar slot (1-9) for 'Slot'",
      "type": "number",
      "default": 1,
      "min": 1,
@@ -1038,20 +1038,20 @@
      "conditional": true
     },
     {
-     "name": "Sprengen",
-     "desc": "Aus = nur laden",
+     "name": "Explode",
+     "desc": "Off = only charge",
      "type": "bool",
      "default": true
     },
     {
-     "name": "SafeAnchor nutzen",
-     "desc": "Vor dem Sprengen einen Schutzblock setzen (wenn SafeAnchor an ist)",
+     "name": "Use SafeAnchor",
+     "desc": "Place a protection block before exploding (when SafeAnchor is on)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Max. Eigenschaden",
-     "desc": "Nicht sprengen, wenn du mehr Schaden bekommen würdest (Herzen ×2)",
+     "name": "Max. self damage",
+     "desc": "Don't explode if you would take more damage (hearts ×2)",
      "type": "number",
      "default": 10,
      "min": 0,
@@ -1059,20 +1059,20 @@
      "step": 1
     },
     {
-     "name": "Anti-Selbstmord",
-     "desc": "Nie sprengen, wenn dich die Explosion töten würde",
+     "name": "Anti-suicide",
+     "desc": "Never explode if the explosion would kill you",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Auf Bestätigung warten",
-     "desc": "An = erst laden/sprengen, wenn der Server Anker und Ladung bestätigt hat (sicherer). Aus = ohne Warten – schneller, aber höheres Flag-Risiko",
+     "name": "Wait for confirmation",
+     "desc": "On = only charge/explode after the server confirmed the anchor and charge (safer). Off = no waiting – faster, but higher flag risk",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Zurückwechseln",
-     "desc": "Am Ende wieder den vorherigen Slot halten",
+     "name": "Switch back",
+     "desc": "Hold the previous slot again at the end",
      "type": "bool",
      "default": true
     }
@@ -1081,31 +1081,31 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Menschliches Tempo mit zufälligen Pausen",
+     "note": "Human speed with random pauses",
      "values": {
-      "Verzögerung": 3,
-      "Zufall": 2,
-      "Auf Bestätigung warten": true
+      "Delay": 3,
+      "Randomness": 2,
+      "Wait for confirmation": true
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Schnell mit etwas Zufall",
+     "note": "Fast with some randomness",
      "values": {
-      "Verzögerung": 1,
-      "Zufall": 1,
-      "Auf Bestätigung warten": true
+      "Delay": 1,
+      "Randomness": 1,
+      "Wait for confirmation": true
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "So schnell wie möglich",
+     "note": "As fast as possible",
      "values": {
-      "Verzögerung": 0,
-      "Zufall": 0,
-      "Auf Bestätigung warten": false
+      "Delay": 0,
+      "Randomness": 0,
+      "Wait for confirmation": false
      }
     }
    ]
@@ -1114,32 +1114,32 @@
    "id": "SafeAnchor",
    "name": "SafeAnchor",
    "category": "CRYSTAL",
-   "description": "Setzt einen Schutzblock zwischen dich und den Anker, bevor er explodiert. Kombinierbar mit AnchorMacro.",
+   "description": "Places a protection block between you and the anchor before it explodes. Works together with AnchorMacro.",
    "settings": [
     {
-     "name": "Schutzblock",
-     "desc": "Welcher Block als Schild gesetzt wird",
+     "name": "Protection block",
+     "desc": "Which block is placed as the shield",
      "type": "mode",
      "default": "Glowstone",
      "modes": [
       "Glowstone",
       "Obsidian",
-      "Beliebig"
+      "Any"
      ]
     },
     {
-     "name": "Seite",
-     "desc": "Wo der Schild hin soll: zu dir hin (automatisch) oder zusätzlich auf Augenhöhe",
+     "name": "Side",
+     "desc": "Where the shield goes: towards you (automatic) or also at eye level",
      "type": "mode",
-     "default": "Zu dir",
+     "default": "Towards you",
      "modes": [
-      "Zu dir",
-      "Zu dir + oben"
+      "Towards you",
+      "Towards you + top"
      ]
     },
     {
-     "name": "Verzögerung",
-     "desc": "Ticks zwischen zwei gesetzten Blöcken (alleine)",
+     "name": "Delay",
+     "desc": "Ticks between two placed blocks (on its own)",
      "type": "number",
      "default": 1,
      "min": 0,
@@ -1147,14 +1147,14 @@
      "step": 1
     },
     {
-     "name": "Nur geladen",
-     "desc": "Alleine nur geladene Anker absichern",
+     "name": "Only charged",
+     "desc": "On its own, only protect charged anchors",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Zurückwechseln",
-     "desc": "Danach wieder den vorherigen Slot halten",
+     "name": "Switch back",
+     "desc": "Hold the previous slot again afterwards",
      "type": "bool",
      "default": true
     }
@@ -1165,22 +1165,22 @@
    "id": "Surround",
    "name": "Surround",
    "category": "CRYSTAL",
-   "description": "Umgibt deine Füße mit Obsidian, damit niemand Kristalle direkt neben dir platzieren kann.",
+   "description": "Surrounds your feet with obsidian so nobody can place crystals right next to you.",
    "settings": [
     {
      "name": "Block",
-     "desc": "Welcher Block gesetzt wird",
+     "desc": "Which block is placed",
      "type": "mode",
      "default": "Obsidian",
      "modes": [
       "Obsidian",
-      "Weinender Obsidian",
-      "Beide"
+      "Crying obsidian",
+      "Both"
      ]
     },
     {
-     "name": "Blöcke pro Tick",
-     "desc": "Wie viele Blöcke pro Tick gesetzt werden",
+     "name": "Blocks per tick",
+     "desc": "How many blocks are placed per tick",
      "type": "number",
      "default": 2,
      "min": 1,
@@ -1188,8 +1188,8 @@
      "step": 1
     },
     {
-     "name": "Verzögerung",
-     "desc": "Ticks zwischen zwei Durchgängen",
+     "name": "Delay",
+     "desc": "Ticks between two passes",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -1197,14 +1197,14 @@
      "step": 1
     },
     {
-     "name": "Zentrieren",
-     "desc": "Beim Einschalten per Tastendruck (W/A/S/D antippen, schleichend) zur Blockmitte laufen, damit alle vier Seiten frei sind",
+     "name": "Center",
+     "desc": "When turned on, walk to the centre of the block by tapping W/A/S/D (sneaking) so all four sides are free",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Tipp-Länge",
-     "desc": "Wie viele Ticks eine Bewegungstaste beim Zentrieren gedrückt wird",
+     "name": "Tap length",
+     "desc": "How many ticks a movement key is pressed while centering",
      "type": "number",
      "default": 1,
      "min": 1,
@@ -1213,42 +1213,42 @@
      "conditional": true
     },
     {
-     "name": "Stützblöcke",
-     "desc": "Auch Blöcke unter den Ringblöcken setzen, falls dort Luft ist",
+     "name": "Support blocks",
+     "desc": "Also place blocks under the ring blocks if there is air",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Doppelt",
-     "desc": "Zweite Reihe auf Kopfhöhe (gegen Kristalle auf Kopfhöhe)",
+     "name": "Double",
+     "desc": "Second row at head height (against crystals at head height)",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Aus beim Verlassen",
-     "desc": "Ausschalten, sobald du den Block verlässt oder springst",
+     "name": "Off when leaving",
+     "desc": "Turn off as soon as you leave the block or jump",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Zurückwechseln",
-     "desc": "Danach wieder den vorherigen Slot halten",
+     "name": "Switch back",
+     "desc": "Hold the previous slot again afterwards",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Platzieren",
-     "desc": "Mit Blick = Kamera dreht sich zu jedem Block und setzt ihn per Rechtsklick wie von Hand, Direkt = ohne hinzuschauen",
+     "name": "Place",
+     "desc": "With view = the camera turns to each block and places it with a right-click like by hand, Direct = without looking",
      "type": "mode",
-     "default": "Mit Blick",
+     "default": "With view",
      "modes": [
-      "Mit Blick",
-      "Direkt"
+      "With view",
+      "Direct"
      ]
     },
     {
-     "name": "Dreh-Tempo",
-     "desc": "Wie schnell die Kamera zum nächsten Block schaut (Grad pro Sekunde)",
+     "name": "Turn speed",
+     "desc": "How fast the camera turns to the next block (degrees per second)",
      "type": "number",
      "default": 900,
      "min": 180,
@@ -1257,8 +1257,8 @@
      "conditional": true
     },
     {
-     "name": "Glätte",
-     "desc": "Wie weich die Kamera dreht (höher = weicher)",
+     "name": "Smoothness",
+     "desc": "How smoothly the camera turns (higher = smoother)",
      "type": "number",
      "default": 3,
      "min": 1,
@@ -1267,8 +1267,8 @@
      "conditional": true
     },
     {
-     "name": "Blick zurück",
-     "desc": "Danach wieder dorthin schauen, wo du vorher hingeschaut hast",
+     "name": "Look back",
+     "desc": "Look back to where you looked before afterwards",
      "type": "bool",
      "default": true,
      "conditional": true
@@ -1278,35 +1278,35 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Mit Blick, ruhige Kamera, ein Block nach dem anderen",
+     "note": "With view, calm camera, one block after the other",
      "values": {
-      "Platzieren": "Mit Blick",
-      "Dreh-Tempo": 540,
-      "Glätte": 4,
-      "Blöcke pro Tick": 1,
-      "Zentrieren": true
+      "Place": "With view",
+      "Turn speed": 540,
+      "Smoothness": 4,
+      "Blocks per tick": 1,
+      "Center": true
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Mit Blick, schnelle Kamera",
+     "note": "With view, fast camera",
      "values": {
-      "Platzieren": "Mit Blick",
-      "Dreh-Tempo": 900,
-      "Glätte": 3,
-      "Blöcke pro Tick": 2,
-      "Zentrieren": true
+      "Place": "With view",
+      "Turn speed": 900,
+      "Smoothness": 3,
+      "Blocks per tick": 2,
+      "Center": true
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "Ohne hinzuschauen, alles auf einmal",
+     "note": "Without looking, everything at once",
      "values": {
-      "Platzieren": "Direkt",
-      "Blöcke pro Tick": 4,
-      "Zentrieren": true
+      "Place": "Direct",
+      "Blocks per tick": 4,
+      "Center": true
      }
     }
    ]
@@ -1315,11 +1315,11 @@
    "id": "HoleESP",
    "name": "HoleESP",
    "category": "CRYSTAL",
-   "description": "Zeigt sichere Löcher aus Bedrock (grün) oder Obsidian (Akzentfarbe) in deiner Nähe – darin treffen dich Kristalle nur von oben.",
+   "description": "Shows safe holes of bedrock (green) or obsidian (accent colour) near you – inside, crystals can only hit you from above.",
    "settings": [
     {
-     "name": "Reichweite",
-     "desc": "Suchradius um dich in Blöcken",
+     "name": "Range",
+     "desc": "Search radius around you in blocks",
      "type": "number",
      "default": 8,
      "min": 3,
@@ -1327,8 +1327,8 @@
      "step": 1
     },
     {
-     "name": "Höhe",
-     "desc": "Wie viele Blöcke über/unter dir gesucht wird",
+     "name": "Height",
+     "desc": "How many blocks above/below you are searched",
      "type": "number",
      "default": 4,
      "min": 1,
@@ -1336,14 +1336,14 @@
      "step": 1
     },
     {
-     "name": "Nur Bedrock",
-     "desc": "Nur Löcher aus reinem Bedrock zeigen (unzerstörbar)",
+     "name": "Only bedrock",
+     "desc": "Only show holes of pure bedrock (unbreakable)",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Flach",
-     "desc": "Nur den Boden markieren statt eines ganzen Blocks",
+     "name": "Flat",
+     "desc": "Only mark the floor instead of a whole block",
      "type": "bool",
      "default": true
     }
@@ -1354,11 +1354,11 @@
    "id": "HoleSnap",
    "name": "HoleSnap",
    "category": "CRYSTAL",
-   "description": "Zieht dich ins nächste sichere Loch (Bedrock/Obsidian) und schaltet sich danach selbst aus – am besten auf eine Taste legen.",
+   "description": "Pulls you into the nearest safe hole (bedrock/obsidian) and then turns itself off – best put it on a key.",
    "settings": [
     {
-     "name": "Reichweite",
-     "desc": "Maximale Entfernung zum Loch",
+     "name": "Range",
+     "desc": "Maximum distance to the hole",
      "type": "number",
      "default": 4,
      "min": 1,
@@ -1366,8 +1366,8 @@
      "step": 0.5
     },
     {
-     "name": "Tempo",
-     "desc": "Geschwindigkeit in Blöcken pro Tick (Gehen ≈ 0,22)",
+     "name": "Speed",
+     "desc": "Speed in blocks per tick (walking ≈ 0.22)",
      "type": "number",
      "default": 0.25,
      "min": 0.1,
@@ -1375,14 +1375,14 @@
      "step": 0.05
     },
     {
-     "name": "Nur Bedrock",
-     "desc": "Nur Löcher aus reinem Bedrock",
+     "name": "Only bedrock",
+     "desc": "Only holes of pure bedrock",
      "type": "bool",
      "default": false
     },
     {
      "name": "Timeout",
-     "desc": "Nach so vielen Ticks ohne Erfolg aufgeben",
+     "desc": "Give up after this many ticks without success",
      "type": "number",
      "default": 30,
      "min": 5,
@@ -1396,11 +1396,11 @@
    "id": "MaceSwap",
    "name": "MaceSwap",
    "category": "MACE",
-   "description": "Schlägt beim Fallen automatisch mit dem Streitkolben zu und wechselt danach zurück – Schwert bleibt in der Hand.",
+   "description": "Hits with the mace automatically while falling and switches back afterwards – your sword stays in hand.",
    "settings": [
     {
-     "name": "Min. Fallhöhe",
-     "desc": "Erst ab dieser Fallhöhe auf den Streitkolben wechseln (Smash ab 1,5 Blöcken)",
+     "name": "Min. fall height",
+     "desc": "Only switch to the mace from this fall height on (smash from 1.5 blocks)",
      "type": "number",
      "default": 1.5,
      "min": 1.5,
@@ -1408,32 +1408,32 @@
      "step": 0.5
     },
     {
-     "name": "Auswahl",
-     "desc": "Welcher Streitkolben: Auto = meister Schaden fürs Ziel (Dichte/Bresche), sonst bevorzugt die Verzauberung",
+     "name": "Choice",
+     "desc": "Which mace: Auto = most damage for the target (Density/Breach), otherwise prefers the enchantment",
      "type": "mode",
      "default": "Auto",
      "modes": [
       "Auto",
-      "Dichte",
-      "Bresche",
-      "Windstoß"
+      "Density",
+      "Breach",
+      "Wind Burst"
      ]
     },
     {
-     "name": "Auch ohne Fall",
-     "desc": "Auch normale Schläge mit dem Streitkolben ausführen (6 Schaden, langsam)",
+     "name": "Also without falling",
+     "desc": "Also do normal hits with the mace (6 damage, slow)",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Nur Spieler",
-     "desc": "Nur wechseln, wenn du einen Spieler schlägst",
+     "name": "Only players",
+     "desc": "Only switch when you hit a player",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Zurückwechseln",
-     "desc": "Nach dem Schlag wieder den vorherigen Slot halten",
+     "name": "Switch back",
+     "desc": "Hold the previous slot again after the hit",
      "type": "bool",
      "default": true
     }
@@ -1442,31 +1442,31 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Nur bei richtigen Smashes ab 3 Blöcken, Spieler",
+     "note": "Only on real smashes from 3 blocks, players",
      "values": {
-      "Min. Fallhöhe": 3,
-      "Auch ohne Fall": false,
-      "Nur Spieler": true
+      "Min. fall height": 3,
+      "Also without falling": false,
+      "Only players": true
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Jeder Smash ab 1,5 Blöcken",
+     "note": "Every smash from 1.5 blocks",
      "values": {
-      "Min. Fallhöhe": 1.5,
-      "Auch ohne Fall": false,
-      "Nur Spieler": false
+      "Min. fall height": 1.5,
+      "Also without falling": false,
+      "Only players": false
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "Immer mit dem Streitkolben",
+     "note": "Always with the mace",
      "values": {
-      "Min. Fallhöhe": 1.5,
-      "Auch ohne Fall": true,
-      "Nur Spieler": false
+      "Min. fall height": 1.5,
+      "Also without falling": true,
+      "Only players": false
      }
     }
    ]
@@ -1475,29 +1475,29 @@
    "id": "AutoSmash",
    "name": "AutoSmash",
    "category": "MACE",
-   "description": "Trifft beim Fallen automatisch mit dem Streitkolben – im letzten Moment für maximalen Smash-Schaden.",
+   "description": "Hits automatically with the mace while falling – at the last moment for maximum smash damage.",
    "settings": [
     {
-     "name": "Spieler",
-     "desc": "Spieler treffen",
+     "name": "Players",
+     "desc": "Hit players",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Monster",
-     "desc": "Feindliche Mobs treffen",
+     "name": "Monsters",
+     "desc": "Hit hostile mobs",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Tiere",
-     "desc": "Friedliche Mobs treffen",
+     "name": "Animals",
+     "desc": "Hit passive mobs",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Min. Fallhöhe",
-     "desc": "Erst ab dieser Fallhöhe zuschlagen (Blöcke)",
+     "name": "Min. fall height",
+     "desc": "Only hit from this fall height on (blocks)",
      "type": "number",
      "default": 3,
      "min": 1.5,
@@ -1505,8 +1505,8 @@
      "step": 0.5
     },
     {
-     "name": "Reichweite",
-     "desc": "Maximale Reichweite in Blöcken",
+     "name": "Range",
+     "desc": "Maximum range in blocks",
      "type": "number",
      "default": 3,
      "min": 2,
@@ -1515,27 +1515,27 @@
     },
     {
      "name": "Timing",
-     "desc": "Spät = im letzten Tick vor dem Aufprall / bevor das Ziel aus der Reichweite fällt (mehr Schaden), Sofort = sobald in Reichweite",
+     "desc": "Late = in the last tick before impact / before the target leaves range (more damage), Instant = as soon as in range",
      "type": "mode",
-     "default": "Spät",
+     "default": "Late",
      "modes": [
-      "Spät",
-      "Sofort"
+      "Late",
+      "Instant"
      ]
     },
     {
-     "name": "Zielen",
-     "desc": "Fadenkreuz = nur was du anvisierst, Silent = nächstes Ziel, die Drehung geht nur an den Server",
+     "name": "Aiming",
+     "desc": "Crosshair = only what you aim at, Silent = nearest target, the rotation only goes to the server",
      "type": "mode",
-     "default": "Fadenkreuz",
+     "default": "Crosshair",
      "modes": [
-      "Fadenkreuz",
+      "Crosshair",
       "Silent"
      ]
     },
     {
-     "name": "Nur mit Streitkolben",
-     "desc": "Nur zuschlagen, wenn ein Streitkolben in der Hand ist (oder MaceSwap einen hat)",
+     "name": "Only with mace",
+     "desc": "Only hit when a mace is in hand (or MaceSwap has one)",
      "type": "bool",
      "default": true
     }
@@ -1544,34 +1544,34 @@
     {
      "name": "Legit",
      "risk": 0,
-     "note": "Nur im Fadenkreuz, normale Reichweite",
+     "note": "Only in the crosshair, normal range",
      "values": {
-      "Zielen": "Fadenkreuz",
-      "Reichweite": 2.9,
-      "Timing": "Spät",
-      "Min. Fallhöhe": 3
+      "Aiming": "Crosshair",
+      "Range": 2.9,
+      "Timing": "Late",
+      "Min. fall height": 3
      }
     },
     {
      "name": "Normal",
      "risk": 1,
-     "note": "Fadenkreuz, volle Reichweite",
+     "note": "Crosshair, full range",
      "values": {
-      "Zielen": "Fadenkreuz",
-      "Reichweite": 3,
-      "Timing": "Spät",
-      "Min. Fallhöhe": 2
+      "Aiming": "Crosshair",
+      "Range": 3,
+      "Timing": "Late",
+      "Min. fall height": 2
      }
     },
     {
      "name": "Rage",
      "risk": 2,
-     "note": "Silent auf das nächste Ziel, mehr Reichweite",
+     "note": "Silent on the nearest target, more range",
      "values": {
-      "Zielen": "Silent",
-      "Reichweite": 4,
-      "Timing": "Spät",
-      "Min. Fallhöhe": 1.5
+      "Aiming": "Silent",
+      "Range": 4,
+      "Timing": "Late",
+      "Min. fall height": 1.5
      }
     }
    ]
@@ -1580,17 +1580,17 @@
    "id": "StunSlam",
    "name": "StunSlam",
    "category": "MACE",
-   "description": "Ziel blockt mit Schild: erst Axt (Schild aus), im selben Tick der Streitkolben-Schlag.",
+   "description": "Target blocks with a shield: axe first (shield disabled), the mace hit in the same tick.",
    "settings": [
     {
-     "name": "Nur beim Fallen",
-     "desc": "Nur bei einem Smash (Fallhöhe > 1,5), sonst bei jedem Schlag",
+     "name": "Only while falling",
+     "desc": "Only on a smash (fall height > 1.5), otherwise on every hit",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Schild-Richtung",
-     "desc": "Nur wenn der Schild wirklich zu dir zeigt",
+     "name": "Shield direction",
+     "desc": "Only when the shield really faces you",
      "type": "bool",
      "default": true
     }
@@ -1601,33 +1601,33 @@
    "id": "WindBoost",
    "name": "WindBoost",
    "category": "MACE",
-   "description": "Springt und wirft eine Windkugel senkrecht nach unten – katapultiert dich für einen Streitkolben-Smash hoch.",
+   "description": "Jumps and throws a wind charge straight down – launches you up for a mace smash.",
    "settings": [
     {
-     "name": "Auslöser",
-     "desc": "Einmal = Modul-Taste boostet einmal (Modul geht wieder aus), Taste = Modul bleibt an, die Boost-Taste boostet",
+     "name": "Trigger",
+     "desc": "Once = the module key boosts once (the module turns off again), Key = the module stays on, the boost key boosts",
      "type": "mode",
-     "default": "Einmal",
+     "default": "Once",
      "modes": [
-      "Einmal",
-      "Taste"
+      "Once",
+      "Key"
      ]
     },
     {
-     "name": "Boost-Taste",
-     "desc": "Taste für den Auslöser 'Taste'",
+     "name": "Boost key",
+     "desc": "Key for the 'Key' trigger",
      "type": "key",
      "conditional": true
     },
     {
-     "name": "Springen",
-     "desc": "Am Boden im selben Tick springen (höher)",
+     "name": "Jump",
+     "desc": "Jump in the same tick when on the ground (higher)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Zurückwechseln",
-     "desc": "Danach wieder den vorherigen Slot halten",
+     "name": "Switch back",
+     "desc": "Hold the previous slot again afterwards",
      "type": "bool",
      "default": true
     }
@@ -1638,11 +1638,11 @@
    "id": "AutoSprint",
    "name": "AutoSprint",
    "category": "PLAYER",
-   "description": "Hält beim Vorwärtslaufen automatisch die Sprint-Taste – für mehr Rückstoß im Kampf.",
+   "description": "Automatically holds the sprint key while walking forwards – for more knockback in fights.",
    "settings": [
     {
-     "name": "Alle Richtungen",
-     "desc": "Auch seitlich/rückwärts die Sprint-Taste halten (Vanilla sprintet trotzdem nur vorwärts)",
+     "name": "All directions",
+     "desc": "Also hold the sprint key sideways/backwards (vanilla still only sprints forwards)",
      "type": "bool",
      "default": false
     }
@@ -1653,11 +1653,11 @@
    "id": "AutoEat",
    "name": "AutoEat",
    "category": "PLAYER",
-   "description": "Isst automatisch, wenn der Hunger niedrig ist – damit Lunge und Sprinten weiter funktionieren.",
+   "description": "Eats automatically when hunger is low – so Lunge and sprinting keep working.",
    "settings": [
     {
-     "name": "Hunger-Grenze",
-     "desc": "Essen, sobald der Hunger auf diesen Wert fällt (20 = voll, Lunge braucht 7)",
+     "name": "Hunger threshold",
+     "desc": "Eat as soon as hunger drops to this value (20 = full, Lunge needs 7)",
      "type": "number",
      "default": 12,
      "min": 1,
@@ -1665,20 +1665,20 @@
      "step": 1
     },
     {
-     "name": "Goldäpfel",
-     "desc": "Auch Goldäpfel essen (sonst nur normales Essen)",
+     "name": "Golden apples",
+     "desc": "Also eat golden apples (otherwise only normal food)",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Nicht im Kampf",
-     "desc": "Nicht essen, solange du die Angriffstaste hältst",
+     "name": "Not in combat",
+     "desc": "Don't eat while you hold the attack key",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Zurückwechseln",
-     "desc": "Danach wieder den vorherigen Slot halten",
+     "name": "Switch back",
+     "desc": "Hold the previous slot again afterwards",
      "type": "bool",
      "default": true
     }
@@ -1689,23 +1689,23 @@
    "id": "AutoTool",
    "name": "AutoTool",
    "category": "PLAYER",
-   "description": "Nimmt beim Abbauen automatisch das schnellste Werkzeug aus der Hotbar und wechselt danach zurück.",
+   "description": "Takes the fastest tool from the hotbar automatically while mining and switches back afterwards.",
    "settings": [
     {
-     "name": "Zurückwechseln",
-     "desc": "Nach dem Abbauen wieder den vorherigen Slot halten",
+     "name": "Switch back",
+     "desc": "Hold the previous slot again after mining",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Werkzeug schonen",
-     "desc": "Fast kaputte Werkzeuge nicht benutzen",
+     "name": "Save tools",
+     "desc": "Don't use almost broken tools",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Min. Haltbarkeit",
-     "desc": "Werkzeuge mit weniger Resthaltbarkeit werden übersprungen",
+     "name": "Min. durability",
+     "desc": "Tools with less durability left are skipped",
      "type": "number",
      "default": 10,
      "min": 1,
@@ -1713,8 +1713,8 @@
      "step": 1
     },
     {
-     "name": "Nicht mit Schwert",
-     "desc": "Nicht wechseln, solange du ein Schwert oder einen Streitkolben hältst",
+     "name": "Not with sword",
+     "desc": "Don't switch while you hold a sword or mace",
      "type": "bool",
      "default": true
     }
@@ -1725,11 +1725,11 @@
    "id": "AutoArmor",
    "name": "AutoArmor",
    "category": "PLAYER",
-   "description": "Zieht automatisch die beste Rüstung aus deinem Inventar an (Rüstung, Härte, Schutz-Verzauberungen).",
+   "description": "Automatically puts on the best armor from your inventory (armor, toughness, protection enchantments).",
    "settings": [
     {
-     "name": "Verzögerung",
-     "desc": "Ticks zwischen zwei Rüstungsteilen",
+     "name": "Delay",
+     "desc": "Ticks between two armor pieces",
      "type": "number",
      "default": 3,
      "min": 0,
@@ -1737,20 +1737,20 @@
      "step": 1
     },
     {
-     "name": "Elytra behalten",
-     "desc": "Eine getragene Elytra nicht gegen einen Brustpanzer tauschen",
+     "name": "Keep elytra",
+     "desc": "Don't swap a worn elytra for a chestplate",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Explosionsschutz",
-     "desc": "Explosionsschutz höher bewerten (Crystal-PvP)",
+     "name": "Blast protection",
+     "desc": "Rate blast protection higher (crystal PvP)",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Nur im Stehen",
-     "desc": "Nur tauschen, während du dich nicht bewegst",
+     "name": "Only standing still",
+     "desc": "Only swap while you are not moving",
      "type": "bool",
      "default": false
     }
@@ -1761,11 +1761,11 @@
    "id": "ArmorAlert",
    "name": "ArmorAlert",
    "category": "PLAYER",
-   "description": "Warnt per Benachrichtigung, wenn deine Rüstung fast kaputt ist oder dir die Totems ausgehen.",
+   "description": "Warns with a notification when your armor is almost broken or you are running out of totems.",
    "settings": [
     {
-     "name": "Grenze %",
-     "desc": "Warnen, sobald ein Rüstungsteil unter diesen Wert fällt",
+     "name": "Threshold %",
+     "desc": "Warn as soon as a piece of armor drops below this value",
      "type": "number",
      "default": 20,
      "min": 5,
@@ -1773,14 +1773,14 @@
      "step": 5
     },
     {
-     "name": "Totem-Warnung",
-     "desc": "Auch warnen, wenn nur noch wenige Totems im Inventar sind",
+     "name": "Totem warning",
+     "desc": "Also warn when only a few totems are left in the inventory",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Min. Totems",
-     "desc": "Ab dieser Anzahl (inkl. Zweithand) wird gewarnt",
+     "name": "Min. totems",
+     "desc": "Warn from this count on (incl. off hand)",
      "type": "number",
      "default": 2,
      "min": 0,
@@ -1794,83 +1794,83 @@
    "id": "XRay",
    "name": "XRay",
    "category": "SMP",
-   "description": "Blendet alle Blöcke außer Erzen und Kisten aus. (Funktioniert nicht mit Sodium)",
+   "description": "Hides all blocks except ores and chests. (Does not work with Sodium)",
    "settings": [
     {
-     "name": "Diamant",
-     "desc": "Diamanterz anzeigen",
+     "name": "Diamond",
+     "desc": "Show diamond ore",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Antiker Schrott",
-     "desc": "Antiken Schrott anzeigen",
+     "name": "Ancient debris",
+     "desc": "Show ancient debris",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Smaragd",
-     "desc": "Smaragderz anzeigen",
+     "name": "Emerald",
+     "desc": "Show emerald ore",
      "type": "bool",
      "default": true
     },
     {
      "name": "Gold",
-     "desc": "Golderz (inkl. Nether-Gold) anzeigen",
+     "desc": "Show gold ore (incl. nether gold)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Eisen",
-     "desc": "Eisenerz anzeigen",
+     "name": "Iron",
+     "desc": "Show iron ore",
      "type": "bool",
      "default": true
     },
     {
      "name": "Redstone",
-     "desc": "Redstoneerz anzeigen",
+     "desc": "Show redstone ore",
      "type": "bool",
      "default": false
     },
     {
      "name": "Lapis",
-     "desc": "Lapiserz anzeigen",
+     "desc": "Show lapis ore",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Kupfer",
-     "desc": "Kupfererz anzeigen",
+     "name": "Copper",
+     "desc": "Show copper ore",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Kohle",
-     "desc": "Kohleerz anzeigen",
+     "name": "Coal",
+     "desc": "Show coal ore",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Quarz",
-     "desc": "Netherquarz anzeigen",
+     "name": "Quartz",
+     "desc": "Show nether quartz",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Kisten & Spawner",
-     "desc": "Truhen, Fässer, Shulker, Spawner anzeigen",
+     "name": "Chests & spawners",
+     "desc": "Show chests, barrels, shulkers, spawners",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Flüssigkeiten",
-     "desc": "Wasser und Lava weiterhin anzeigen",
+     "name": "Fluids",
+     "desc": "Keep showing water and lava",
      "type": "bool",
      "default": false
     },
     {
      "name": "Fullbright",
-     "desc": "Alles hell machen",
+     "desc": "Make everything bright",
      "type": "bool",
      "default": true
     }
@@ -1881,17 +1881,17 @@
    "id": "BaseFinder",
    "name": "BaseFinder",
    "category": "SMP",
-   "description": "Sucht Hinweise auf Basen: Amethyst-Wachstum, Sound-Blöcke, Lager, Spieler-Blöcke und mehr.",
+   "description": "Looks for signs of bases: amethyst growth, sound blocks, storage, player blocks and more.",
    "settings": [
     {
      "name": "Amethyst-Grower",
-     "desc": "Geoden mit vielen ausgewachsenen Amethyst-Clustern = Chunk war lange geladen (Spieler in der Nähe)",
+     "desc": "Geodes with many fully grown amethyst clusters = the chunk was loaded for a long time (players nearby)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Cluster-Anteil",
-     "desc": "Ab welchem Anteil ausgewachsener Cluster ein Chunk markiert wird",
+     "name": "Cluster share",
+     "desc": "From which share of grown clusters a chunk is marked",
      "type": "number",
      "default": 0.6,
      "min": 0.2,
@@ -1900,49 +1900,49 @@
      "conditional": true
     },
     {
-     "name": "Sound-Blöcke",
-     "desc": "Markiert Blöcke, an denen der Server Geräusche abspielt (Kolben, Türen, Truhen, Öfen, Amboss …)",
+     "name": "Sound blocks",
+     "desc": "Marks blocks where the server plays sounds (pistons, doors, chests, furnaces, anvils …)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Bau-Geräusche",
-     "desc": "Auch Abbau-/Platzier-Geräusche anderer Spieler markieren",
+     "name": "Building sounds",
+     "desc": "Also mark break/place sounds of other players",
      "type": "bool",
      "default": true,
      "conditional": true
     },
     {
-     "name": "Redstone-Geräusche",
-     "desc": "Komparatoren, Fackeln, Stolperdraht, Sculk, Kupfer-Lampen, Werfer, Kolben …",
+     "name": "Redstone sounds",
+     "desc": "Comparators, torches, tripwire, sculk, copper bulbs, dispensers, pistons …",
      "type": "bool",
      "default": true,
      "conditional": true
     },
     {
-     "name": "Mob-Geräusche",
-     "desc": "Geräusche von Dorfbewohnern & anderen Mobs: der Block, auf dem sie stehen, wird markiert",
+     "name": "Mob sounds",
+     "desc": "Sounds of villagers & other mobs: the block they stand on is marked",
      "type": "bool",
      "default": true,
      "conditional": true
     },
     {
-     "name": "Schritte",
-     "desc": "Schritt-Geräusche von Spielern und Mobs: markiert den Block unter ihnen",
+     "name": "Footsteps",
+     "desc": "Step sounds of players and mobs: marks the block below them",
      "type": "bool",
      "default": true,
      "conditional": true
     },
     {
-     "name": "Alle Geräusche",
-     "desc": "Jedes Geräusch vom Server markieren (außer Musik, Wetter, Umgebung)",
+     "name": "All sounds",
+     "desc": "Mark every sound from the server (except music, weather, ambience)",
      "type": "bool",
      "default": false,
      "conditional": true
     },
     {
-     "name": "Sound-Dauer",
-     "desc": "Wie lange Sound-Markierungen sichtbar bleiben (Sekunden)",
+     "name": "Sound duration",
+     "desc": "How long sound marks stay visible (seconds)",
      "type": "number",
      "default": 60,
      "min": 5,
@@ -1951,14 +1951,14 @@
      "conditional": true
     },
     {
-     "name": "Lager",
-     "desc": "Chunks mit vielen Truhen/Fässern/Öfen/Trichtern, sowie jede Shulker- und Endertruhe",
+     "name": "Storage",
+     "desc": "Chunks with many chests/barrels/furnaces/hoppers, plus every shulker box and ender chest",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Min. Lager",
-     "desc": "Ab wie vielen Lager-Blöcken ein Chunk markiert wird",
+     "name": "Min. storage",
+     "desc": "From how many storage blocks a chunk is marked",
      "type": "number",
      "default": 4,
      "min": 1,
@@ -1967,26 +1967,26 @@
      "conditional": true
     },
     {
-     "name": "Spieler-Blöcke",
-     "desc": "Blöcke, die fast nie natürlich vorkommen (Leuchtfeuer, Zaubertisch, Amboss, Schilder, Beobachter …)",
+     "name": "Player blocks",
+     "desc": "Blocks that almost never generate naturally (beacons, enchanting tables, anvils, signs, observers …)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Portale",
-     "desc": "Aktivierte Netherportale in der Oberwelt / im End",
+     "name": "Portals",
+     "desc": "Activated nether portals in the overworld / the End",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Kelp-Wachstum",
-     "desc": "Kelp, das bis zur Wasseroberfläche gewachsen ist = Chunk war lange geladen",
+     "name": "Kelp growth",
+     "desc": "Kelp grown up to the water surface = the chunk was loaded for a long time",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Min. Kelp",
-     "desc": "Ab wie vielen ausgewachsenen Kelp-Spitzen ein Chunk markiert wird",
+     "name": "Min. kelp",
+     "desc": "From how many fully grown kelp tops a chunk is marked",
      "type": "number",
      "default": 12,
      "min": 3,
@@ -1995,26 +1995,26 @@
      "conditional": true
     },
     {
-     "name": "Objekte",
-     "desc": "Rahmen, Rüstungsständer, benannte & gezähmte Tiere, Kistenloren",
+     "name": "Objects",
+     "desc": "Item frames, armor stands, named & tamed animals, chest minecarts",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Meldungen",
-     "desc": "Funde als HUD-Benachrichtigung melden",
+     "name": "Notifications",
+     "desc": "Report finds as HUD notifications",
      "type": "bool",
      "default": true
     },
     {
      "name": "Tracer",
-     "desc": "Linien von dir zu den Funden zeichnen",
+     "desc": "Draw lines from you to the finds",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Scan-Tempo",
-     "desc": "Chunks pro Tick (höher = schneller, mehr Last)",
+     "name": "Scan speed",
+     "desc": "Chunks per tick (higher = faster, more load)",
      "type": "number",
      "default": 2,
      "min": 1,
@@ -2028,33 +2028,33 @@
    "id": "Waypoints",
    "name": "Waypoints",
    "category": "SMP",
-   "description": "Wegpunkte pro Server und Dimension mit Entfernung, durch Wände sichtbar. Tasten zum Setzen/Löschen, automatischer Todespunkt.",
+   "description": "Waypoints per server and dimension with distance, visible through walls. Keys to set/remove, automatic death point.",
    "settings": [
     {
-     "name": "Setzen-Taste",
-     "desc": "Setzt einen Wegpunkt an deiner Position",
+     "name": "Set key",
+     "desc": "Sets a waypoint at your position",
      "type": "key"
     },
     {
-     "name": "Löschen-Taste",
-     "desc": "Löscht den nächsten Wegpunkt (in dieser Dimension)",
+     "name": "Remove key",
+     "desc": "Removes the nearest waypoint (in this dimension)",
      "type": "key"
     },
     {
-     "name": "Todespunkte",
-     "desc": "Setzt automatisch einen Wegpunkt, wo du stirbst (die letzten 3)",
+     "name": "Death points",
+     "desc": "Automatically sets a waypoint where you die (the last 3)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Strahl",
-     "desc": "Senkrechter Strahl und Box am Wegpunkt",
+     "name": "Beam",
+     "desc": "Vertical beam and box at the waypoint",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Max. Distanz",
-     "desc": "Weiter entfernte Wegpunkte werden ausgeblendet (0 = alle)",
+     "name": "Max. distance",
+     "desc": "Waypoints farther away are hidden (0 = all)",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -2062,8 +2062,8 @@
      "step": 250
     },
     {
-     "name": "Alle löschen",
-     "desc": "Einschalten löscht alle Wegpunkte dieses Servers (springt danach wieder auf aus)",
+     "name": "Remove all",
+     "desc": "Turning it on removes all waypoints of this server (then switches back off)",
      "type": "bool",
      "default": false
     }
@@ -2074,11 +2074,11 @@
    "id": "PlayerESP",
    "name": "PlayerESP",
    "category": "RENDER",
-   "description": "Zeigt andere Spieler als Box durch Wände – Farbe nach HUD-Farbe, Leben oder Distanz.",
+   "description": "Shows other players as a box through walls – coloured by HUD colour, health or distance.",
    "settings": [
     {
-     "name": "Reichweite",
-     "desc": "Maximale Entfernung in Blöcken",
+     "name": "Range",
+     "desc": "Maximum distance in blocks",
      "type": "number",
      "default": 128,
      "min": 16,
@@ -2086,25 +2086,25 @@
      "step": 16
     },
     {
-     "name": "Farbe",
-     "desc": "Akzent = HUD-Farbe, Leben = grün → rot, Distanz = nah rot, fern grün",
+     "name": "Color",
+     "desc": "Accent = HUD colour, Health = green → red, Distance = near red, far green",
      "type": "mode",
-     "default": "Akzent",
+     "default": "Accent",
      "modes": [
-      "Akzent",
-      "Leben",
-      "Distanz"
+      "Accent",
+      "Health",
+      "Distance"
      ]
     },
     {
      "name": "Tracer",
-     "desc": "Linie von der Bildschirmmitte zu jedem Spieler",
+     "desc": "Line from the centre of the screen to every player",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Unsichtbare",
-     "desc": "Auch unsichtbare Spieler anzeigen",
+     "name": "Invisibles",
+     "desc": "Also show invisible players",
      "type": "bool",
      "default": true
     }
@@ -2115,11 +2115,11 @@
    "id": "Nametags",
    "name": "Nametags",
    "category": "RENDER",
-   "description": "Zeigt über Spielern ein Glas-Schild mit Name, Leben, Distanz, Pops und Rüstung – auch durch Wände.",
+   "description": "Shows a glass tag above players with name, health, distance, pops and armor – also through walls.",
    "settings": [
     {
-     "name": "Reichweite",
-     "desc": "Maximale Entfernung in Blöcken",
+     "name": "Range",
+     "desc": "Maximum distance in blocks",
      "type": "number",
      "default": 64,
      "min": 8,
@@ -2127,8 +2127,8 @@
      "step": 8
     },
     {
-     "name": "Größe",
-     "desc": "Größe der Schilder",
+     "name": "Size",
+     "desc": "Size of the tags",
      "type": "number",
      "default": 1,
      "min": 0.5,
@@ -2136,38 +2136,38 @@
      "step": 0.1
     },
     {
-     "name": "Leben",
-     "desc": "Leben (inkl. Absorption) anzeigen",
+     "name": "Health",
+     "desc": "Show health (incl. absorption)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Distanz",
-     "desc": "Entfernung in Blöcken anzeigen",
+     "name": "Distance",
+     "desc": "Show distance in blocks",
      "type": "bool",
      "default": true
     },
     {
      "name": "Ping",
-     "desc": "Ping des Spielers anzeigen",
+     "desc": "Show the player's ping",
      "type": "bool",
      "default": false
     },
     {
      "name": "Pops",
-     "desc": "Totem-Pops anzeigen (mit PopCounter)",
+     "desc": "Show totem pops (with PopCounter)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Rüstung",
-     "desc": "Rüstung und Items in der Hand über dem Schild",
+     "name": "Armor",
+     "desc": "Armor and held items above the tag",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Eigenes",
-     "desc": "Auch dein eigenes Schild (nur in der dritten Person)",
+     "name": "Own",
+     "desc": "Also your own tag (only in third person)",
      "type": "bool",
      "default": false
     }
@@ -2178,32 +2178,32 @@
    "id": "Fullbright",
    "name": "Fullbright",
    "category": "RENDER",
-   "description": "Macht alles hell wie mit Nachtsicht – nur bei dir, der Server merkt nichts.",
+   "description": "Makes everything bright like night vision – only for you, the server notices nothing.",
    "settings": [],
    "presets": []
   },
   {
    "id": "Crosshair",
-   "name": "Fadenkreuz",
+   "name": "Crosshair",
    "category": "RENDER",
-   "description": "Eigenes Fadenkreuz statt dem von Minecraft: Stil, Größe, Abstand, Dicke, Farbe, Umrandung und Cooldown-Anzeige.",
+   "description": "Your own crosshair instead of Minecraft's: style, size, gap, thickness, colour, outline and cooldown bar.",
    "settings": [
     {
-     "name": "Stil",
-     "desc": "Form des Fadenkreuzes",
+     "name": "Style",
+     "desc": "Shape of the crosshair",
      "type": "mode",
-     "default": "Kreuz",
+     "default": "Cross",
      "modes": [
-      "Kreuz",
-      "Kreuz + Punkt",
-      "Punkt",
-      "Kreis",
+      "Cross",
+      "Cross + dot",
+      "Dot",
+      "Circle",
       "T"
      ]
     },
     {
-     "name": "Größe",
-     "desc": "Länge der Striche bzw. Radius",
+     "name": "Size",
+     "desc": "Length of the lines or radius",
      "type": "number",
      "default": 5,
      "min": 1,
@@ -2211,8 +2211,8 @@
      "step": 0.5
     },
     {
-     "name": "Abstand",
-     "desc": "Lücke in der Mitte",
+     "name": "Gap",
+     "desc": "Gap in the middle",
      "type": "number",
      "default": 2,
      "min": 0,
@@ -2220,8 +2220,8 @@
      "step": 0.5
     },
     {
-     "name": "Dicke",
-     "desc": "Strichstärke",
+     "name": "Thickness",
+     "desc": "Line thickness",
      "type": "number",
      "default": 1,
      "min": 0.5,
@@ -2229,40 +2229,40 @@
      "step": 0.25
     },
     {
-     "name": "Farbe",
-     "desc": "Farbe des Fadenkreuzes",
+     "name": "Color",
+     "desc": "Color of the crosshair",
      "type": "mode",
-     "default": "Weiß",
+     "default": "White",
      "modes": [
-      "Weiß",
-      "HUD-Farbe",
-      "Grün",
-      "Rot",
+      "White",
+      "HUD color",
+      "Green",
+      "Red",
       "Cyan",
-      "Gelb"
+      "Yellow"
      ]
     },
     {
-     "name": "Umrandung",
-     "desc": "Dunkler Rand für bessere Sichtbarkeit",
+     "name": "Outline",
+     "desc": "Dark edge for better visibility",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Ziel-Farbe",
-     "desc": "Rot, solange du auf ein Lebewesen zielst",
+     "name": "Target color",
+     "desc": "Red while you aim at a living entity",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Dynamisch",
-     "desc": "Lücke wird beim Laufen und Springen größer",
+     "name": "Dynamic",
+     "desc": "The gap grows while walking and jumping",
      "type": "bool",
      "default": false
     },
     {
      "name": "Cooldown",
-     "desc": "Kleiner Balken mit der Angriffs-Abklingzeit unter dem Fadenkreuz",
+     "desc": "Small bar with the attack cooldown below the crosshair",
      "type": "bool",
      "default": true
     }
@@ -2273,26 +2273,26 @@
    "id": "Zoom",
    "name": "Zoom",
    "category": "RENDER",
-   "description": "Zoomt auf Tastendruck heran (Standard: C) – Taste, Stärke und Modus im Rad einstellbar.",
+   "description": "Zooms in on a key press (default: C) – key, strength and mode can be set in the wheel.",
    "settings": [
     {
-     "name": "Zoom-Taste",
-     "desc": "Taste zum Zoomen (Rechtsklick im Feld = entfernen)",
+     "name": "Zoom key",
+     "desc": "Key to zoom (right-click the field = remove)",
      "type": "key"
     },
     {
-     "name": "Modus",
-     "desc": "Halten = zoomt solange die Taste gedrückt ist, Umschalten = ein Druck an, ein Druck aus",
+     "name": "Mode",
+     "desc": "Hold = zooms while the key is held, Toggle = press once on, once off",
      "type": "mode",
-     "default": "Halten",
+     "default": "Hold",
      "modes": [
-      "Halten",
-      "Umschalten"
+      "Hold",
+      "Toggle"
      ]
     },
     {
-     "name": "Stärke",
-     "desc": "Vergrößerung (3 = dreifach)",
+     "name": "Strength",
+     "desc": "Magnification (3 = three times)",
      "type": "number",
      "default": 4,
      "min": 1.5,
@@ -2300,20 +2300,20 @@
      "step": 0.5
     },
     {
-     "name": "Mausrad",
-     "desc": "Beim Zoomen mit dem Mausrad näher/weiter zoomen",
+     "name": "Mouse wheel",
+     "desc": "Zoom in/out with the mouse wheel while zooming",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Weich",
-     "desc": "Weiches Ein- und Auszoomen",
+     "name": "Smooth",
+     "desc": "Smooth zooming in and out",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Langsame Maus",
-     "desc": "Maus beim Zoomen entsprechend langsamer",
+     "name": "Slow mouse",
+     "desc": "Slower mouse while zoomed in",
      "type": "bool",
      "default": true
     }
@@ -2324,11 +2324,11 @@
    "id": "Freecam",
    "name": "Freecam",
    "category": "RENDER",
-   "description": "Kamera löst sich vom Spieler und fliegt frei – auch durch Blöcke. Dein Spieler bleibt stehen.",
+   "description": "The camera detaches from the player and flies freely – also through blocks. Your player stays in place.",
    "settings": [
     {
-     "name": "Tempo",
-     "desc": "Fluggeschwindigkeit in Blöcken pro Sekunde",
+     "name": "Speed",
+     "desc": "Flight speed in blocks per second",
      "type": "number",
      "default": 12,
      "min": 1,
@@ -2336,8 +2336,8 @@
      "step": 1
     },
     {
-     "name": "Sprint-Faktor",
-     "desc": "Wie viel schneller mit gedrückter Sprint-Taste",
+     "name": "Sprint factor",
+     "desc": "How much faster with the sprint key held",
      "type": "number",
      "default": 3,
      "min": 1,
@@ -2345,8 +2345,8 @@
      "step": 0.5
     },
     {
-     "name": "Blickrichtung",
-     "desc": "Vorwärts fliegt in Blickrichtung (auch hoch/runter), aus = nur waagerecht",
+     "name": "Look direction",
+     "desc": "Forward flies where you look (also up/down), off = horizontal only",
      "type": "bool",
      "default": true
     }
@@ -2357,23 +2357,23 @@
    "id": "Hotbar",
    "name": "Hotbar",
    "category": "VISUALS",
-   "description": "Glas-Hotbar mit quadratischen Slots, darüber Leisten für Leben, Hunger, Rüstung, Luft und XP – im Nautilus-Glasdesign.",
+   "description": "Glass hotbar with square slots, with bars for health, hunger, armor, air and XP above it – in the Nautilus glass design.",
    "settings": [
     {
-     "name": "Leisten",
-     "desc": "Leben und Hunger als Glas-Leisten über der Hotbar statt Herzen und Keulen",
+     "name": "Bars",
+     "desc": "Health and hunger as glass bars above the hotbar instead of hearts and drumsticks",
      "type": "bool",
      "default": true
     },
     {
-     "name": "XP-Leiste",
-     "desc": "Eigene XP-Linie mit Level (ersetzt auch die Ortungsleiste)",
+     "name": "XP bar",
+     "desc": "Own XP line with level (also replaces the locator bar)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Slot-Nummern",
-     "desc": "Kleine Nummern 1–9 in den Slots",
+     "name": "Slot numbers",
+     "desc": "Small numbers 1–9 in the slots",
      "type": "bool",
      "default": false
     }
@@ -2382,40 +2382,40 @@
   },
   {
    "id": "Sky",
-   "name": "Himmel",
+   "name": "Sky",
    "category": "VISUALS",
-   "description": "Polarlichter am Nachthimmel, Sternschnuppen, mehr Sterne und auf Wunsch ein Himmel in der HUD-Farbe – nur im Himmel, nie auf Blöcken.",
+   "description": "Northern lights in the night sky, shooting stars, more stars and optionally a sky in the HUD colour – only on the sky, never on blocks.",
    "settings": [
     {
-     "name": "Polarlicht",
-     "desc": "Wehende Polarlicht-Vorhänge am Himmel",
+     "name": "Northern lights",
+     "desc": "Waving curtains of northern lights in the sky",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Zeit",
-     "desc": "Wann das Polarlicht zu sehen ist",
+     "name": "Time",
+     "desc": "When the northern lights are visible",
      "type": "mode",
-     "default": "Nachts",
+     "default": "At night",
      "modes": [
-      "Nachts",
-      "Immer"
+      "At night",
+      "Always"
      ]
     },
     {
-     "name": "Farben",
-     "desc": "Farben des Polarlichts",
+     "name": "Colors",
+     "desc": "Colors of the northern lights",
      "type": "mode",
-     "default": "Klassisch",
+     "default": "Classic",
      "modes": [
-      "Klassisch",
-      "HUD-Farbe",
-      "Regenbogen"
+      "Classic",
+      "HUD color",
+      "Rainbow"
      ]
     },
     {
-     "name": "Stärke",
-     "desc": "Helligkeit des Polarlichts",
+     "name": "Strength",
+     "desc": "Brightness of the northern lights",
      "type": "number",
      "default": 70,
      "min": 10,
@@ -2423,14 +2423,14 @@
      "step": 5
     },
     {
-     "name": "Sternschnuppen",
-     "desc": "Ab und zu eine Sternschnuppe – nachts",
+     "name": "Shooting stars",
+     "desc": "Now and then a shooting star – at night",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Sterne",
-     "desc": "Mehr Sterne: schon in der Dämmerung und heller (0 = Vanilla)",
+     "name": "Stars",
+     "desc": "More stars: already at dusk and brighter (0 = vanilla)",
      "type": "number",
      "default": 40,
      "min": 0,
@@ -2438,8 +2438,8 @@
      "step": 10
     },
     {
-     "name": "Himmelsfarbe",
-     "desc": "Wie stark der Himmel in der HUD-Farbe getönt wird (0 = Vanilla)",
+     "name": "Sky color",
+     "desc": "How strongly the sky is tinted in the HUD colour (0 = vanilla)",
      "type": "number",
      "default": 0,
      "min": 0,
@@ -2451,13 +2451,13 @@
   },
   {
    "id": "GlowParticles",
-   "name": "Lichtpartikel",
+   "name": "Glow particles",
    "category": "VISUALS",
-   "description": "Leuchtende Lichter schweben um dich herum, steigen langsam auf, schwanken und funkeln – wie Glühwürmchen.",
+   "description": "Glowing lights float around you, slowly rise, sway and twinkle – like fireflies.",
    "settings": [
     {
-     "name": "Anzahl",
-     "desc": "Wie viele Lichter gleichzeitig schweben",
+     "name": "Count",
+     "desc": "How many lights float at the same time",
      "type": "number",
      "default": 60,
      "min": 10,
@@ -2466,7 +2466,7 @@
     },
     {
      "name": "Radius",
-     "desc": "Bereich um dich in Blöcken",
+     "desc": "Area around you in blocks",
      "type": "number",
      "default": 10,
      "min": 4,
@@ -2474,8 +2474,8 @@
      "step": 1
     },
     {
-     "name": "Größe",
-     "desc": "Größe der Lichter",
+     "name": "Size",
+     "desc": "Size of the lights",
      "type": "number",
      "default": 1,
      "min": 0.4,
@@ -2483,15 +2483,15 @@
      "step": 0.1
     },
     {
-     "name": "Farben",
-     "desc": "Farbe der Lichter",
+     "name": "Colors",
+     "desc": "Color of the lights",
      "type": "mode",
-     "default": "HUD-Farbe",
+     "default": "HUD color",
      "modes": [
-      "HUD-Farbe",
-      "Regenbogen",
-      "Glühwürmchen",
-      "Weiß"
+      "HUD color",
+      "Rainbow",
+      "Fireflies",
+      "White"
      ]
     }
    ],
@@ -2499,13 +2499,13 @@
   },
   {
    "id": "SwordFx",
-   "name": "Schwerthieb",
+   "name": "Sword slash",
    "category": "VISUALS",
-   "description": "Jeder Schlag schneidet eine leuchtende Sichel durch die Luft – abwechselnd links/rechts, Krits mit Funken.",
+   "description": "Every swing cuts a glowing crescent through the air – alternating left/right, crits with sparks.",
    "settings": [
     {
-     "name": "Größe",
-     "desc": "Radius des Luftschnitts in Blöcken",
+     "name": "Size",
+     "desc": "Radius of the air slash in blocks",
      "type": "number",
      "default": 1.6,
      "min": 0.8,
@@ -2513,14 +2513,14 @@
      "step": 0.1
     },
     {
-     "name": "Alle Items",
-     "desc": "Auch ohne Waffe (sonst nur Schwert, Axt, Speer, Streitkolben, Dreizack)",
+     "name": "All items",
+     "desc": "Also without a weapon (otherwise only sword, axe, spear, mace, trident)",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Krit-Funken",
-     "desc": "Größerer Schnitt mit Funken bei kritischen Treffern",
+     "name": "Crit sparks",
+     "desc": "Bigger slash with sparks on critical hits",
      "type": "bool",
      "default": true
     }
@@ -2529,13 +2529,13 @@
   },
   {
    "id": "HitFx",
-   "name": "Treffereffekte",
+   "name": "Hit effects",
    "category": "VISUALS",
-   "description": "Treffer sprühen leuchtende Funken mit einem Ring (Krits in Gold), Kills lösen sich in aufsteigende Ringe und eine Lichtsäule auf.",
+   "description": "Hits spray glowing sparks with a ring (crits in gold), kills dissolve into rising rings and a pillar of light.",
    "settings": [
     {
-     "name": "Funken",
-     "desc": "Funken pro Treffer",
+     "name": "Sparks",
+     "desc": "Sparks per hit",
      "type": "number",
      "default": 12,
      "min": 4,
@@ -2543,14 +2543,14 @@
      "step": 2
     },
     {
-     "name": "Trefferring",
-     "desc": "Ring, der sich am Treffpunkt zu dir hin öffnet",
+     "name": "Hit ring",
+     "desc": "Ring that opens towards you at the hit point",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Kill-Effekt",
-     "desc": "Getötete Ziele lösen sich in aufsteigende Ringe und eine Lichtsäule auf",
+     "name": "Kill effect",
+     "desc": "Killed targets dissolve into rising rings and a pillar of light",
      "type": "bool",
      "default": true
     }
@@ -2559,25 +2559,25 @@
   },
   {
    "id": "JumpFx",
-   "name": "Sprungeffekte",
+   "name": "Jump effects",
    "category": "VISUALS",
-   "description": "Leuchtender Ring beim Springen, Druckwelle mit Funken beim Landen – je höher der Fall, desto größer.",
+   "description": "Glowing ring when jumping, shock wave with sparks when landing – the higher the fall, the bigger.",
    "settings": [
     {
-     "name": "Sprung",
-     "desc": "Ring an den Füßen beim Abspringen",
+     "name": "Jump ring",
+     "desc": "Ring at your feet when you jump",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Landung",
-     "desc": "Druckwelle und Funken beim Landen (stärker, je tiefer der Fall)",
+     "name": "Landing",
+     "desc": "Shock wave and sparks when landing (stronger the deeper the fall)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Andere Spieler",
-     "desc": "Auch bei anderen Spielern in der Nähe",
+     "name": "Other players",
+     "desc": "Also for other players nearby",
      "type": "bool",
      "default": false
     }
@@ -2586,25 +2586,25 @@
   },
   {
    "id": "ElytraFx",
-   "name": "Elytra-Spuren",
+   "name": "Elytra trails",
    "category": "VISUALS",
-   "description": "Beim Elytra-Flug ziehen beide Flügelspitzen leuchtende Windbänder hinter sich her, Windstreifen rauschen vorbei.",
+   "description": "While flying with an elytra, both wing tips pull glowing ribbons of wind behind them and streaks of wind rush past.",
    "settings": [
     {
-     "name": "Flügelspuren",
-     "desc": "Leuchtende Bänder von beiden Flügelspitzen (in der 3. Person sichtbar)",
+     "name": "Wing trails",
+     "desc": "Glowing ribbons from both wing tips (visible in third person)",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Windlinien",
-     "desc": "Windstreifen, die an dir vorbeirauschen – je schneller, desto mehr",
+     "name": "Wind lines",
+     "desc": "Streaks of wind rushing past you – the faster, the more",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Länge",
-     "desc": "Wie lange die Spuren bleiben (Sekunden)",
+     "name": "Length",
+     "desc": "How long the trails stay (seconds)",
      "type": "number",
      "default": 1.2,
      "min": 0.3,
@@ -2616,13 +2616,13 @@
   },
   {
    "id": "TrailFx",
-   "name": "Laufspur",
+   "name": "Run trail",
    "category": "VISUALS",
-   "description": "Beim Laufen bleibt eine Spur aus leuchtenden Punkten hinter deinen Füßen, die langsam aufsteigt und verblasst.",
+   "description": "While running, a trail of glowing dots stays behind your feet, slowly rising and fading.",
    "settings": [
     {
-     "name": "Nur Sprinten",
-     "desc": "Nur beim Sprinten (sonst bei jeder Bewegung)",
+     "name": "Only sprinting",
+     "desc": "Only while sprinting (otherwise on every movement)",
      "type": "bool",
      "default": true
     }
@@ -2631,19 +2631,19 @@
   },
   {
    "id": "RingAura",
-   "name": "Ringaura",
+   "name": "Ring aura",
    "category": "VISUALS",
-   "description": "Das Nautilus-Markenzeichen um deine Füße: zwei gegenläufig drehende Ringe und kreisende Lichter.",
+   "description": "The Nautilus trademark around your feet: two counter-rotating rings and circling lights.",
    "settings": [
     {
-     "name": "Nur 3. Person",
-     "desc": "Nur zeigen, wenn die Kamera nicht in deinem Kopf ist",
+     "name": "Only 3rd person",
+     "desc": "Only show when the camera is not in your head",
      "type": "bool",
      "default": false
     },
     {
-     "name": "Lichter",
-     "desc": "Drei Lichter kreisen um dich",
+     "name": "Lights",
+     "desc": "Three lights circle around you",
      "type": "bool",
      "default": true
     }
@@ -2652,9 +2652,9 @@
   },
   {
    "id": "PopFx",
-   "name": "Totem-Effekt",
+   "name": "Totem effect",
    "category": "VISUALS",
-   "description": "Wenn jemand ein Totem verbraucht: goldene und grüne Ringe schießen an ihm hoch, dazu ein Funkenregen.",
+   "description": "When someone pops a totem: golden and green rings shoot up around them, with a shower of sparks.",
    "settings": [],
    "presets": []
   },
@@ -2662,17 +2662,17 @@
    "id": "Hud",
    "name": "HUD",
    "category": "CLIENT",
-   "description": "Zeigt die HUD-Elemente (Logo, Module, Koordinaten, FPS, …). Anordnen im HUD-Editor.",
+   "description": "Shows the HUD elements (logo, modules, coordinates, FPS, …). Arrange them in the HUD editor.",
    "settings": [
     {
      "name": "Liquid Glass",
-     "desc": "Echtes Flüssigglas (Unschärfe + Lichtbrechung) für Rad und HUD. Aus = leichteres, einfaches Glas, bessere FPS",
+     "desc": "Real liquid glass (blur + refraction) for the wheel and HUD. Off = lighter, simple glass, better FPS",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Rad-Größe",
-     "desc": "Größe des Rads in Prozent",
+     "name": "Wheel size",
+     "desc": "Size of the wheel in percent",
      "type": "number",
      "default": 100,
      "min": 60,
@@ -2680,8 +2680,8 @@
      "step": 5
     },
     {
-     "name": "HUD-Farbe",
-     "desc": "Akzentfarbe des ganzen Clients: Rad, Einstellungen, HUD, Logo und Glas-Tönung (Regenbogen = wechselt langsam durch alle Farben)",
+     "name": "HUD color",
+     "desc": "Accent colour of the whole client: wheel, settings, HUD, logo and glass tint (Rainbow = slowly cycles through all colours)",
      "type": "mode",
      "default": null,
      "modes": [
@@ -2693,9 +2693,9 @@
   },
   {
    "id": "HudEditor",
-   "name": "HUD-Editor",
+   "name": "HUD editor",
    "category": "CLIENT",
-   "description": "HUD-Elemente verschieben, ein- und ausblenden.",
+   "description": "Move, show and hide HUD elements.",
    "settings": [],
    "presets": []
   },
@@ -2703,39 +2703,39 @@
    "id": "Notifications",
    "name": "Notifications",
    "category": "CLIENT",
-   "description": "Zeigt im HUD an, wenn ein Modul an- oder ausgeschaltet wird.",
+   "description": "Shows in the HUD when a module is turned on or off.",
    "settings": [],
    "presets": []
   },
   {
    "id": "Setup",
-   "name": "Einrichtung",
+   "name": "Setup",
    "category": "CLIENT",
-   "description": "Ersteinrichtung erneut öffnen: Rad-Taste, Rad-Größe, Liquid Glass, Hinweise.",
+   "description": "Open the first-start setup again: wheel key, wheel size, Liquid Glass, notes.",
    "settings": [],
    "presets": []
   },
   {
    "id": "FriendsModule",
-   "name": "Freunde",
+   "name": "Friends",
    "category": "CLIENT",
-   "description": "Freundesliste: Mittelklick auf einen Spieler = Freund an/aus. Freunde werden von Combat-Modulen nicht angegriffen und grün markiert.",
+   "description": "Friend list: middle-click a player to add/remove them. Combat modules never attack friends, and they are marked green.",
    "settings": [
     {
-     "name": "Schützen",
-     "desc": "Combat-, Crystal- und Mace-Module greifen Freunde nie an",
+     "name": "Protect",
+     "desc": "Combat, crystal and mace modules never attack friends",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Mittelklick",
-     "desc": "Mittelklick auf einen Spieler fügt ihn hinzu bzw. entfernt ihn",
+     "name": "Middle-click",
+     "desc": "Middle-click a player to add or remove them",
      "type": "bool",
      "default": true
     },
     {
-     "name": "Alle entfernen",
-     "desc": "Einschalten leert die Freundesliste (springt danach wieder auf aus)",
+     "name": "Remove all",
+     "desc": "Turning it on clears the friend list (then switches back off)",
      "type": "bool",
      "default": false
     }
@@ -2746,11 +2746,11 @@
    "id": "AutoReconnect",
    "name": "AutoReconnect",
    "category": "CLIENT",
-   "description": "Verbindet nach einem Kick oder Verbindungsabbruch automatisch neu – mit Countdown, Zurück-Knopf bricht ab.",
+   "description": "Reconnects automatically after a kick or lost connection – with a countdown, the back button cancels.",
    "settings": [
     {
-     "name": "Verzögerung",
-     "desc": "Sekunden bis zum erneuten Verbinden",
+     "name": "Delay",
+     "desc": "Seconds until reconnecting",
      "type": "number",
      "default": 5,
      "min": 1,
@@ -2758,8 +2758,8 @@
      "step": 1
     },
     {
-     "name": "Versuche",
-     "desc": "So oft hintereinander versuchen (danach aufgeben)",
+     "name": "Attempts",
+     "desc": "How many times in a row to try (then give up)",
      "type": "number",
      "default": 5,
      "min": 1,

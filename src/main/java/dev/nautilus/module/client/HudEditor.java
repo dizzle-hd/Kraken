@@ -8,7 +8,7 @@ import net.minecraft.world.item.Items;
 /** Not a toggle: clicking it in the wheel opens the HUD editor. */
 public class HudEditor extends Module {
     public HudEditor() {
-        super("HUD-Editor", "HUD-Elemente verschieben, ein- und ausblenden.", Category.CLIENT, Items.PAINTING);
+        super("HUD editor", "Move, show and hide HUD elements.", Category.CLIENT, Items.PAINTING);
     }
 
     @Override

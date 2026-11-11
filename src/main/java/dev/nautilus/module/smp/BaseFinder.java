@@ -55,14 +55,14 @@ public class BaseFinder extends Module {
 
     /** The different kinds of hints. */
     public enum Hint {
-        AMETHYST("Amethyst-Wachstum", 0xFFC77DFF),
-        KELP("Gewachsenes Kelp", 0xFF4CD964),
-        STORAGE("Lager", 0xFFFFB347),
-        PLAYER_BLOCK("Spieler-Block", 0xFF5AC8FA),
-        PORTAL("Aktives Portal", 0xFFB45AFF),
-        SOUND("Geräusch", 0xFFFF5A5A),
-        MOB_SOUND("Mob-/Schritt-Geräusch", 0xFFFF9F43),
-        ENTITY("Objekt", 0xFFFFE066);
+        AMETHYST("Amethyst growth", 0xFFC77DFF),
+        KELP("Grown kelp", 0xFF4CD964),
+        STORAGE("Storage", 0xFFFFB347),
+        PLAYER_BLOCK("Player block", 0xFF5AC8FA),
+        PORTAL("Active portal", 0xFFB45AFF),
+        SOUND("Sound", 0xFFFF5A5A),
+        MOB_SOUND("Mob / step sound", 0xFFFF9F43),
+        ENTITY("Object", 0xFFFFE066);
 
         public final String label;
         public final int color;
@@ -78,40 +78,40 @@ public class BaseFinder extends Module {
 
     // --- sub modules (each can be turned on / off) --------------------------------------------
     private final BoolSetting amethyst = add(new BoolSetting("Amethyst-Grower",
-            "Geoden mit vielen ausgewachsenen Amethyst-Clustern = Chunk war lange geladen (Spieler in der Nähe)", true));
-    private final NumberSetting amethystRatio = add(new NumberSetting("Cluster-Anteil",
-            "Ab welchem Anteil ausgewachsener Cluster ein Chunk markiert wird", 0.6, 0.2, 1.0, 0.05).visibleWhen(amethyst::isOn));
-    private final BoolSetting sounds = add(new BoolSetting("Sound-Blöcke",
-            "Markiert Blöcke, an denen der Server Geräusche abspielt (Kolben, Türen, Truhen, Öfen, Amboss …)", true));
-    private final BoolSetting buildSounds = add(new BoolSetting("Bau-Geräusche",
-            "Auch Abbau-/Platzier-Geräusche anderer Spieler markieren", true).visibleWhen(sounds::isOn));
-    private final BoolSetting redstoneSounds = add(new BoolSetting("Redstone-Geräusche",
-            "Komparatoren, Fackeln, Stolperdraht, Sculk, Kupfer-Lampen, Werfer, Kolben …", true).visibleWhen(sounds::isOn));
-    private final BoolSetting mobSounds = add(new BoolSetting("Mob-Geräusche",
-            "Geräusche von Dorfbewohnern & anderen Mobs: der Block, auf dem sie stehen, wird markiert", true).visibleWhen(sounds::isOn));
-    private final BoolSetting stepSounds = add(new BoolSetting("Schritte",
-            "Schritt-Geräusche von Spielern und Mobs: markiert den Block unter ihnen", true).visibleWhen(sounds::isOn));
-    private final BoolSetting allSounds = add(new BoolSetting("Alle Geräusche",
-            "Jedes Geräusch vom Server markieren (außer Musik, Wetter, Umgebung)", false).visibleWhen(sounds::isOn));
-    private final NumberSetting soundTime = add(new NumberSetting("Sound-Dauer",
-            "Wie lange Sound-Markierungen sichtbar bleiben (Sekunden)", 60, 5, 600, 5).visibleWhen(sounds::isOn));
-    private final BoolSetting storage = add(new BoolSetting("Lager",
-            "Chunks mit vielen Truhen/Fässern/Öfen/Trichtern, sowie jede Shulker- und Endertruhe", true));
-    private final NumberSetting storageMin = add(new NumberSetting("Min. Lager",
-            "Ab wie vielen Lager-Blöcken ein Chunk markiert wird", 4, 1, 30, 1).visibleWhen(storage::isOn));
-    private final BoolSetting playerBlocks = add(new BoolSetting("Spieler-Blöcke",
-            "Blöcke, die fast nie natürlich vorkommen (Leuchtfeuer, Zaubertisch, Amboss, Schilder, Beobachter …)", true));
-    private final BoolSetting portals = add(new BoolSetting("Portale",
-            "Aktivierte Netherportale in der Oberwelt / im End", true));
-    private final BoolSetting kelp = add(new BoolSetting("Kelp-Wachstum",
-            "Kelp, das bis zur Wasseroberfläche gewachsen ist = Chunk war lange geladen", false));
-    private final NumberSetting kelpMin = add(new NumberSetting("Min. Kelp",
-            "Ab wie vielen ausgewachsenen Kelp-Spitzen ein Chunk markiert wird", 12, 3, 60, 1).visibleWhen(kelp::isOn));
-    private final BoolSetting entities = add(new BoolSetting("Objekte",
-            "Rahmen, Rüstungsständer, benannte & gezähmte Tiere, Kistenloren", true));
-    private final BoolSetting chat = add(new BoolSetting("Meldungen", "Funde als HUD-Benachrichtigung melden", true));
-    private final BoolSetting tracers = add(new BoolSetting("Tracer", "Linien von dir zu den Funden zeichnen", false));
-    private final NumberSetting scanSpeed = add(new NumberSetting("Scan-Tempo", "Chunks pro Tick (höher = schneller, mehr Last)", 2, 1, 10, 1));
+            "Geodes with many fully grown amethyst clusters = the chunk was loaded for a long time (players nearby)", true));
+    private final NumberSetting amethystRatio = add(new NumberSetting("Cluster share",
+            "From which share of grown clusters a chunk is marked", 0.6, 0.2, 1.0, 0.05).visibleWhen(amethyst::isOn));
+    private final BoolSetting sounds = add(new BoolSetting("Sound blocks",
+            "Marks blocks where the server plays sounds (pistons, doors, chests, furnaces, anvils …)", true));
+    private final BoolSetting buildSounds = add(new BoolSetting("Building sounds",
+            "Also mark break/place sounds of other players", true).visibleWhen(sounds::isOn));
+    private final BoolSetting redstoneSounds = add(new BoolSetting("Redstone sounds",
+            "Comparators, torches, tripwire, sculk, copper bulbs, dispensers, pistons …", true).visibleWhen(sounds::isOn));
+    private final BoolSetting mobSounds = add(new BoolSetting("Mob sounds",
+            "Sounds of villagers & other mobs: the block they stand on is marked", true).visibleWhen(sounds::isOn));
+    private final BoolSetting stepSounds = add(new BoolSetting("Footsteps",
+            "Step sounds of players and mobs: marks the block below them", true).visibleWhen(sounds::isOn));
+    private final BoolSetting allSounds = add(new BoolSetting("All sounds",
+            "Mark every sound from the server (except music, weather, ambience)", false).visibleWhen(sounds::isOn));
+    private final NumberSetting soundTime = add(new NumberSetting("Sound duration",
+            "How long sound marks stay visible (seconds)", 60, 5, 600, 5).visibleWhen(sounds::isOn));
+    private final BoolSetting storage = add(new BoolSetting("Storage",
+            "Chunks with many chests/barrels/furnaces/hoppers, plus every shulker box and ender chest", true));
+    private final NumberSetting storageMin = add(new NumberSetting("Min. storage",
+            "From how many storage blocks a chunk is marked", 4, 1, 30, 1).visibleWhen(storage::isOn));
+    private final BoolSetting playerBlocks = add(new BoolSetting("Player blocks",
+            "Blocks that almost never generate naturally (beacons, enchanting tables, anvils, signs, observers …)", true));
+    private final BoolSetting portals = add(new BoolSetting("Portals",
+            "Activated nether portals in the overworld / the End", true));
+    private final BoolSetting kelp = add(new BoolSetting("Kelp growth",
+            "Kelp grown up to the water surface = the chunk was loaded for a long time", false));
+    private final NumberSetting kelpMin = add(new NumberSetting("Min. kelp",
+            "From how many fully grown kelp tops a chunk is marked", 12, 3, 60, 1).visibleWhen(kelp::isOn));
+    private final BoolSetting entities = add(new BoolSetting("Objects",
+            "Item frames, armor stands, named & tamed animals, chest minecarts", true));
+    private final BoolSetting chat = add(new BoolSetting("Notifications", "Report finds as HUD notifications", true));
+    private final BoolSetting tracers = add(new BoolSetting("Tracer", "Draw lines from you to the finds", false));
+    private final NumberSetting scanSpeed = add(new NumberSetting("Scan speed", "Chunks per tick (higher = faster, more load)", 2, 1, 10, 1));
 
     // --- state ----------------------------------------------------------------------------------
     private final Map<Long, List<Mark>> results = new ConcurrentHashMap<>();
@@ -148,7 +148,7 @@ public class BaseFinder extends Module {
     private static final int MAX_SOUND_MARKS = 600;
 
     public BaseFinder() {
-        super("BaseFinder", "Sucht Hinweise auf Basen: Amethyst-Wachstum, Sound-Blöcke, Lager, Spieler-Blöcke und mehr.",
+        super("BaseFinder", "Looks for signs of bases: amethyst growth, sound blocks, storage, player blocks and more.",
                 Category.SMP, Items.RECOVERY_COMPASS);
     }
 
@@ -243,7 +243,7 @@ public class BaseFinder extends Module {
             }
             if (storageBlocks.size() >= storageMin.getInt()) {
                 for (BlockPos p : storageBlocks) marks.add(new Mark(p, Hint.STORAGE));
-                notify(cp, Hint.STORAGE, storageBlocks.size() + " Lager-Blöcke", storageBlocks.get(0));
+                notify(cp, Hint.STORAGE, storageBlocks.size() + " storage blocks", storageBlocks.get(0));
             }
         }
 
@@ -252,7 +252,7 @@ public class BaseFinder extends Module {
             for (BlockEntity be : chunk.getBlockEntities().values()) {
                 if (be instanceof SignBlockEntity) {
                     marks.add(new Mark(be.getBlockPos(), Hint.PLAYER_BLOCK));
-                    notify(cp, Hint.PLAYER_BLOCK, "Schild", be.getBlockPos());
+                    notify(cp, Hint.PLAYER_BLOCK, "Sign", be.getBlockPos());
                 }
             }
         }
@@ -304,7 +304,7 @@ public class BaseFinder extends Module {
                                 notify(cp, Hint.PLAYER_BLOCK, b.getName().getString(), mutable.immutable());
                             } else if (wantPortal && b == Blocks.NETHER_PORTAL) {
                                 marks.add(new Mark(mutable.immutable(), Hint.PORTAL));
-                                notify(cp, Hint.PORTAL, "Netherportal", mutable.immutable());
+                                notify(cp, Hint.PORTAL, "Nether portal", mutable.immutable());
                             }
                         }
                     }
@@ -314,11 +314,11 @@ public class BaseFinder extends Module {
             int total = buds + clusters;
             if (wantAmethyst && total >= 6 && (double) clusters / total >= amethystRatio.get()) {
                 for (BlockPos p : clusterPos) marks.add(new Mark(p, Hint.AMETHYST));
-                notify(cp, Hint.AMETHYST, clusters + "/" + total + " Cluster ausgewachsen", clusterPos.isEmpty() ? cp.getWorldPosition() : clusterPos.get(0));
+                notify(cp, Hint.AMETHYST, clusters + "/" + total + " clusters grown", clusterPos.isEmpty() ? cp.getWorldPosition() : clusterPos.get(0));
             }
             if (wantKelp && kelpTops >= kelpMin.getInt()) {
                 for (BlockPos p : kelpPos) marks.add(new Mark(p, Hint.KELP));
-                notify(cp, Hint.KELP, kelpTops + " Kelp-Spitzen an der Oberfläche", kelpPos.get(0));
+                notify(cp, Hint.KELP, kelpTops + " kelp tops at the surface", kelpPos.get(0));
             }
         }
         return marks;
@@ -402,16 +402,16 @@ public class BaseFinder extends Module {
     public void onWorldEvent(int eventId, BlockPos pos) {
         if (!sounds.isOn()) return;
         String name = switch (eventId) {
-            case 1000, 1001, 1002 -> "Werfer/Spender";
-            case 1010 -> "Plattenspieler";
-            case 1029, 1030, 1031 -> "Amboss";
-            case 1035 -> "Braustand";
-            case 1042 -> "Schleifstein";
-            case 1044 -> "Schmiedetisch";
-            case 1043 -> "Lesepult";
-            case 1049 -> "Werkbank (Crafter)";
+            case 1000, 1001, 1002 -> "Dispenser/dropper";
+            case 1010 -> "Jukebox";
+            case 1029, 1030, 1031 -> "Anvil";
+            case 1035 -> "Brewing stand";
+            case 1042 -> "Grindstone";
+            case 1044 -> "Smithing table";
+            case 1043 -> "Lectern";
+            case 1049 -> "Crafter";
             case 1032 -> "Portal";
-            case 1004 -> "Feuerwerk";
+            case 1004 -> "Firework";
             default -> null;
         };
         if (name != null) addSound(pos.immutable(), name, Hint.SOUND);

@@ -66,9 +66,9 @@ public final class RotationUtil {
         double mx = box.getXsize() * 0.2, mz = box.getZsize() * 0.2;
         double minX = box.minX + mx, maxX = box.maxX - mx, minZ = box.minZ + mz, maxZ = box.maxZ - mz;
         return switch (part) {
-            case "Kopf" -> new AABB(minX, box.maxY - h * 0.2, minZ, maxX, box.maxY - h * 0.05, maxZ);
-            case "Brust" -> new AABB(minX, box.minY + h * 0.55, minZ, maxX, box.minY + h * 0.7, maxZ);
-            case "Beine" -> new AABB(minX, box.minY + h * 0.15, minZ, maxX, box.minY + h * 0.35, maxZ);
+            case "Head" -> new AABB(minX, box.maxY - h * 0.2, minZ, maxX, box.maxY - h * 0.05, maxZ);
+            case "Chest" -> new AABB(minX, box.minY + h * 0.55, minZ, maxX, box.minY + h * 0.7, maxZ);
+            case "Legs" -> new AABB(minX, box.minY + h * 0.15, minZ, maxX, box.minY + h * 0.35, maxZ);
             default -> new AABB(minX, box.minY + h * 0.2, minZ, maxX, box.maxY - h * 0.08, maxZ);
         };
     }

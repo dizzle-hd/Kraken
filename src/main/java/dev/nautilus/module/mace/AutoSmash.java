@@ -24,29 +24,29 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 /**
- * Hits for you while you fall onto a target: one smash per fall. With timing "Spät" it waits for the
+ * Hits for you while you fall onto a target: one smash per fall. With timing "Late" it waits for the
  * last tick in reach (or before you land), because the smash damage grows with every block of the fall.
  * The mace comes from the hand or – with MaceSwap on – from the hotbar.
  */
 public class AutoSmash extends Module {
-    private final BoolSetting players = add(new BoolSetting("Spieler", "Spieler treffen", true));
-    private final BoolSetting hostiles = add(new BoolSetting("Monster", "Feindliche Mobs treffen", true));
-    private final BoolSetting passives = add(new BoolSetting("Tiere", "Friedliche Mobs treffen", false));
-    private final NumberSetting minFall = add(new NumberSetting("Min. Fallhöhe", "Erst ab dieser Fallhöhe zuschlagen (Blöcke)", 3, 1.5, 30, 0.5));
-    private final NumberSetting range = add(new NumberSetting("Reichweite", "Maximale Reichweite in Blöcken", 3.0, 2.0, 4.5, 0.1));
-    private final ModeSetting timing = add(new ModeSetting("Timing", "Spät = im letzten Tick vor dem Aufprall / bevor das Ziel aus der Reichweite fällt (mehr Schaden), Sofort = sobald in Reichweite", "Spät", "Spät", "Sofort"));
-    private final ModeSetting aim = add(new ModeSetting("Zielen", "Fadenkreuz = nur was du anvisierst, Silent = nächstes Ziel, die Drehung geht nur an den Server", "Fadenkreuz", "Fadenkreuz", "Silent"));
-    private final BoolSetting needMace = add(new BoolSetting("Nur mit Streitkolben", "Nur zuschlagen, wenn ein Streitkolben in der Hand ist (oder MaceSwap einen hat)", true));
+    private final BoolSetting players = add(new BoolSetting("Players", "Hit players", true));
+    private final BoolSetting hostiles = add(new BoolSetting("Monsters", "Hit hostile mobs", true));
+    private final BoolSetting passives = add(new BoolSetting("Animals", "Hit passive mobs", false));
+    private final NumberSetting minFall = add(new NumberSetting("Min. fall height", "Only hit from this fall height on (blocks)", 3, 1.5, 30, 0.5));
+    private final NumberSetting range = add(new NumberSetting("Range", "Maximum range in blocks", 3.0, 2.0, 4.5, 0.1));
+    private final ModeSetting timing = add(new ModeSetting("Timing", "Late = in the last tick before impact / before the target leaves range (more damage), Instant = as soon as in range", "Late", "Late", "Instant"));
+    private final ModeSetting aim = add(new ModeSetting("Aiming", "Crosshair = only what you aim at, Silent = nearest target, the rotation only goes to the server", "Crosshair", "Crosshair", "Silent"));
+    private final BoolSetting needMace = add(new BoolSetting("Only with mace", "Only hit when a mace is in hand (or MaceSwap has one)", true));
 
     private boolean hitThisFall;
     private double lastFall;
 
     public AutoSmash() {
-        super("AutoSmash", "Trifft beim Fallen automatisch mit dem Streitkolben – im letzten Moment für maximalen Smash-Schaden.",
+        super("AutoSmash", "Hits automatically with the mace while falling – at the last moment for maximum smash damage.",
                 Category.MACE, Items.HEAVY_CORE);
-        preset("Legit", LOW, "Nur im Fadenkreuz, normale Reichweite", "Zielen", "Fadenkreuz", "Reichweite", 2.9, "Timing", "Spät", "Min. Fallhöhe", 3.0);
-        preset("Normal", MEDIUM, "Fadenkreuz, volle Reichweite", "Zielen", "Fadenkreuz", "Reichweite", 3.0, "Timing", "Spät", "Min. Fallhöhe", 2.0);
-        preset("Rage", HIGH, "Silent auf das nächste Ziel, mehr Reichweite", "Zielen", "Silent", "Reichweite", 4.0, "Timing", "Spät", "Min. Fallhöhe", 1.5);
+        preset("Legit", LOW, "Only in the crosshair, normal range", "Aiming", "Crosshair", "Range", 2.9, "Timing", "Late", "Min. fall height", 3.0);
+        preset("Normal", MEDIUM, "Crosshair, full range", "Aiming", "Crosshair", "Range", 3.0, "Timing", "Late", "Min. fall height", 2.0);
+        preset("Rage", HIGH, "Silent on the nearest target, more range", "Aiming", "Silent", "Range", 4.0, "Timing", "Late", "Min. fall height", 1.5);
     }
 
     @Override
@@ -80,7 +80,7 @@ public class AutoSmash extends Module {
         Vec3 eyes = p.getEyePosition();
         LivingEntity target = null;
         if (aim.is("Silent")) {
-            List<LivingEntity> list = TargetUtil.find(filter(), range.get(), 360f, false, "Distanz");
+            List<LivingEntity> list = TargetUtil.find(filter(), range.get(), 360f, false, "Distance");
             if (!list.isEmpty()) target = list.get(0);
         } else if (mc.hitResult instanceof EntityHitResult hit && hit.getEntity() instanceof LivingEntity e
                 && TargetUtil.isValid(e, filter())
@@ -88,7 +88,7 @@ public class AutoSmash extends Module {
             target = e;
         }
         if (target == null) return;
-        if (timing.is("Spät") && !lastChance(target)) return;
+        if (timing.is("Late") && !lastChance(target)) return;
 
         if (aim.is("Silent")) {
             AABB area = RotationUtil.aimArea(RotationUtil.predictedBox(target, 1f, 1), "Auto");

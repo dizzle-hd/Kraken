@@ -12,11 +12,11 @@ import net.minecraft.world.phys.Vec3;
 
 /** The Nautilus ring around your feet: two counter-rotating dashed rings and orbiting lights. */
 public class RingAura extends Module {
-    private final BoolSetting thirdPerson = add(new BoolSetting("Nur 3. Person", "Nur zeigen, wenn die Kamera nicht in deinem Kopf ist", false));
-    private final BoolSetting orbit = add(new BoolSetting("Lichter", "Drei Lichter kreisen um dich", true));
+    private final BoolSetting thirdPerson = add(new BoolSetting("Only 3rd person", "Only show when the camera is not in your head", false));
+    private final BoolSetting orbit = add(new BoolSetting("Lights", "Three lights circle around you", true));
 
     public RingAura() {
-        super("Ringaura", "Das Nautilus-Markenzeichen um deine Füße: zwei gegenläufig drehende Ringe und kreisende Lichter.",
+        super("Ring aura", "The Nautilus trademark around your feet: two counter-rotating rings and circling lights.",
                 Category.VISUALS, Items.HEART_OF_THE_SEA);
     }
 

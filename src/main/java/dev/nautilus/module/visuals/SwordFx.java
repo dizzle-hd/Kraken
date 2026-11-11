@@ -20,15 +20,15 @@ import net.minecraft.world.phys.Vec3;
  * and slightly tilted; critical hits (while falling) get a bigger slash with sparks at the tip.
  */
 public class SwordFx extends Module {
-    private final NumberSetting size = add(new NumberSetting("Größe", "Radius des Luftschnitts in Blöcken", 1.6, 0.8, 3.0, 0.1));
-    private final BoolSetting allItems = add(new BoolSetting("Alle Items", "Auch ohne Waffe (sonst nur Schwert, Axt, Speer, Streitkolben, Dreizack)", false));
-    private final BoolSetting crits = add(new BoolSetting("Krit-Funken", "Größerer Schnitt mit Funken bei kritischen Treffern", true));
+    private final NumberSetting size = add(new NumberSetting("Size", "Radius of the air slash in blocks", 1.6, 0.8, 3.0, 0.1));
+    private final BoolSetting allItems = add(new BoolSetting("All items", "Also without a weapon (otherwise only sword, axe, spear, mace, trident)", false));
+    private final BoolSetting crits = add(new BoolSetting("Crit sparks", "Bigger slash with sparks on critical hits", true));
 
     private int dir = 1;
     private long lastSlash;
 
     public SwordFx() {
-        super("Schwerthieb", "Jeder Schlag schneidet eine leuchtende Sichel durch die Luft – abwechselnd links/rechts, Krits mit Funken.",
+        super("Sword slash", "Every swing cuts a glowing crescent through the air – alternating left/right, crits with sparks.",
                 Category.VISUALS, Items.NETHERITE_SWORD);
     }
 

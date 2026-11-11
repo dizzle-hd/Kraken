@@ -19,7 +19,7 @@ public class ArmorHudElement extends HudElement {
     private static List<ItemStack> demo;
 
     public ArmorHudElement() {
-        super("armorhud", "Rüstungs-HUD", true, CENTER, END, 0, 58);
+        super("armorhud", "Armor HUD", true, CENTER, END, 0, 58);
     }
 
     private static List<ItemStack> demo() {

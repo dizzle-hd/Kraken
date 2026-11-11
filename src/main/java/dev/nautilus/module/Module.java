@@ -22,7 +22,7 @@ public abstract class Module {
     private ItemStack iconStack;
     private boolean enabled;
     private final List<Setting<?>> settings = new ArrayList<>();
-    public final KeySetting keybind = new KeySetting("Taste", "Taste zum An-/Ausschalten (Rechtsklick im Feld = entfernen)", -1);
+    public final KeySetting keybind = new KeySetting("Key", "Key to toggle the module (right-click the field = remove)", -1);
 
     protected Module(String name, String description, Category category, Item icon) {
         this.name = name;
