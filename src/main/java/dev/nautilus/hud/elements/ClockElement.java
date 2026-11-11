@@ -17,7 +17,7 @@ public class ClockElement extends HudElement {
     private static final DateTimeFormatter HM = DateTimeFormatter.ofPattern("HH:mm"), SS = DateTimeFormatter.ofPattern("ss");
 
     public ClockElement() {
-        super("clock", "Clock", false, START, START, 5, 31);
+        super("clock", "Clock", false, END, END, 5, 5);
     }
 
     @Override public float width(boolean editor) { return HudStyle.panels() ? 74f : labelValueWidth("Time", LocalDateTime.now().format(HM)); }

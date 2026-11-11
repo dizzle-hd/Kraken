@@ -17,7 +17,7 @@ public class SuppliesElement extends ListPanelElement {
     private static final ItemStack[] ICONS = new ItemStack[ITEMS.length];
 
     public SuppliesElement() {
-        super("supplies", "Resources", Icons.CUBE, "Resources", false, END, CENTER, 5, 60);
+        super("supplies", "Resources", Icons.CUBE, "Resources", false, END, CENTER, 5, 40);
     }
 
     @Override protected boolean hideWhenEmpty() { return false; }

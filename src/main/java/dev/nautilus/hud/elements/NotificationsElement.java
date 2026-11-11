@@ -14,7 +14,7 @@ public class NotificationsElement extends HudElement {
     private static final float H = 18f, GAP = 4f, MAX_W = 260f;
 
     public NotificationsElement() {
-        super("notifications", "Notifications", true, END, END, 5, 30);
+        super("notifications", "Notifications", true, END, END, 5, 32);
     }
 
     private List<Notifications.Toast> toasts(boolean editor) {

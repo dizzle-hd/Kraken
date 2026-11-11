@@ -15,7 +15,7 @@ public class KeystrokesElement extends HudElement {
     private final float[] glow = new float[7];
 
     public KeystrokesElement() {
-        super("keystrokes", "Keystrokes", false, START, CENTER, 5, 10);
+        super("keystrokes", "Keystrokes", false, START, END, 5, 87);
     }
 
     @Override public float width(boolean editor) { return W; }

@@ -81,7 +81,7 @@ public final class HudManager {
         elements.add(new ValueElement("day", "Day", "Day", false, CENTER, START, 0, 28,
                 () -> mc.level == null ? "1" : String.valueOf(mc.level.getOverworldClockTime() / 24000L + 1), () -> HudStyle.TEXT)
                 .tile(Icons.CLOCK, "Day", null));
-        elements.add(new ValueElement("death", "Death point", "Death", false, START, END, 5, 38,
+        elements.add(new ValueElement("death", "Death point", "Death", false, START, END, 5, 63,
                 this::deathPoint, () -> HudStyle.TEXT).tile(Icons.SKULL, "", null));
         elements.add(new dev.nautilus.hud.elements.KeybindsElement());
     }

@@ -72,32 +72,37 @@ public final class Effects {
      * @param dir     +1 = sweep left→right, -1 = right→left
      */
     public static Fx.Effect slash(Vec3 eye, Vec3 forward, Vec3 right, Vec3 upv, float tilt, int dir, float radius, int rgb, float alpha, long lifeMs) {
+        // the crescent lies in front of you, across the view (plane of right/up), tilted around the view axis
         Vec3 r = right.scale(Math.cos(tilt)).add(upv.scale(Math.sin(tilt)));
-        Vec3 center = eye.add(forward.scale(-0.15)).add(upv.scale(-0.12));
-        float span = (float) Math.toRadians(150);
+        Vec3 u = upv.scale(Math.cos(tilt)).subtract(right.scale(Math.sin(tilt)));
+        Vec3 center = eye.add(forward.scale(1.15)).add(upv.scale(0.25));
+        float a0 = (float) Math.toRadians(195), a1 = (float) Math.toRadians(345); // lower arc: a sweeping cut
         long born = System.currentTimeMillis();
         return (fx, now) -> {
             float t = (now - born) / (float) lifeMs;
             if (t > 1f) return false;
-            float reveal = Math.min(1f, t / 0.35f);
-            float fade = t < 0.35f ? 1f : 1f - (t - 0.35f) / 0.65f;
-            int seg = 36;
+            float reveal = Math.min(1f, t / 0.3f);
+            float fade = t < 0.3f ? 1f : 1f - (t - 0.3f) / 0.7f;
+            int seg = 40;
             List<Vec3> pts = new ArrayList<>(), sides = new ArrayList<>(), core = new ArrayList<>(), coreSides = new ArrayList<>();
             float[] al = new float[seg + 1], cal = new float[seg + 1];
+            float rr = radius * 0.6f * (1f + 0.12f * t);
             for (int i = 0; i <= seg; i++) {
-                float u = i / (float) seg;
-                float ang = dir * (-span / 2 + span * u * reveal);
-                Vec3 radial = forward.scale(Math.cos(ang)).add(r.scale(Math.sin(ang)));
-                float rr = radius * (1f + 0.15f * t);
-                Vec3 p = center.add(radial.scale(rr));
-                float taper = (float) Math.sin(Math.PI * u);
-                float head = 0.35f + 0.65f * u;                            // brighter towards the blade
+                float k = i / (float) seg;
+                // sweep from one side to the other; the visible part grows with reveal
+                float along = dir > 0 ? k * reveal : 1f - k * reveal;
+                float ang = a0 + (a1 - a0) * along;
+                Vec3 radial = r.scale(Math.cos(ang)).add(u.scale(Math.sin(ang) * 0.6));
+                Vec3 p = center.add(radial.scale(rr)).add(forward.scale(0.25 * Math.sin(Math.PI * along)));
+                float taper = (float) Math.sin(Math.PI * along);
+                float head = 0.3f + 0.7f * k;                        // brightest at the leading edge
+                Vec3 n = radial.normalize();
                 pts.add(p);
-                sides.add(radial.scale(0.32f * taper * rr / 1.6f));
+                sides.add(n.scale(0.13f * radius * taper));
                 al[i] = alpha * fade * taper * head;
-                core.add(p.add(radial.scale(0.08f)));
-                coreSides.add(radial.scale(0.06f * taper));
-                cal[i] = Math.min(1f, alpha * 1.3f) * fade * taper * head;
+                core.add(p.add(n.scale(0.03f * radius)));
+                coreSides.add(n.scale(0.035f * radius * taper));
+                cal[i] = Math.min(1f, alpha * 1.4f) * fade * taper * head;
             }
             fx.ribbon(pts, sides, rgb, al);
             fx.ribbon(core, coreSides, 0xFFFFFF, cal);

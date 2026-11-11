@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "dev.nautilus.test.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": ["ConnectionMixin", "LocalPlayerSendPositionMixin"],
+  "client": ["ConnectionMixin", "GlBackendMixin", "LocalPlayerSendPositionMixin"],
   "injectors": { "defaultRequire": 1 }
 }

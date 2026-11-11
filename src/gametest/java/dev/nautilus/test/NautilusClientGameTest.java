@@ -261,6 +261,9 @@ public class NautilusClientGameTest implements FabricClientGameTest {
                     + " / " + ctx.computeOnClient(c -> { hudColor.set("Rainbow"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
                     + " / " + ctx.computeOnClient(c -> { hudColor.set("Orange"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); }));
 
+            // --- Visuals: northern lights at night, sword slash, ring aura + glow particles ---
+            visualsShots(ctx, sp);
+
             // --- HUD editor: open it from the wheel (Client > HUD-Editor) and drag the coordinates ---
             ctx.setScreen(dev.nautilus.gui.HudEditorScreen::new);
             ctx.waitTicks(10);
@@ -684,6 +687,64 @@ public class NautilusClientGameTest implements FabricClientGameTest {
     }
 
     /** Moves the cursor onto the wheel segment at {@code angle} (degrees, clockwise from top) and clicks. */
+    private static void visualsShots(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        var mm = ModuleManager.get();
+        var srv = sp.getServer();
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("weather clear");
+        srv.runCommand("time set midnight");
+        srv.runCommand("gamemode creative @a");
+        srv.runCommand("item replace entity @p weapon.mainhand with minecraft:netherite_sword");
+        // up into the open air, hovering, HUD hidden (F1) for clean pictures of the world effects
+        srv.runCommand("execute as @p at @s run tp @s ~ 140 ~");
+        ctx.waitTicks(5);
+        ctx.runOnClient(c -> {
+            c.player.getAbilities().flying = true;
+            c.player.onUpdateAbilities();
+            if (!c.gui.hud.isHidden()) c.gui.hud.toggle();
+            mm.get(dev.nautilus.module.visuals.Sky.class).loadEnabled(true);
+            c.player.setXRot(-25);
+            c.player.setYRot(180); // north
+        });
+        ctx.waitTicks(40);
+        ctx.takeScreenshot("12-sky-aurora");
+        // sword slash: swing once and take the picture while the crescent is in the air
+        ctx.runOnClient(c -> {
+            mm.get(dev.nautilus.module.visuals.SwordFx.class).loadEnabled(true);
+            c.player.setXRot(5);
+        });
+        ctx.waitTicks(5);
+        ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT); // swing into the air
+        ctx.waitTicks(3);
+        ctx.takeScreenshot("13-sword-slash");
+        // ring aura + glow particles in third person
+        ctx.runOnClient(c -> {
+            mm.get(dev.nautilus.module.visuals.RingAura.class).loadEnabled(true);
+            mm.get(dev.nautilus.module.visuals.GlowParticles.class).loadEnabled(true);
+            c.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            c.player.setXRot(25);
+        });
+        ctx.waitTicks(40);
+        ctx.takeScreenshot("14-aura-particles");
+        ctx.runOnClient(c -> {
+            c.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+            mm.get(dev.nautilus.module.visuals.RingAura.class).loadEnabled(false);
+            mm.get(dev.nautilus.module.visuals.GlowParticles.class).loadEnabled(false);
+            if (c.gui.hud.isHidden()) c.gui.hud.toggle();
+        });
+        srv.runCommand("time set noon");
+        srv.runCommand("gamemode survival @a");
+        // the default HUD layout (as after a fresh install), with the panel hotbar
+        ctx.runOnClient(c -> {
+            dev.nautilus.hud.HudManager.get().resetLayout();
+            c.player.setXRot(10);
+            c.gui.hud.getChat().clearMessages(false);
+        });
+        ctx.waitTicks(20);
+        ctx.takeScreenshot("15-hud-default");
+        ctx.waitTicks(5);
+    }
+
     private static void clickWheel(ClientGameTestContext ctx, double angle, int button, boolean panelOpen) {
         double[] pos = ctx.computeOnClient(c -> {
             var w = c.getWindow();

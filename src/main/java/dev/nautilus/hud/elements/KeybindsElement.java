@@ -11,10 +11,8 @@ import java.util.List;
 /** Keybinds panel: every module with a key, the key in a chip (accent while the module is on). */
 public class KeybindsElement extends ListPanelElement {
     public KeybindsElement() {
-        super("keybinds", "Keybinds", Icons.KEY, "Keybinds", false, END, CENTER, 5, -40);
+        super("keybinds", "Keybinds", Icons.KEY, "Keybinds", false, END, CENTER, 5, -70);
     }
-
-    @Override protected boolean hideWhenEmpty() { return false; }
 
     @Override
     protected List<Row> rows(boolean editor) {
