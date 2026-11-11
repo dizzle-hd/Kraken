@@ -2357,17 +2357,23 @@
    "id": "Hotbar",
    "name": "Hotbar",
    "category": "VISUALS",
-   "description": "Glass hotbar with square slots, with bars for health, hunger, armor, air and XP above it – in the Nautilus glass design.",
+   "description": "Panel hotbar with a status grid for health, food, armor, XP and air, and the held item's name – in the Nautilus panel design.",
    "settings": [
     {
      "name": "Bars",
-     "desc": "Health and hunger as glass bars above the hotbar instead of hearts and drumsticks",
+     "desc": "Health, food, armor and air in a status panel above the hotbar instead of hearts and drumsticks",
      "type": "bool",
      "default": true
     },
     {
      "name": "XP bar",
-     "desc": "Own XP line with level (also replaces the locator bar)",
+     "desc": "XP with level in the status panel (also replaces the locator bar)",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Item name",
+     "desc": "Name of the held item as a pill above the hotbar when you switch items",
      "type": "bool",
      "default": true
     },
@@ -2669,6 +2675,16 @@
      "desc": "Real liquid glass (blur + refraction) for the wheel and HUD. Off = lighter, simple glass, better FPS",
      "type": "bool",
      "default": true
+    },
+    {
+     "name": "Style",
+     "desc": "Panel = dark panels with icons and thin bars, Glass = round glass pills",
+     "type": "mode",
+     "default": "Panel",
+     "modes": [
+      "Panel",
+      "Glass"
+     ]
     },
     {
      "name": "Wheel size",

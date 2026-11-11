@@ -48,19 +48,22 @@ public final class HudManager {
         elements.add(new CoordsElement());
         elements.add(new ValueElement("fps", "FPS", "FPS", true, START, START, 5, 31,
                 () -> String.valueOf(mc.getFps()),
-                () -> mc.getFps() >= 60 ? HudStyle.TEXT : mc.getFps() >= 30 ? 0xFFFFD27A : HudStyle.BAD));
-        elements.add(new ValueElement("ping", "Ping", "Ping", true, START, START, 5, 48,
-                () -> ping() + " ms",
-                () -> ping() < 80 ? HudStyle.TEXT : ping() < 180 ? 0xFFFFD27A : HudStyle.BAD));
-        elements.add(new ValueElement("tps", "TPS", "TPS", true, START, START, 5, 65,
+                () -> mc.getFps() >= 60 ? HudStyle.TEXT : mc.getFps() >= 30 ? 0xFFFFD27A : HudStyle.BAD)
+                .tile(Icons.MONITOR, "FPS", () -> Math.min(1.0, mc.getFps() / 240.0)));
+        elements.add(new ValueElement("ping", "Ping", "Ping", true, START, START, 5, 55,
+                () -> String.valueOf(ping()),
+                () -> ping() < 80 ? HudStyle.TEXT : ping() < 180 ? 0xFFFFD27A : HudStyle.BAD)
+                .tile(Icons.SIGNAL, "ms", () -> 1.0 - Math.min(1.0, ping() / 300.0)));
+        elements.add(new ValueElement("tps", "TPS", "TPS", true, START, START, 5, 79,
                 () -> String.format(Locale.ROOT, "%.1f", TpsTracker.tps()),
-                () -> TpsTracker.tps() >= 18 ? HudStyle.TEXT : TpsTracker.tps() >= 12 ? 0xFFFFD27A : HudStyle.BAD));
+                () -> TpsTracker.tps() >= 18 ? HudStyle.TEXT : TpsTracker.tps() >= 12 ? 0xFFFFD27A : HudStyle.BAD)
+                .tile(Icons.SERVER, "TPS", () -> TpsTracker.tps() / 20.0));
         elements.add(new ValueElement("speed", "Speed", "Speed", false, START, END, 5, 39,
-                () -> String.format(Locale.ROOT, "%.1f b/s", speed), () -> HudStyle.TEXT));
+                () -> String.format(Locale.ROOT, "%.1f", speed), () -> HudStyle.TEXT)
+                .tile(Icons.BOLT, "b/s", () -> Math.min(1.0, speed / 20.0)));
         elements.add(new ValueElement("direction", "Direction", "Facing", false, CENTER, START, 0, 5,
-                this::direction, () -> HudStyle.TEXT));
-        elements.add(new ValueElement("clock", "Clock", "Time", false, END, END, 5, 5,
-                () -> LocalTime.now().format(CLOCK), () -> HudStyle.TEXT));
+                this::direction, () -> HudStyle.TEXT).tile(Icons.COMPASS, "", null));
+        elements.add(new dev.nautilus.hud.elements.ClockElement());
         elements.add(new NotificationsElement());
         elements.add(new dev.nautilus.hud.elements.TargetElement());
         elements.add(new dev.nautilus.hud.elements.SmashElement());
@@ -70,14 +73,17 @@ public final class HudManager {
         elements.add(new dev.nautilus.hud.elements.SuppliesElement());
         elements.add(new dev.nautilus.hud.elements.KeystrokesElement());
         elements.add(new dev.nautilus.hud.elements.InventoryElement());
-        elements.add(new ValueElement("cps", "CPS", "CPS", false, START, START, 5, 82,
-                () -> ClickTracker.left() + " | " + ClickTracker.right(), () -> HudStyle.TEXT));
-        elements.add(new ValueElement("server", "Server", "Server", false, START, START, 5, 99,
-                this::server, () -> HudStyle.TEXT));
-        elements.add(new ValueElement("day", "Day", "Day", false, CENTER, START, 0, 22,
-                () -> mc.level == null ? "1" : String.valueOf(mc.level.getOverworldClockTime() / 24000L + 1), () -> HudStyle.TEXT));
+        elements.add(new ValueElement("cps", "CPS", "CPS", false, START, START, 5, 103,
+                () -> ClickTracker.left() + " | " + ClickTracker.right(), () -> HudStyle.TEXT)
+                .tile(Icons.STAR, "CPS", () -> Math.min(1.0, ClickTracker.left() / 16.0)));
+        elements.add(new ValueElement("server", "Server", "Server", false, START, START, 5, 127,
+                this::server, () -> HudStyle.TEXT).tile(Icons.SERVER, "", null));
+        elements.add(new ValueElement("day", "Day", "Day", false, CENTER, START, 0, 28,
+                () -> mc.level == null ? "1" : String.valueOf(mc.level.getOverworldClockTime() / 24000L + 1), () -> HudStyle.TEXT)
+                .tile(Icons.CLOCK, "Day", null));
         elements.add(new ValueElement("death", "Death point", "Death", false, START, END, 5, 38,
-                this::deathPoint, () -> HudStyle.TEXT));
+                this::deathPoint, () -> HudStyle.TEXT).tile(Icons.SKULL, "", null));
+        elements.add(new dev.nautilus.hud.elements.KeybindsElement());
     }
 
     public List<HudElement> elements() { return elements; }

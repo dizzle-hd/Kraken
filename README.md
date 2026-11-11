@@ -115,7 +115,7 @@ Everything that only changes your view.
 
 ### Visuals *(experimental)*
 Visual effects in the Nautilus ring design. Everything here is **experimental**: it may look different with shaders/resource packs, cost some FPS and still change a lot. Every effect can be toggled on its own; they don't show up in the module list.
-- **Hotbar** *(on by default)* – glass hotbar with square slots and a sliding selection in the HUD color. **Above it** glass bars instead of hearts and drumsticks: health on the left (absorption as a gold line, color for poison/wither/freezing, flashes on damage, pulses when low), hunger on the right (saturation as a line), thin armor and – under water – air bars above; XP as a line right above the hotbar with the level in a badge. Replaces the vanilla bars (the locator bar only while “XP bar” is on; the horse jump bar stays).
+- **Hotbar** *(on by default)* – panel hotbar: a dark bar with the items, the selected slot as a lighter square with an accent line. Above it **one status panel as a 2×2 grid** – Health (one segment per heart, absorption as small gold segments, color for poison/wither/freezing, flashes on damage, pulses when low), Food (saturation as a faint line), Armor and XP (“Lv 7”) – each with icon, label, value and bar; an **Air** row while under water; the held item's name as a small pill when you switch items. Replaces the vanilla hotbar, bars and item name (the locator bar only while “XP bar” is on; the horse jump bar stays).
 - **Sky** *(on by default)* – **northern lights**: three waving curtains with moving rays of light (classic green → violet, HUD color or rainbow), at night or always; plus shooting stars, more stars and optionally a sky tinted in the HUD color. Overworld only and **only on the sky**: behind blocks, clouds and entities, never on or through blocks.
 - **Glow particles** – glowing lights float around you, rise, sway and twinkle (HUD color, rainbow, fireflies, white).
 - **Sword slash** – every swing with a sword, axe, spear, mace or trident cuts a glowing crescent through the air (alternating left/right, slightly tilted); crits get a bigger slash, a ring and sparks.
@@ -130,16 +130,18 @@ Visual effects in the Nautilus ring design. Everything here is **experimental**:
 Settings of the client itself – they don't show up in the module list.
 - **HUD** – the Nautilus logo (gently rocking nautilus shell) + a list of active modules as transparent, rounded glass pills in the style of the wheel (sliding in/out when toggled).
 - **HUD editor** – a click in the wheel opens the editor: drag elements (they snap to the edges, the centre and other elements), right-click hides one, the chips in the panel show/hide elements, “Reset” restores the default layout.
-- **HUD elements** – logo, module list, coordinates (incl. nether/overworld), FPS, ping, TPS, speed, direction, clock, notifications, plus:
+- **HUD elements** – logo, module list, coordinates (incl. nether/overworld), notifications (toasts with a check/cross icon and “Enabled/Disabled”), and tiles with icon, value and a thin bar for FPS, ping, TPS, speed, direction and the clock (time + weekday), plus:
   - **Target** – the round 3D head of your target (player or mob) in a glass disc, its health as a **ring** around it (green → red, flashes on damage, absorption as a gold outer ring) with the HP number as a badge; next to it name, HP, distance, armor and totem pops (target = crosshair or last hit; friends get a green outline).
   - **Smash preview** – while falling with a mace in the hotbar: fall height and the damage a smash would do right now (on the target after armor).
   - **Armor** – durability of helmet, chestplate, leggings, boots and weapon in percent (turn it on in the HUD editor).
   - **Armor HUD** – icons of your armor, main and off hand above the hotbar, with durability in % (green/yellow/red) or count below.
-  - **Effects** – active potion effects with a colored dot, level and remaining time (the last 10 s in red).
-  - **Supplies** – how many totems, crystals, obsidian, anchors, glowstone, golden apples, pearls, XP bottles and wind charges you carry (last totem in red).
+  - **Potions** – panel with all active effects: colored dot, name + level and the remaining time in a chip (the last 10 s in red).
+  - **Resources** – panel with how many golden apples, totems, crystals, obsidian, pearls and XP bottles you carry (0 in red, last totem in yellow).
+  - **Keybinds** – panel with every module that has a key, the key in a chip (accent while the module is on).
   - **Keystrokes** – W A S D, left/right click with CPS and space; pressed keys light up in the HUD color.
   - **Inventory** – the 27 slots of your inventory as a small glass grid.
   - **CPS**, **Server** (IP), **Day** (game day) and **Death point** (coordinates of your last death, with distance).
+- **HUD style** – **Panel** (default): dark panels with small rounded corners, icon tiles, labels left / values right and thin bars – or **Glass**: the round glass pills.
 - **HUD color** – Orange, Red, Pink, Purple, Blue, Turquoise, Green, Gold, White or Rainbow: colors the whole client: wheel (active modules, arcs, glass tint, centre), settings panel, search, logo, module list, labels, setup and editor. Set it in the setup (with live preview) or in the wheel under Client → HUD.
 - **Notifications** – module on/off and BaseFinder finds appear as glass toasts in the HUD instead of in the chat.
 - **Friends** – middle-click a player to add/remove them. Combat, crystal and mace modules never attack friends, ESP/nametags show them green. The list is saved.

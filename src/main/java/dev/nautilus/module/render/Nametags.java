@@ -86,6 +86,10 @@ public class Nametags extends Module {
         float x1 = sc[0] - w / 2f, y2 = sc[1], y1 = y2 - h;
         HudStyle.pill(ctx, s, x1, y1, x1 + w, y2, 1f);
         if (friend) s.roundRectRim(x1, y1, x1 + w, y2, Math.min(h / 2f, 7f), 1f, HudStyle.GOOD);
+        if (HudStyle.panels() && health.isOn()) { // thin health line along the bottom of the tag
+            float frac = Math.min(1f, p.getHealth() / Math.max(1f, p.getMaxHealth()));
+            HudStyle.line(s, x1 + 3f * k, y2 - 2.6f * k, x1 + w - 3f * k, frac, HudStyle.wear(frac), 1f);
+        }
         int nameColor = friend ? HudStyle.GOOD : p.isInvisible() ? HudStyle.TEXT_DIM : HudStyle.TEXT;
         float max = Math.max(1f, p.getMaxHealth());
         int hpColor = HudStyle.wear(p.getHealth() / max);

@@ -26,7 +26,16 @@ public class NotificationsElement extends HudElement {
         return demo;
     }
 
+    /** Panel toast: icon tile, title, message below – taller than the glass pill. */
+    private static final float PH = 24f;
+
+    private static float h() { return HudStyle.panels() ? PH : H; }
+
     private static float toastWidth(Notifications.Toast t) {
+        if (HudStyle.panels()) {
+            float tw = Math.max(HudStyle.width(t.title(), true, 0.82f), HudStyle.width(t.message(), false, 0.66f));
+            return Math.min(MAX_W + 20f, Math.max(110f, 4f + 16f + 7f + tw + 10f));
+        }
         float w = 14f + HudStyle.width(t.title(), true, HudStyle.TEXT_SCALE) + 5f + HudStyle.width(t.message(), false, HudStyle.TEXT_SCALE) + 9f;
         return Math.min(MAX_W, w);
     }
@@ -40,7 +49,7 @@ public class NotificationsElement extends HudElement {
 
     @Override
     public float height(boolean editor) {
-        return Math.max(H, toasts(editor).size() * (H + GAP) - GAP);
+        return Math.max(h(), toasts(editor).size() * (h() + GAP) - GAP);
     }
 
     @Override
@@ -49,6 +58,7 @@ public class NotificationsElement extends HudElement {
         long now = System.currentTimeMillis();
         boolean right = rightAligned(), up = bottomAligned();
         float total = width(editor);
+        float H = h();
         float yy = up ? y + height(editor) - H : y;
         for (int i = list.size() - 1; i >= 0; i--) { // newest closest to the anchor edge
             Notifications.Toast t = list.get(i);
@@ -60,6 +70,11 @@ public class NotificationsElement extends HudElement {
             float slide = (1 - (1 - (float) Math.pow(1 - in, 3))) * (w + 12f) * (right ? 1 : -1);
             float x1 = (right ? x + total - w : x) + slide, y1 = yy;
             HudStyle.pill(ctx, s, x1, y1, x1 + w, y1 + H, e);
+            if (HudStyle.panels()) {
+                panelToast(ctx, s, text, t, x1, y1, w, e, editor, age);
+                yy += (up ? -1 : 1) * (H + GAP) * e;
+                continue;
+            }
             s.circle(x1 + 8f, y1 + H / 2f, 2.6f, Shapes.alpha(t.color(), e));
             // progress line showing how long the toast stays
             if (!editor) {
@@ -78,6 +93,28 @@ public class NotificationsElement extends HudElement {
             });
             yy += (up ? -1 : 1) * (H + GAP) * e;
         }
+    }
+
+    private static void panelToast(GuiGraphicsExtractor ctx, Shapes s, List<Runnable> text, Notifications.Toast t,
+                                   float x1, float y1, float w, float e, boolean editor, float age) {
+        boolean on = t.message().equals("enabled"), off = t.message().equals("disabled");
+        dev.nautilus.hud.Icons icon = on ? dev.nautilus.hud.Icons.CHECK : off ? dev.nautilus.hud.Icons.CROSS : dev.nautilus.hud.Icons.DOT;
+        float bx = x1 + 4f, by = y1 + (PH - 16f) / 2f;
+        s.roundRect(bx, by, bx + 16f, by + 16f, 3.5f, Shapes.alpha(0x16FFFFFF, e));
+        int ic = on ? 0xFF7CE6A0 : off ? 0xFFB9B4C2 : t.color();
+        icon.draw(s, bx + 8f, by + 8f, 9f, Shapes.alpha(ic, e));
+        if (!editor) {
+            float p = Math.max(0f, 1f - age / t.duration());
+            s.roundRect(x1 + w - 4f - (w - 28f) * p, y1 + PH - 2.2f, x1 + w - 4f, y1 + PH - 1.4f, 0.4f, Shapes.alpha(0x40FFFFFF, e));
+        }
+        String title = t.title(), msg = on ? "Enabled" : off ? "Disabled" : t.message();
+        float tx = bx + 16f + 7f, maxW = w - (tx - x1) - 6f;
+        String shown = ellipsize(msg, maxW / 0.66f * HudStyle.TEXT_SCALE);
+        int tc = Shapes.alpha(HudStyle.TEXT, e), mc2 = Shapes.alpha(HudStyle.TEXT_DIM, e);
+        text.add(() -> {
+            HudStyle.text(ctx, title, tx, y1 + 8f, 0.82f, tc, true);
+            HudStyle.text(ctx, shown, tx, y1 + 16.5f, 0.66f, mc2, false);
+        });
     }
 
     private static String ellipsize(String s, float max) {

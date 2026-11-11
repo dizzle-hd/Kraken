@@ -128,6 +128,8 @@ public class NautilusClient implements ClientModInitializer {
                 net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.AIR_BAR}) {
             replaceVanilla(id, dev.nautilus.module.visuals.Hotbar::replacesStatus, g -> {});
         }
+        replaceVanilla(net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.HELD_ITEM_TOOLTIP,
+                dev.nautilus.module.visuals.Hotbar::replacesItemName, dev.nautilus.module.visuals.Hotbar::renderItemName);
         for (Identifier id : new Identifier[]{net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.INFO_BAR,
                 net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements.EXPERIENCE_LEVEL}) {
             replaceVanilla(id, dev.nautilus.module.visuals.Hotbar::replacesXp, g -> {});

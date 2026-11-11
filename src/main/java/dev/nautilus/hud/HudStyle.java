@@ -6,6 +6,8 @@ import dev.nautilus.gui.UiText;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+import java.util.List;
+
 /** Shared look of all HUD elements: transparent rounded glass pills like the wheel segments. */
 public final class HudStyle {
     public static final int GLASS_TOP = 0x2EFFE6DC;
@@ -109,7 +111,61 @@ public final class HudStyle {
     /** Values next to settings ("12.5", "Head", …): a light pastel of the accent. */
     public static int value() { return tintedWhite(0xFF, 0.37f); }
 
+    /** Is the HUD drawn as dark panels (default) instead of round glass pills? (Client → HUD → Style) */
+    public static boolean panels() {
+        var hud = dev.nautilus.module.ModuleManager.get().get(dev.nautilus.module.client.Hud.class);
+        return hud == null || hud.style.is("Panel");
+    }
+
+    /** Background of an HUD element: a dark panel or a glass pill, depending on the HUD style. */
     public static void pill(GuiGraphicsExtractor ctx, Shapes s, float x1, float y1, float x2, float y2, float alpha) {
+        if (panels()) { panel(ctx, s, x1, y1, x2, y2, alpha); return; }
+        glassPill(ctx, s, x1, y1, x2, y2, alpha);
+    }
+
+    /** Panel base colour: near-black with a hint of the accent. */
+    public static int panelColor(int alpha) { return (alpha << 24) | (Shapes.lerp(0xFF141218, accent(), 0.07f) & 0xFFFFFF); }
+
+    /**
+     * Dark, slightly see-through panel with small rounded corners, a hairline rim and a faint top
+     * highlight. With Liquid Glass on, the world behind it is blurred as well (frosted dark glass).
+     */
+    public static void panel(GuiGraphicsExtractor ctx, Shapes s, float x1, float y1, float x2, float y2, float alpha) {
+        float r = Math.min((y2 - y1) / 2f, 4.5f);
+        if (LiquidGlass.enabled()) {
+            LiquidGlass.roundRect(ctx, x1, y1, x2, y2, r, alpha);
+            s.roundRect(x1, y1, x2, y2, r, Shapes.alpha(panelColor(0xB8), alpha));
+        } else {
+            s.roundRect(x1, y1, x2, y2, r, Shapes.alpha(panelColor(0xD4), alpha));
+        }
+        s.roundRectGradient(x1 + 0.5f, y1 + 0.5f, x2 - 0.5f, y1 + Math.min(10f, (y2 - y1) * 0.5f), r, Shapes.alpha(0x0EFFFFFF, alpha), 0x00FFFFFF);
+        s.roundRectRim(x1, y1, x2, y2, r, 0.6f, Shapes.alpha(0x26FFFFFF, alpha));
+    }
+
+    /** Small rounded square with a vector icon in the accent colour (the "icon tile" of panels). */
+    public static void iconBox(Shapes s, Icons icon, float x, float y, float size, float alpha) {
+        s.roundRect(x, y, x + size, y + size, Math.min(3.5f, size / 4f), Shapes.alpha(Shapes.lerp(0x18FFFFFF, accent(0x30), 0.5f), alpha));
+        icon.draw(s, x + size / 2f, y + size / 2f, size * 0.6f, Shapes.alpha(Shapes.lerp(accent(), 0xFFFFFFFF, 0.25f), alpha));
+    }
+
+    /** Thin progress line (track + fill) – the bars under values in panels. */
+    public static void line(Shapes s, float x1, float y, float x2, float frac, int color, float alpha) {
+        float h = 1.3f;
+        s.roundRect(x1, y, x2, y + h, h / 2f, Shapes.alpha(0x26FFFFFF, alpha));
+        frac = Math.max(0f, Math.min(1f, frac));
+        if (frac > 0.003f) s.roundRect(x1, y, x1 + (x2 - x1) * frac, y + h, h / 2f, Shapes.alpha(color, alpha));
+    }
+
+    /** Small rounded "chip" with a value (keys, timers) – right-aligned at x2, vertically centred on cy. */
+    public static float chip(GuiGraphicsExtractor ctx, Shapes s, List<Runnable> text, String value, float x2, float cy, float scale, int color) {
+        float w = width(value, false, scale) + 7f, h = 9f * scale + 3f;
+        s.roundRect(x2 - w, cy - h / 2f, x2, cy + h / 2f, 2.5f, 0x1CFFFFFF);
+        text.add(() -> text(ctx, value, x2 - w + 3.5f, cy, scale, color, false));
+        return w;
+    }
+
+    /** Glass pill (the original look): blur + refraction or a frosted gradient with a light rim. */
+    public static void glassPill(GuiGraphicsExtractor ctx, Shapes s, float x1, float y1, float x2, float y2, float alpha) {
         float r = Math.min((y2 - y1) / 2f, 7f);
         if (LiquidGlass.enabled()) {
             // real liquid glass (blur + refraction), a faint warm tint keeps text readable
