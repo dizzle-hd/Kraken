@@ -25,6 +25,13 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             sp.getConnection().waitForChunksRender();
             ctx.runOnClient(c -> ModuleManager.get().get(Hud.class).loadEnabled(true));
 
+            // NAUTILUS_QUICK=true → only the visuals screenshots (fast iteration on the looks)
+            if ("true".equalsIgnoreCase(System.getenv("NAUTILUS_QUICK"))) {
+                sp.getServer().runCommand("item replace entity @a weapon.offhand with minecraft:totem_of_undying");
+                visualsShots(ctx, sp);
+                return;
+            }
+
             // open the wheel with the keybind
             // regression (crash in build 5): frames at the very start of the open animation and during
             // the close animation, where the centre has size 0
@@ -261,9 +268,9 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.runOnClient(c -> hudColor.set("Rainbow"));
             ctx.waitTicks(5);
             ctx.takeScreenshot("09c-hud-rainbow");
-            System.out.println("[NautilusTest] HUD colour: accent blue/rainbow/orange = " + ctx.computeOnClient(c -> { hudColor.set("Blue"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
+            System.out.println("[NautilusTest] HUD colour: accent blue/rainbow/lavender = " + ctx.computeOnClient(c -> { hudColor.set("Blue"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
                     + " / " + ctx.computeOnClient(c -> { hudColor.set("Rainbow"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); })
-                    + " / " + ctx.computeOnClient(c -> { hudColor.set("Orange"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); }));
+                    + " / " + ctx.computeOnClient(c -> { hudColor.set("Lavender"); return String.format("%08X", dev.nautilus.hud.HudStyle.accent()); }));
 
             // --- Visuals: northern lights at night, sword slash, ring aura + glow particles ---
             visualsShots(ctx, sp);
@@ -311,7 +318,7 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.runOnClient(c -> hudColor.set("Purple"));
             ctx.waitTicks(3);
             ctx.takeScreenshot("13-onboarding-2-purple");
-            ctx.runOnClient(c -> hudColor.set("Orange"));
+            ctx.runOnClient(c -> hudColor.set("Lavender"));
             ctx.getInput().pressKey(InputConstants.KEY_RETURN);
             ctx.waitTicks(5);
             ctx.takeScreenshot("13-onboarding-3");
@@ -782,15 +789,23 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         ctx.runOnClient(c -> {
             mm.get(dev.nautilus.module.visuals.RingAura.class).loadEnabled(true);
             mm.get(dev.nautilus.module.visuals.GlowParticles.class).loadEnabled(true);
+            var tags = mm.get(dev.nautilus.module.render.Nametags.class);
+            tags.loadEnabled(true);
+            for (var st : tags.getSettings()) if (st.getName().equals("Own") && st instanceof dev.nautilus.setting.BoolSetting b) b.set(true);
             c.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
             c.player.setXRot(25);
         });
         ctx.waitTicks(40);
         ctx.takeScreenshot("14-aura-particles");
+        // the own nametag (needs the HUD: F1 hides nametags too)
+        ctx.runOnClient(c -> { if (c.gui.hud.isHidden()) c.gui.hud.toggle(); });
+        ctx.waitTicks(5);
+        ctx.takeScreenshot("14b-nametag");
         ctx.runOnClient(c -> {
             c.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
             mm.get(dev.nautilus.module.visuals.RingAura.class).loadEnabled(false);
             mm.get(dev.nautilus.module.visuals.GlowParticles.class).loadEnabled(false);
+            mm.get(dev.nautilus.module.render.Nametags.class).loadEnabled(false);
             if (c.gui.hud.isHidden()) c.gui.hud.toggle();
         });
         srv.runCommand("time set noon");

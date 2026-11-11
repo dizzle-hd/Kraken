@@ -64,13 +64,16 @@ public class HudEditorScreen extends Screen {
         super.extractRenderState(ctx, mouseX, mouseY, delta);
         HudManager hud = HudManager.get();
 
-        // element frames (behind the elements)
+        // element frames (behind the elements), in HUD space (scaled like the HUD itself)
+        float k = HudManager.scale();
+        ctx.pose().pushMatrix();
+        ctx.pose().scale(k, k);
         Shapes frames = new Shapes();
         List<Runnable> labels = new ArrayList<>();
         HudElement hovered = dragging != null ? dragging : elementAt(mouseX, mouseY);
         for (HudElement e : hud.elements()) {
             if (!e.enabled) continue;
-            float x = e.x(width, true), y = e.y(height, true), w = e.width(true), h = e.height(true);
+            float x = e.x(sw(), true), y = e.y(sh(), true), w = e.width(true), h = e.height(true);
             boolean hot = e == hovered;
             frames.roundRect(x - 3, y - 3, x + w + 3, y + h + 3, 6, hot ? HudStyle.accent(0x24) : 0x10FFFFFF);
             frames.roundRectRim(x - 3, y - 3, x + w + 3, y + h + 3, 6, hot ? 1.2f : 0.8f, hot ? HudStyle.accent(0xCC) : 0x44FFFFFF);
@@ -87,8 +90,11 @@ public class HudEditorScreen extends Screen {
             frames.rect(Math.min(g[0], g[2]) - 0.4f, Math.min(g[1], g[3]) - 0.4f, Math.max(g[0], g[2]) + 0.4f, Math.max(g[1], g[3]) + 0.4f, HudStyle.accent(0xCC));
         }
         frames.submit(ctx);
+        for (Runnable r : labels) r.run();
+        labels.clear();
+        ctx.pose().popMatrix();
 
-        // the elements themselves (preview content)
+        // the elements themselves (preview content; HudManager applies the scale itself)
         hud.render(ctx, true, null);
 
         ctx.nextStratum();
@@ -179,12 +185,17 @@ public class HudEditorScreen extends Screen {
     // Interaction
     // =============================================================================================
 
-    private HudElement elementAt(double mx, double my) {
+    /** Screen size in HUD space. */
+    private float sw() { return width / HudManager.scale(); }
+    private float sh() { return height / HudManager.scale(); }
+
+    private HudElement elementAt(double screenX, double screenY) {
+        double mx = screenX / HudManager.scale(), my = screenY / HudManager.scale();
         List<HudElement> list = HudManager.get().elements();
         for (int i = list.size() - 1; i >= 0; i--) {
             HudElement e = list.get(i);
             if (!e.enabled) continue;
-            float x = e.x(width, true), y = e.y(height, true);
+            float x = e.x(sw(), true), y = e.y(sh(), true);
             if (mx >= x - 3 && mx <= x + e.width(true) + 3 && my >= y - 3 && my <= y + e.height(true) + 3) return e;
         }
         return null;
@@ -207,8 +218,8 @@ public class HudEditorScreen extends Screen {
             return true;
         }
         dragging = e;
-        grabX = (float) mx - e.x(width, true);
-        grabY = (float) my - e.y(height, true);
+        grabX = (float) (mx / HudManager.scale()) - e.x(sw(), true);
+        grabY = (float) (my / HudManager.scale()) - e.y(sh(), true);
         return true;
     }
 
@@ -216,7 +227,8 @@ public class HudEditorScreen extends Screen {
     public boolean mouseDragged(MouseButtonEvent click, double offsetX, double offsetY) {
         if (dragging == null) return super.mouseDragged(click, offsetX, offsetY);
         float w = dragging.width(true), h = dragging.height(true);
-        float x = (float) click.x() - grabX, y = (float) click.y() - grabY;
+        float width = sw(), height = sh(); // HUD space
+        float x = (float) (click.x() / HudManager.scale()) - grabX, y = (float) (click.y() / HudManager.scale()) - grabY;
         guides.clear();
 
         // candidate snap lines: screen edges (with margin), centre, other elements
@@ -224,7 +236,7 @@ public class HudEditorScreen extends Screen {
         List<Float> ys = new ArrayList<>(List.of(MARGIN, height - MARGIN, height / 2f));
         for (HudElement o : HudManager.get().elements()) {
             if (o == dragging || !o.enabled) continue;
-            float ox = o.x(width, true), oy = o.y(height, true);
+            float ox = o.x(width, true), oy = o.y(height, true); // width/height = HUD space here
             xs.add(ox);
             xs.add(ox + o.width(true));
             ys.add(oy);

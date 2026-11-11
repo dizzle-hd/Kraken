@@ -5,23 +5,27 @@
   "compatibilityLevel": "JAVA_25",
   "client": [
     "AbstractContainerScreenAccessor",
+    "AvatarRendererMixin",
     "BlockMixin",
     "BlockStateBaseMixin",
     "CameraMixin",
-    "EntityMixin",
-    "AvatarRendererMixin",
     "ClientPacketListenerMixin",
-    "SkyRendererMixin",
+    "EntityMixin",
+    "FirstPersonHandsAndItemsRendererMixin",
     "FluidRendererMixin",
-    "KeyboardInputMixin",
+    "FogRendererMixin",
     "GuiRendererMixin",
+    "ItemStackRenderStateAccessor",
+    "KeyboardInputMixin",
+    "LayerRenderStateAccessor",
     "LightCoordsUtilMixin",
-    "LivingEntityMixin",
     "LightmapRenderStateExtractorMixin",
+    "LivingEntityMixin",
     "LocalPlayerMixin",
     "MinecraftMixin",
+    "MouseHandlerMixin",
     "MultiPlayerGameModeMixin",
-    "MouseHandlerMixin"
+    "SkyRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

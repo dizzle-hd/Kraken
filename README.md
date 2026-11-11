@@ -107,7 +107,7 @@ General PvP – for swords, spears, maces and crystals.
 ### Render
 Everything that only changes your view.
 - **PlayerESP** – boxes around other players through walls, colored by HUD color, health or distance; optional tracers and invisible players.
-- **Nametags** – glass tags above players, also through walls: name (friends green), health, distance, ping, totem pops and armor/items as icons. Replaces the vanilla names.
+- **Nametags** – compact tags above players, also through walls: armor and held items in small boxes, name (friends green) with distance/ping/pops, and a thin health bar in the HUD color (absorption in gold). Replaces the vanilla names.
 - **Fullbright** – everything bright like night vision, only for you (sends nothing).
 - **Crosshair** – your own crosshair: cross, cross + dot, dot, circle or T; size, gap, thickness, color (also HUD color), outline, red on targets, dynamic while moving, cooldown bar.
 - **Zoom** – zooms in on its own key (default `C`, change it in the wheel under “Zoom key”). Hold/toggle mode, strength 1.5–50×, the mouse wheel zooms further while zooming, smooth zoom, slower mouse.
@@ -116,7 +116,8 @@ Everything that only changes your view.
 ### Visuals *(experimental)*
 Visual effects in the Nautilus ring design. Everything here is **experimental**: it may look different with shaders/resource packs, cost some FPS and still change a lot. Every effect can be toggled on its own; they don't show up in the module list.
 - **Hotbar** *(on by default)* – panel hotbar: a dark bar with the items, the selected slot as a lighter square with an accent line. Above it **one status panel as a 2×2 grid** – Health (one segment per heart, absorption as small gold segments, color for poison/wither/freezing, flashes on damage, pulses when low), Food (saturation as a faint line), Armor and XP (“Lv 7”) – each with icon, label, value and bar; an **Air** row while under water; the held item's name as a small pill when you switch items. Replaces the vanilla hotbar, bars and item name (the locator bar only while “XP bar” is on; the horse jump bar stays).
-- **Sky** *(on by default)* – **northern lights**: three waving curtains with moving rays of light (classic green → violet, HUD color or rainbow), at night or always; plus shooting stars, more stars and optionally a sky tinted in the HUD color. Overworld only and **only on the sky**: behind blocks, clouds and entities, never on or through blocks.
+- **Item outline** *(on by default)* – a thin, even glowing outline around the items in your hands (first person), in a soft pastel of the HUD color, the HUD color or white; width and opacity adjustable.
+- **Sky** *(on by default)* – **northern lights**: three waving curtains with moving rays of light (classic green → violet, HUD color or rainbow), at night or always; plus shooting stars, more stars and the **Atmosphere**: a soft pastel haze in the HUD color – sky, sunset and fog are tinted (0 = vanilla, default 40). Overworld only and **only on the sky**: behind blocks, clouds and entities, never on or through blocks.
 - **Glow particles** – glowing lights float around you, rise, sway and twinkle (HUD color, rainbow, fireflies, white).
 - **Sword slash** – every swing with a sword, axe, spear, mace or trident cuts a glowing crescent through the air (alternating left/right, slightly tilted); crits get a bigger slash, a ring and sparks.
 - **Hit effects** – hits spray sparks with a ring towards you (crits in gold); killed targets dissolve into rising rings and a pillar of light.
@@ -141,8 +142,9 @@ Settings of the client itself – they don't show up in the module list.
   - **Keystrokes** – W A S D, left/right click with CPS and space; pressed keys light up in the HUD color.
   - **Inventory** – the 27 slots of your inventory as a small glass grid.
   - **CPS**, **Server** (IP), **Day** (game day) and **Death point** (coordinates of your last death, with distance).
+- **HUD scale** – size of all HUD elements (default 85 %, finer and more compact); the HUD editor works in the same scale.
 - **HUD style** – **Panel** (default): dark panels with small rounded corners, icon tiles, labels left / values right and thin bars – or **Glass**: the round glass pills.
-- **HUD color** – Orange, Red, Pink, Purple, Blue, Turquoise, Green, Gold, White or Rainbow: colors the whole client: wheel (active modules, arcs, glass tint, centre), settings panel, search, logo, module list, labels, setup and editor. Set it in the setup (with live preview) or in the wheel under Client → HUD.
+- **HUD color** – Lavender (default, a soft lilac), Orange, Red, Pink, Purple, Blue, Turquoise, Green, Gold, White or Rainbow: colors the whole client: wheel (active modules, arcs, glass tint, centre), settings panel, search, logo, module list, labels, setup and editor. Set it in the setup (with live preview) or in the wheel under Client → HUD.
 - **Notifications** – module on/off and BaseFinder finds appear as glass toasts in the HUD instead of in the chat.
 - **Friends** – middle-click a player to add/remove them. Combat, crystal and mace modules never attack friends, ESP/nametags show them green. The list is saved.
 - **AutoReconnect** – reconnects after a kick (countdown on the disconnect screen, delay, max. attempts; Back cancels).

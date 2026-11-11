@@ -46,7 +46,7 @@ public class Sky extends Module {
     private final NumberSetting intensity = add(new NumberSetting("Strength", "Brightness of the northern lights", 70, 10, 100, 5));
     private final BoolSetting shootingStars = add(new BoolSetting("Shooting stars", "Now and then a shooting star – at night", true));
     private final NumberSetting stars = add(new NumberSetting("Stars", "More stars: already at dusk and brighter (0 = vanilla)", 40, 0, 100, 10));
-    private final NumberSetting tint = add(new NumberSetting("Sky color", "How strongly the sky is tinted in the HUD colour (0 = vanilla)", 0, 0, 100, 5));
+    private final NumberSetting tint = add(new NumberSetting("Atmosphere", "Soft pastel haze in the HUD color: sky, sunset and fog are tinted (0 = vanilla)", 40, 0, 100, 5));
 
     private static final RenderPipeline PIPELINE = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
             .withLocation(Identifier.fromNamespaceAndPath("nautilusclient", "pipeline/sky_fx"))
@@ -90,9 +90,9 @@ public class Sky extends Module {
         float ar = ((acc >> 16) & 0xFF) / 255f, ag = ((acc >> 8) & 0xFF) / 255f, ab = (acc & 0xFF) / 255f;
         if (t > 0 && state.skyColor != null) {
             var c = state.skyColor;
-            float lum = 0.299f * c.x() + 0.587f * c.y() + 0.114f * c.z();
-            float k = t * 0.45f;
-            state.skyColor = new Vector3f(c.x() + (ar * lum * 1.15f - c.x()) * k, c.y() + (ag * lum * 1.15f - c.y()) * k, c.z() + (ab * lum * 1.15f - c.z()) * k);
+            float[] p = pastel(c.x(), c.y(), c.z());
+            float k = t * 0.6f;
+            state.skyColor = new Vector3f(c.x() + (p[0] - c.x()) * k, c.y() + (p[1] - c.y()) * k, c.z() + (p[2] - c.z()) * k);
         }
         if (t > 0 && state.sunriseAndSunsetColor != null) {
             var c = state.sunriseAndSunsetColor;
@@ -101,6 +101,26 @@ public class Sky extends Module {
         }
         float st = s.stars.getFloat() / 100f;
         if (st > 0) state.starBrightness = Math.min(1f, Math.max(state.starBrightness * (1f + st), state.starBrightness + st * 0.15f * state.rainBrightness));
+    }
+
+    /** A light pastel of the accent with the brightness of the given colour (day stays bright, night dark). */
+    private static float[] pastel(float r, float g, float b) {
+        int acc = dev.nautilus.gui.Shapes.lerp(HudStyle.accent(), 0xFFFFFFFF, 0.45f);
+        float ar = ((acc >> 16) & 0xFF) / 255f, ag = ((acc >> 8) & 0xFF) / 255f, ab = (acc & 0xFF) / 255f;
+        float lum = 0.299f * r + 0.587f * g + 0.114f * b, alum = 0.299f * ar + 0.587f * ag + 0.114f * ab;
+        float m = alum > 0.01f ? lum / alum : 0f;
+        return new float[]{Math.min(1f, ar * m), Math.min(1f, ag * m), Math.min(1f, ab * m)};
+    }
+
+    /** FogRendererMixin: the fog (and the horizon) get the same pastel haze as the sky. */
+    public static void tintFog(org.joml.Vector4f color) {
+        Sky s = instance();
+        if (s == null || !overworld) return;
+        float t = s.tint.getFloat() / 100f;
+        if (t <= 0) return;
+        float[] p = pastel(color.x, color.y, color.z);
+        float k = t * 0.55f;
+        color.set(color.x + (p[0] - color.x) * k, color.y + (p[1] - color.y) * k, color.z + (p[2] - color.z) * k, color.w);
     }
 
     // ---- geometry (camera-relative, on a sphere far behind the terrain) ----------------------------

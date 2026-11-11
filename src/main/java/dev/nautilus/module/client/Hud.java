@@ -10,6 +10,8 @@ public class Hud extends Module {
             "Real liquid glass (blur + refraction) for the wheel and HUD. Off = lighter, simple glass, better FPS", true));
     public final dev.nautilus.setting.ModeSetting style = add(new dev.nautilus.setting.ModeSetting("Style",
             "Panel = dark panels with icons and thin bars, Glass = round glass pills", "Panel", "Panel", "Glass"));
+    public final dev.nautilus.setting.NumberSetting scale = add(new dev.nautilus.setting.NumberSetting("HUD scale",
+            "Size of all HUD elements in percent (smaller = finer, more compact)", 85, 50, 150, 5));
     public final dev.nautilus.setting.NumberSetting wheelSize = add(new dev.nautilus.setting.NumberSetting("Wheel size",
             "Size of the wheel in percent", 100, 60, 140, 5));
     public final dev.nautilus.setting.ModeSetting color = add(new dev.nautilus.setting.ModeSetting("HUD color",

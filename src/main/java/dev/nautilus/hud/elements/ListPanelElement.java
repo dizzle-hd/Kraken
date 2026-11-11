@@ -19,6 +19,7 @@ public abstract class ListPanelElement extends HudElement {
 
     private static final float HEAD = 18f, ROW = 13f, PAD = 6f;
     private final Icons icon;
+    private float shownRows = -1f, appear;
     private final String title;
 
     protected ListPanelElement(String id, String name, Icons icon, String title, boolean enabled, int ax, int ay, float ox, float oy) {
@@ -45,15 +46,23 @@ public abstract class ListPanelElement extends HudElement {
         return w;
     }
 
-    @Override public float height(boolean editor) { return HEAD + Math.max(1, rows(editor).size()) * ROW + 4f; }
+    @Override public float height(boolean editor) {
+        float n = shownRows < 0 || editor ? Math.max(1, rows(editor).size()) : Math.max(1f, shownRows);
+        return HEAD + n * ROW + 4f;
+    }
 
     @Override
     public void render(GuiGraphicsExtractor ctx, Shapes s, List<Runnable> text, float x, float y, float dt, boolean editor) {
         List<Row> rows = rows(editor);
-        if (rows.isEmpty() && hideWhenEmpty() && !editor) return;
+        boolean visible = editor || !(rows.isEmpty() && hideWhenEmpty());
+        appear += ((visible ? 1f : 0f) - appear) * Math.min(1f, dt * 10f);
+        float target = Math.max(1, rows.size());
+        shownRows = shownRows < 0 ? target : shownRows + (target - shownRows) * Math.min(1f, dt * 12f);
+        if (appear < 0.02f) return;
+        float a = editor ? 1f : appear;
         float w = width(editor), h = height(editor);
-        HudStyle.pill(ctx, s, x, y, x + w, y + h, 1f);
-        HudStyle.iconBox(s, icon, x + 4f, y + 3f, 12f, 1f);
+        HudStyle.pill(ctx, s, x, y, x + w, y + h, a);
+        HudStyle.iconBox(s, icon, x + 4f, y + 3f, 12f, a);
         s.rect(x + PAD, y + HEAD - 1.5f, x + w - PAD, y + HEAD - 1f, 0x1AFFFFFF);
         String count = String.valueOf(rows.size());
         text.add(() -> {
@@ -63,6 +72,7 @@ public abstract class ListPanelElement extends HudElement {
         for (int i = 0; i < rows.size(); i++) {
             Row r = rows.get(i);
             float cy = y + HEAD + i * ROW + ROW / 2f + 1f;
+            if (cy > y + h - 2f) break; // still growing
             float lx = x + PAD;
             if (r.dot() != 0) s.circle(lx + 4f, cy, 2.4f, r.dot());
             if (r.item() != null || r.dot() != 0) lx += 13f;

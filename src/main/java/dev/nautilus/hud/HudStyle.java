@@ -35,8 +35,8 @@ public final class HudStyle {
     // ---- colour theme (Client → HUD → "HUD color") ---------------------------------------------
 
     /** Names of the colour choices, in the order of the setting; the last one cycles through all hues. */
-    public static final String[] COLOR_NAMES = {"Orange", "Red", "Pink", "Purple", "Blue", "Turquoise", "Green", "Gold", "White", "Rainbow"};
-    private static final int[] COLORS = {0xFFFF5A2A, 0xFFFF3B3B, 0xFFFF4FA3, 0xFFA66BFF, 0xFF3D8BFF, 0xFF22D3C5, 0xFF3DDC6A, 0xFFFFC23D, 0xFFF2F2F2};
+    public static final String[] COLOR_NAMES = {"Lavender", "Orange", "Red", "Pink", "Purple", "Blue", "Turquoise", "Green", "Gold", "White", "Rainbow"};
+    private static final int[] COLORS = {0xFFC4A6FF, 0xFFFF5A2A, 0xFFFF3B3B, 0xFFFF4FA3, 0xFFA66BFF, 0xFF3D8BFF, 0xFF22D3C5, 0xFF3DDC6A, 0xFFFFC23D, 0xFFF2F2F2};
     public static final String RAINBOW = "Rainbow";
 
     /** Colour of a choice (for swatches); the rainbow swatch shows the current hue. */

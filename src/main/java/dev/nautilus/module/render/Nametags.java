@@ -62,50 +62,58 @@ public class Nametags extends Module {
     }
 
     private void tag(GuiGraphicsExtractor ctx, Shapes s, List<Runnable> text, Player p, float pt) {
-        Vec3 pos = p.getPosition(pt).add(0, p.getBbHeight() + (p.isCrouching() ? 0.35 : 0.55), 0);
+        Vec3 pos = p.getPosition(pt).add(0, p.getBbHeight() + (p.isCrouching() ? 0.3 : 0.45), 0);
         float[] sc = Projection.toScreen(pos);
         if (sc == null) return;
         double dist = mc.player.distanceTo(p);
-        float k = scale.getFloat() * (float) Math.max(0.6, Math.min(1.0, 1.6 - dist / 40.0));
+        float k = scale.getFloat() * 0.8f * (float) Math.max(0.65, Math.min(1.0, 1.5 - dist / 40.0));
 
         boolean friend = Friends.is(p);
         String name = p.getGameProfile().name();
+        // small grey text after the name: distance, ping, pops; the health is the bar under the name
         StringBuilder info = new StringBuilder();
-        float hp = p.getHealth() + p.getAbsorptionAmount();
-        if (health.isOn()) info.append(String.format(Locale.ROOT, "%.0f", hp));
-        if (distance.isOn()) info.append(info.length() > 0 ? "  " : "").append(String.format(Locale.ROOT, "%.0fm", dist));
+        if (distance.isOn()) info.append(String.format(Locale.ROOT, "%.0fm", dist));
         int ms = ping.isOn() ? ping(p) : -1;
-        if (ms >= 0) info.append(info.length() > 0 ? "  " : "").append(ms).append("ms");
+        if (ms >= 0) info.append(info.length() > 0 ? " · " : "").append(ms).append("ms");
         int pc = pops.isOn() ? CombatTracker.pops(p) : 0;
-        if (pc > 0) info.append(info.length() > 0 ? "  " : "").append("-").append(pc);
+        if (pc > 0) info.append(info.length() > 0 ? " · " : "").append("-").append(pc);
         String inf = info.toString();
 
-        float ts = HudStyle.TEXT_SCALE * k;
-        float nameW = HudStyle.width(name, true, ts), infoW = inf.isEmpty() ? 0f : HudStyle.width(inf, false, ts) + 5f * k;
-        float h = HudStyle.PILL_H * k, w = HudStyle.PAD * k * 2 + nameW + infoW;
+        float ts = 0.78f * k, is = 0.6f * k;
+        float nameW = HudStyle.width(name, false, ts), infoW = inf.isEmpty() ? 0f : HudStyle.width(inf, false, is) + 5f * k;
+        float pad = 5f * k, h = (health.isOn() ? 15f : 12f) * k, w = Math.max(40f * k, pad * 2 + nameW + infoW);
         float x1 = sc[0] - w / 2f, y2 = sc[1], y1 = y2 - h;
-        HudStyle.pill(ctx, s, x1, y1, x1 + w, y2, 1f);
-        if (friend) s.roundRectRim(x1, y1, x1 + w, y2, Math.min(h / 2f, 7f), 1f, HudStyle.GOOD);
-        if (HudStyle.panels() && health.isOn()) { // thin health line along the bottom of the tag
-            float frac = Math.min(1f, p.getHealth() / Math.max(1f, p.getMaxHealth()));
-            HudStyle.line(s, x1 + 3f * k, y2 - 2.6f * k, x1 + w - 3f * k, frac, HudStyle.wear(frac), 1f);
+        HudStyle.panel(ctx, s, x1, y1, x1 + w, y2, 1f);
+        if (friend) s.roundRectRim(x1, y1, x1 + w, y2, Math.min(h / 2f, 4.5f), 0.9f, HudStyle.GOOD);
+        float max = Math.max(1f, p.getMaxHealth());
+        if (health.isOn()) { // thin bar in the accent colour; absorption in gold after it
+            float frac = Math.min(1f, p.getHealth() / max), abs = Math.min(1f - frac, p.getAbsorptionAmount() / max);
+            float bx1 = x1 + pad, bx2 = x1 + w - pad, by = y2 - 4f * k;
+            s.roundRect(bx1, by, bx2, by + 1.6f * k, 0.8f * k, 0x26FFFFFF);
+            int c = frac < 0.3f ? HudStyle.BAD : HudStyle.accent();
+            if (frac > 0.01f) s.roundRect(bx1, by, bx1 + (bx2 - bx1) * frac, by + 1.6f * k, 0.8f * k, c);
+            if (abs > 0.01f) s.roundRect(bx1 + (bx2 - bx1) * frac, by, bx1 + (bx2 - bx1) * (frac + abs), by + 1.6f * k, 0.8f * k, 0xFFFFC23D);
         }
         int nameColor = friend ? HudStyle.GOOD : p.isInvisible() ? HudStyle.TEXT_DIM : HudStyle.TEXT;
-        float max = Math.max(1f, p.getMaxHealth());
-        int hpColor = HudStyle.wear(p.getHealth() / max);
-        float cy = (y1 + y2) / 2f;
+        float cy = y1 + (health.isOn() ? 5.6f : 6f) * k;
 
+        // items above the tag, each in its own small dark box
         List<ItemStack> items = new ArrayList<>();
         if (armor.isOn()) for (EquipmentSlot slot : SLOTS) {
             ItemStack st = p.getItemBySlot(slot);
             if (!st.isEmpty()) items.add(st);
         }
+        float box = 11f * k, gap = 1.5f * k;
+        float ix = sc[0] - (items.size() * (box + gap) - gap) / 2f, iy = y1 - box - 2f * k;
+        for (int i = 0; i < items.size(); i++) { // small square boxes, slightly rounded
+            float bx = ix + i * (box + gap);
+            s.roundRect(bx, iy, bx + box, iy + box, 2f * k, HudStyle.panelColor(0xD4));
+            s.roundRectRim(bx, iy, bx + box, iy + box, 2f * k, 0.5f, 0x26FFFFFF);
+        }
         text.add(() -> {
-            HudStyle.text(ctx, name, x1 + HudStyle.PAD * k, cy, ts, nameColor, true);
-            if (!inf.isEmpty()) HudStyle.text(ctx, inf, x1 + HudStyle.PAD * k + nameW + 5f * k, cy, ts, health.isOn() ? hpColor : HudStyle.label(), false);
-            float iz = 14f * k;
-            float ix = sc[0] - items.size() * iz / 2f;
-            for (int i = 0; i < items.size(); i++) HudStyle.item(ctx, items.get(i), ix + i * iz, y1 - iz - 1f, iz);
+            HudStyle.text(ctx, name, x1 + pad, cy, ts, nameColor, false);
+            if (!inf.isEmpty()) HudStyle.text(ctx, inf, x1 + w - pad - HudStyle.width(inf, false, is), cy + 0.3f * k, is, HudStyle.TEXT_DIM, false);
+            for (int i = 0; i < items.size(); i++) HudStyle.item(ctx, items.get(i), ix + i * (box + gap) + 1.2f * k, iy + 1.2f * k, box - 2.4f * k);
         });
     }
 }

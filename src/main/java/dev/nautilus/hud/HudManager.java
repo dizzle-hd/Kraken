@@ -158,8 +158,11 @@ public final class HudManager {
         long now = System.currentTimeMillis();
         float dt = Math.min(0.1f, (now - lastFrame) / 1000f);
         lastFrame = now;
-        Shapes.setPixelSize(1f / Math.max(1, mc.getWindow().getGuiScale()));
-        float sw = ctx.guiWidth(), sh = ctx.guiHeight();
+        float k = scale();
+        Shapes.setPixelSize(1f / (Math.max(1, mc.getWindow().getGuiScale()) * k));
+        float sw = ctx.guiWidth() / k, sh = ctx.guiHeight() / k;
+        ctx.pose().pushMatrix();
+        ctx.pose().scale(k, k);
         Shapes s = new Shapes();
         List<Runnable> text = new ArrayList<>();
         for (HudElement e : elements) {
@@ -168,6 +171,13 @@ public final class HudManager {
         }
         s.submit(ctx);
         for (Runnable r : text) r.run();
+        ctx.pose().popMatrix();
+    }
+
+    /** HUD scale (Client → HUD → HUD scale): every element is laid out in GUI pixels / scale. */
+    public static float scale() {
+        var hud = dev.nautilus.module.ModuleManager.get().get(dev.nautilus.module.client.Hud.class);
+        return hud == null ? 1f : Math.max(0.5f, hud.scale.getFloat() / 100f);
     }
 
     public void resetLayout() {

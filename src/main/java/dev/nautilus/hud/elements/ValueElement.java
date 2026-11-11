@@ -24,6 +24,7 @@ public class ValueElement extends HudElement {
     private Icons icon = Icons.DOT;
     private String unit = "";
     private DoubleSupplier bar;
+    private float shownBar = -1f; // eases towards the real value
 
     public ValueElement(String id, String name, String label, boolean enabled, int ax, int ay, float ox, float oy,
                         Supplier<String> value, IntSupplier color) {
@@ -63,7 +64,11 @@ public class ValueElement extends HudElement {
         HudStyle.iconBox(s, icon, x + 3f, y + 3f, BOX, 1f);
         float tx = x + 3f + BOX + 6f, right = x + w - 6f;
         float cy = y + (bar == null ? TILE_H / 2f : 8.5f);
-        if (bar != null) HudStyle.line(s, tx, y + TILE_H - 4.5f, right, (float) bar.getAsDouble(), HudStyle.accent(), 1f);
+        if (bar != null) {
+            float target = (float) Math.max(0.0, Math.min(1.0, bar.getAsDouble()));
+            shownBar = shownBar < 0 ? target : shownBar + (target - shownBar) * Math.min(1f, dt * 6f);
+            HudStyle.line(s, tx, y + TILE_H - 4.5f, right, shownBar, HudStyle.accent(), 1f);
+        }
         String v = value.get();
         int c = color.getAsInt();
         text.add(() -> {
