@@ -203,7 +203,11 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             ctx.waitTicks(5);
 
             // --- Crystal PvP ---
+            installPacketHooks();
+            ctx.runOnClient(c -> PacketLog.start());
             crystalTests(ctx, sp);
+            System.out.println("[NautilusTest] Combat/crystal packet order (TriggerBot, AutoTotem, AutoCrystal, AnchorMacro, Surround, SilentAim, AutoArmor): "
+                    + ctx.computeOnClient(c -> PacketLog.stop()));
 
             // --- Mace: MaceSwap + AutoSmash while falling onto a zombie, WindBoost ---
             maceTests(ctx, sp);
@@ -553,26 +557,76 @@ public class NautilusClientGameTest implements FabricClientGameTest {
             mm.get(dev.nautilus.module.crystal.Surround.class).setEnabled(false);
             mm.get(dev.nautilus.module.combat.AutoTotem.class).setEnabled(false);
         });
+
+        // --- SilentAim: click next to a zombie; the hit must land without an extra rotation packet ---
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        ctx.waitTicks(2);
+        java.util.UUID sz = spawnZombie(sp, 0.8, 2.6, 100f);
+        ctx.runOnClient(c -> {
+            c.player.setYRot(-30); // the zombie is about 13° to the side of the crosshair
+            c.player.setXRot(10);
+            c.player.getInventory().setSelectedSlot(0);
+            mm.get(dev.nautilus.module.combat.SilentAim.class).loadEnabled(true);
+        });
+        ctx.waitTicks(25); // full attack charge
+        float silentHpBefore = zombieHp(sp, sz);
+        ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        ctx.waitTicks(5);
+        float silentHpAfter = zombieHp(sp, sz);
+        float camYaw = ctx.computeOnClient(c -> c.player.getYRot());
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.combat.SilentAim.class).loadEnabled(false));
+        System.out.println("[NautilusTest] SilentAim: zombie hp " + silentHpBefore + " -> " + silentHpAfter + ", camera yaw still " + camYaw + " (-30 = untouched)");
+
+        // --- AutoArmor: diamond armor in the inventory gets put on ---
+        srv.runCommand("kill @e[type=!minecraft:player]");
+        srv.runCommand("item replace entity @a armor.head with minecraft:air");
+        srv.runCommand("item replace entity @a armor.chest with minecraft:leather_chestplate");
+        srv.runCommand("item replace entity @a armor.legs with minecraft:air");
+        srv.runCommand("item replace entity @a armor.feet with minecraft:air");
+        srv.runCommand("give @a minecraft:diamond_helmet");
+        srv.runCommand("give @a minecraft:diamond_chestplate");
+        srv.runCommand("give @a minecraft:diamond_leggings");
+        srv.runCommand("give @a minecraft:diamond_boots");
+        ctx.waitTicks(3);
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.player.AutoArmor.class).setEnabled(true));
+        ctx.waitTicks(30);
+        String worn = ctx.computeOnClient(c -> {
+            StringBuilder b = new StringBuilder();
+            for (var slot : new net.minecraft.world.entity.EquipmentSlot[]{net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
+                    net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET})
+                b.append(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(c.player.getItemBySlot(slot).getItem()).getPath()).append(' ');
+            return b.toString().trim();
+        });
+        ctx.runOnClient(c -> mm.get(dev.nautilus.module.player.AutoArmor.class).setEnabled(false));
+        System.out.println("[NautilusTest] AutoArmor: worn " + worn);
         srv.runCommand("kill @e[type=!minecraft:player]");
     }
 
     private static boolean packetHook;
     private static volatile boolean postControl;
 
+    /** Tick start (first of all START_CLIENT_TICK listeners) and tick end markers for PacketLog. */
+    private static void installPacketHooks() {
+        if (packetHook) return;
+        packetHook = true;
+        var first = net.minecraft.resources.Identifier.fromNamespaceAndPath("nautilusclient-gametest", "first");
+        var start = net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.START_CLIENT_TICK;
+        start.addPhaseOrdering(first, net.fabricmc.fabric.api.event.Event.DEFAULT_PHASE);
+        start.register(first, c -> PacketLog.tickStart());
+        // registered after the client's own END_CLIENT_TICK hook, so this runs last in every tick
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(c -> {
+            if (postControl && c.player != null) {
+                postControl = false;
+                // control: a punch packet sent here comes after the movement packet = "post"
+                c.player.connection.send(net.minecraft.network.protocol.game.ServerboundPunchPacket.INSTANCE);
+            }
+            PacketLog.endTick();
+        });
+    }
+
     private static void maceTests(ClientGameTestContext ctx, TestSingleplayerContext sp) {
         var mm = ModuleManager.get();
-        if (!packetHook) {
-            packetHook = true;
-            // registered after the client's own END_CLIENT_TICK hook, so this runs last in every tick
-            net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(c -> {
-                if (postControl && c.player != null) {
-                    postControl = false;
-                    // control: a punch packet sent here comes after the movement packet = "post"
-                    c.player.connection.send(net.minecraft.network.protocol.game.ServerboundPunchPacket.INSTANCE);
-                }
-                PacketLog.endTick();
-            });
-        }
+        installPacketHooks();
         var srv = sp.getServer();
         srv.runCommand("kill @e[type=!minecraft:player]");
         srv.runCommand("clear @a");
@@ -677,6 +731,13 @@ public class NautilusClientGameTest implements FabricClientGameTest {
     }
 
     /** "alive hp=..", "dead" or "missing" (never spawned / removed) – checked on the server. */
+    private static float zombieHp(TestSingleplayerContext sp, java.util.UUID id) {
+        return sp.getServer().computeOnServer(server -> {
+            var e = server.getPlayerList().getPlayers().get(0).level().getEntity(id);
+            return e instanceof net.minecraft.world.entity.LivingEntity l ? l.getHealth() : -1f;
+        });
+    }
+
     private static String zombieState(TestSingleplayerContext sp, java.util.UUID id) {
         return sp.getServer().computeOnServer(server -> {
             var e = server.getPlayerList().getPlayers().get(0).level().getEntity(id);

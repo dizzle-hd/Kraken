@@ -57,6 +57,7 @@ public class NautilusClient implements ClientModInitializer {
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             if (client.player == null || client.level == null) return;
+            ModuleManager.get().handleKeys(client);
             ModuleManager.get().onPreTick();
         });
 

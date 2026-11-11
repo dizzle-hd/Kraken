@@ -10,7 +10,6 @@ import dev.nautilus.util.RotationUtil;
 import dev.nautilus.util.TargetUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -58,11 +57,33 @@ public class SilentAim extends Module {
         Vec3 point = RotationUtil.bestAimPoint(eyes, mc.player.getYRot(), mc.player.getXRot(), area, !throughWalls.isOn());
         float[] rot = RotationUtil.rotationsTo(eyes, point);
 
-        // Tell the server we look at the target, then hit it.
-        mc.getConnection().send(new ServerboundMovePlayerPacket.Rot(rot[0], rot[1], mc.player.onGround(), mc.player.horizontalCollision));
-        AttackUtil.attack(target);
-        // keep the server rotation consistent for the next movement packet as well
+        // No extra rotation packet: the rotation goes out with this tick's movement packet, the hit
+        // follows in the next pre-tick – like a player who turns and then clicks.
         RotationManager.request(rot[0], rot[1], 5);
+        pending = target;
+        pendingTicks = 3;
         return true;
     }
+
+    private LivingEntity pending;
+    private int pendingTicks;
+
+    @Override
+    public void onPreTick() {
+        if (pending == null || mc.player == null) return;
+        LivingEntity t = pending;
+        if (--pendingTicks < 0 || !t.isAlive() || t.isRemoved()) { pending = null; return; }
+        Vec3 eyes = mc.player.getEyePosition();
+        if (eyes.distanceTo(RotationUtil.closestPoint(eyes, t)) > range.get()) { pending = null; return; }
+        AABB area = RotationUtil.aimArea(RotationUtil.predictedBox(t, 1f, 1), "Auto");
+        Vec3 point = RotationUtil.bestAimPoint(eyes, mc.player.getYRot(), mc.player.getXRot(), area, !throughWalls.isOn());
+        float[] rot = RotationUtil.rotationsTo(eyes, point);
+        RotationManager.request(rot[0], rot[1], 5); // keep looking at it in this tick's packet too
+        if (!RotationManager.serverLooksAt(rot[0], rot[1], 8f)) return;
+        AttackUtil.attack(t);
+        pending = null;
+    }
+
+    @Override
+    protected void onDisable() { pending = null; }
 }

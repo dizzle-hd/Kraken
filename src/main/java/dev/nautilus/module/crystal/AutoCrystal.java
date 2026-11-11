@@ -113,9 +113,18 @@ public class AutoCrystal extends Module {
 
     @Override
     public void onPreTick() {
+        // reactions to crystals that appeared / disappeared since the last tick: pre-tick, never in the
+        // middle of a frame right after the movement packet (would look like a "post" packet)
+        EndCrystal spawned = pendingSpawn, removed = pendingRemoved;
+        pendingSpawn = null;
+        pendingRemoved = null;
+        if (spawned != null && spawned.isAlive()) crystalSpawned(spawned);
+        if (removed != null && mc.level != null) crystalRemoved(removed);
         act();
         plan();
     }
+
+    private EndCrystal pendingSpawn, pendingRemoved;
 
     private void plan() {
         plannedPlace = null;
@@ -362,16 +371,26 @@ public class AutoCrystal extends Module {
      * The server confirmed that a crystal is gone: if it stood on the block you are crystalling,
      * place the next one right now (no guessing ahead of the server).
      */
+    /** ENTITY_UNLOAD event: remember the crystal, handled in the next pre-tick. */
     public void onCrystalRemoved(EndCrystal crystal) {
+        if (isEnabled()) pendingRemoved = crystal;
+    }
+
+    /** ENTITY_LOAD event: remember the crystal, handled in the next pre-tick. */
+    public void onCrystalSpawn(EndCrystal crystal) {
+        if (isEnabled() && pendingSpawn == null) pendingSpawn = crystal;
+    }
+
+    private void crystalRemoved(EndCrystal crystal) {
         if (!isEnabled() || !place.isOn() || paused() || mc.gui.screen() != null || lookBase == null) return;
         if (!(crosshairMode() || target == null)) return;
         if (!crystal.blockPosition().below().equals(lookBase)) return;
         InteractionHand hand = crystalHand();
         if (hand == null || placeWait > 0) return;
-        placeOn(lookBase, hand, crystal); // the removed crystal is still in the world for this moment
+        placeOn(lookBase, hand, crystal);
     }
 
-    public void onCrystalSpawn(EndCrystal crystal) {
+    private void crystalSpawned(EndCrystal crystal) {
         if (!isEnabled() || !instant.isOn() || !breakOn.isOn() || paused() || mc.gui.screen() != null) return;
         if (crosshairMode() || target == null) {
             // only the crystal on the block you are crystalling

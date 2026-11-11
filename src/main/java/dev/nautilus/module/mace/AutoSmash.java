@@ -11,7 +11,6 @@ import dev.nautilus.util.InvUtil;
 import dev.nautilus.util.RotationManager;
 import dev.nautilus.util.RotationUtil;
 import dev.nautilus.util.TargetUtil;
-import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Items;
@@ -88,15 +87,16 @@ public class AutoSmash extends Module {
             target = e;
         }
         if (target == null) return;
-        if (timing.is("Late") && !lastChance(target)) return;
-
         if (aim.is("Silent")) {
+            // turn towards the target every tick while falling at it (with the movement packet), so the
+            // server already has the rotation when the hit goes out – no extra rotation packet
             AABB area = RotationUtil.aimArea(RotationUtil.predictedBox(target, 1f, 1), "Auto");
             Vec3 point = RotationUtil.bestAimPoint(eyes, p.getYRot(), p.getXRot(), area, true);
             float[] rot = RotationUtil.rotationsTo(eyes, point);
-            mc.getConnection().send(new ServerboundMovePlayerPacket.Rot(rot[0], rot[1], p.onGround(), p.horizontalCollision));
             RotationManager.request(rot[0], rot[1], 25);
+            if (!RotationManager.serverLooksAt(rot[0], rot[1], 10f)) return;
         }
+        if (timing.is("Late") && !lastChance(target)) return;
         AttackUtil.attack(target);
         hitThisFall = true;
     }

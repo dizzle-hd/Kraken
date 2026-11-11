@@ -151,7 +151,14 @@ public final class ModuleManager {
     }
 
     public void onTick(Minecraft mc) {
-        // module keybinds (only while no screen is open)
+        for (Module m : modules) if (m.isEnabled()) m.onTick();
+    }
+
+    /**
+     * Module keys, at the start of the tick: what a module does when it is switched on/off (e.g. a
+     * slot switch or a boost) goes out pre-tick, before the movement packet.
+     */
+    public void handleKeys(Minecraft mc) {
         if (mc.gui.screen() == null) {
             for (Module m : modules) {
                 if (!m.keybind.isBound()) continue;
@@ -165,7 +172,5 @@ public final class ModuleManager {
         for (Module m : modules) {
             if (m.keybind.isBound()) keyStates.put(m.keybind.get(), InputConstants.isKeyDown(m.keybind.get()));
         }
-
-        for (Module m : modules) if (m.isEnabled()) m.onTick();
     }
 }

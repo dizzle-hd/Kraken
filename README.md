@@ -163,7 +163,7 @@ Minecraft 26.x is no longer obfuscated – the code uses the official Mojang nam
 ```
 Starts Minecraft, creates a world, opens the wheel, toggles modules, builds a test “base” for the
 BaseFinder, checks XRay, Aimbot, the crystal and mace modules, HUD colors and the setup, and records every packet sent:
-no attack, slot or item packet may come after the movement packet of its tick (only “pre”, no “post”).
+no attack, slot or item packet may come after the movement packet of its tick (only “pre”, no “post”), none may be sent between two ticks (from packet/entity events, which timing-based anti-cheats also see as “post”), and no tick may send a second movement packet (silent rotations go out with the normal movement packet; the hit follows in the next pre-tick).
 Screenshots end up in `build/run/clientGameTest/screenshots`.
 
 ## Adding a module
