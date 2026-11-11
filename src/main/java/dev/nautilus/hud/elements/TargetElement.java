@@ -41,6 +41,25 @@ public class TargetElement extends HudElement {
         fade += ((t != null || editor ? 1f : 0f) - fade) * Math.min(1f, dt * 10f);
         if (fade < 0.02f) { shownHp = -1f; lastHp = -1f; return; }
         float a = editor ? 1f : fade;
+        // pop in: a little smaller while it fades in
+        float sc = editor ? 1f : 0.92f + 0.08f * dev.nautilus.hud.Anim.easeOutBack(fade);
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(x + W / 2f, y + H / 2f);
+        ctx.pose().scale(sc, sc);
+        ctx.pose().translate(-(x + W / 2f), -(y + H / 2f));
+        // own shapes + text, drawn right here inside the scaled pose (Shapes takes the pose at submit)
+        Shapes own = new Shapes();
+        List<Runnable> ownText = new java.util.ArrayList<>();
+        try {
+            renderBody(ctx, own, ownText, x, y, dt, editor, t, a);
+            own.submit(ctx);
+            for (Runnable r : ownText) r.run();
+        } finally {
+            ctx.pose().popMatrix();
+        }
+    }
+
+    private void renderBody(GuiGraphicsExtractor ctx, Shapes s, List<Runnable> text, float x, float y, float dt, boolean editor, LivingEntity t, float a) {
         // editor preview: yourself as the target
         LivingEntity e = t != null ? t : editor ? mc.player : last;
 

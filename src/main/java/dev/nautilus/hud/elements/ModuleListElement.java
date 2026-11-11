@@ -105,7 +105,7 @@ public class ModuleListElement extends HudElement {
             if (m.getCategory() == Category.CLIENT || m.getCategory() == Category.VISUALS) continue; // settings / cosmetics
             float a = anim.getOrDefault(m, 0f);
             float target = m.isEnabled() ? 1f : 0f;
-            a += (target - a) * Math.min(1f, dt * 12f);
+            a = dev.nautilus.hud.Anim.approach(a, target, dt, 11f);
             if (Math.abs(a - target) < 0.005f) a = target;
             anim.put(m, a);
         }
@@ -122,7 +122,9 @@ public class ModuleListElement extends HudElement {
         for (Module m : list) {
             float e = editor ? 1f : ease(anim.getOrDefault(m, 0f));
             float w = pillWidth(m);
-            float slide = (1 - e) * (w + 12f) * (right ? 1 : -1);
+            // slides with a soft overshoot (a little anticipation when it leaves)
+            float raw = editor ? 1f : anim.getOrDefault(m, 0f);
+            float slide = (1 - dev.nautilus.hud.Anim.easeOutBack(raw)) * (w + 12f) * (right ? 1 : -1);
             float x1 = (right ? x + total - w : x) + slide;
             float y1 = yy;
             HudStyle.pill(ctx, s, x1, y1, x1 + w, y1 + HudStyle.PILL_H, e);

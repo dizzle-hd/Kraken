@@ -20,6 +20,7 @@ public abstract class ListPanelElement extends HudElement {
     private static final float HEAD = 18f, ROW = 13f, PAD = 6f;
     private final Icons icon;
     private float shownRows = -1f, appear;
+    private final java.util.Map<String, Float> rowAnim = new java.util.HashMap<>();
     private final String title;
 
     protected ListPanelElement(String id, String name, Icons icon, String title, boolean enabled, int ax, int ay, float ox, float oy) {
@@ -73,15 +74,19 @@ public abstract class ListPanelElement extends HudElement {
             Row r = rows.get(i);
             float cy = y + HEAD + i * ROW + ROW / 2f + 1f;
             if (cy > y + h - 2f) break; // still growing
-            float lx = x + PAD;
-            if (r.dot() != 0) s.circle(lx + 4f, cy, 2.4f, r.dot());
+            float ra = editor ? 1f : rowAnim.merge(r.label(), 0f, (old, z) -> old);
+            if (!editor) rowAnim.put(r.label(), ra = dev.nautilus.hud.Anim.approach(ra, 1f, dt, 10f));
+            float rowA = a * ra, rowSlide = (1f - dev.nautilus.hud.Anim.easeOutCubic(ra)) * 10f;
+            float lx = x + PAD + rowSlide;
+            if (r.dot() != 0) s.circle(lx + 4f, cy, 2.4f, Shapes.alpha(r.dot(), rowA));
+            float iconX = lx;
             if (r.item() != null || r.dot() != 0) lx += 13f;
             float labelX = lx;
-            if (r.chip()) HudStyle.chip(ctx, s, text, r.value(), x + w - PAD, cy, 0.62f, r.valueColor());
+            if (r.chip()) HudStyle.chip(ctx, s, text, r.value(), x + w - PAD, cy, 0.62f, Shapes.alpha(r.valueColor(), rowA));
             text.add(() -> {
-                if (r.item() != null) HudStyle.item(ctx, r.item(), x + PAD - 1f, cy - 5.5f, 11f);
-                HudStyle.text(ctx, r.label(), labelX, cy, 0.72f, HudStyle.TEXT_DIM, false);
-                if (!r.chip()) HudStyle.text(ctx, r.value(), x + w - PAD - HudStyle.width(r.value(), true, 0.72f), cy, 0.72f, r.valueColor(), true);
+                if (r.item() != null && rowA > 0.5f) HudStyle.item(ctx, r.item(), iconX - 1f, cy - 5.5f, 11f);
+                HudStyle.text(ctx, r.label(), labelX, cy, 0.72f, Shapes.alpha(HudStyle.TEXT_DIM, rowA), false);
+                if (!r.chip()) HudStyle.text(ctx, r.value(), x + w - PAD - HudStyle.width(r.value(), true, 0.72f), cy, 0.72f, Shapes.alpha(r.valueColor(), rowA), true);
             });
         }
     }

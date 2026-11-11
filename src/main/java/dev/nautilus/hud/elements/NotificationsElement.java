@@ -63,16 +63,20 @@ public class NotificationsElement extends HudElement {
         for (int i = list.size() - 1; i >= 0; i--) { // newest closest to the anchor edge
             Notifications.Toast t = list.get(i);
             float age = (now - t.created()) / 1000f;
-            float in = editor ? 1f : Math.min(1f, age / 0.25f);
-            float out = editor ? 1f : Math.max(0f, Math.min(1f, (t.duration() + 0.35f - age) / 0.35f));
-            float e = (1 - (float) Math.pow(1 - in, 3)) * out;
+            float in = editor ? 1f : dev.nautilus.hud.Anim.clamp01(age / 0.42f);
+            float outT = editor ? 0f : dev.nautilus.hud.Anim.clamp01((age - t.duration()) / 0.4f);
             float w = toastWidth(t);
-            float slide = (1 - (1 - (float) Math.pow(1 - in, 3))) * (w + 12f) * (right ? 1 : -1);
+            // in: slides in with a soft overshoot; out: glides back out to the edge
+            float slideIn = 1f - dev.nautilus.hud.Anim.easeOutBack(in), slideOut = dev.nautilus.hud.Anim.easeInCubic(outT);
+            float slide = (slideIn + slideOut) * (w + 12f) * (right ? 1 : -1);
+            float e = Math.min(1f, in * 3f) * (1f - dev.nautilus.hud.Anim.easeInCubic(outT));
+            // the space it takes grows/shrinks smoothly, so the others glide up/down
+            float space = editor ? 1f : dev.nautilus.hud.Anim.easeOutCubic(in * 1.6f) * (1f - dev.nautilus.hud.Anim.easeInOutCubic((outT - 0.35f) / 0.65f));
             float x1 = (right ? x + total - w : x) + slide, y1 = yy;
             HudStyle.pill(ctx, s, x1, y1, x1 + w, y1 + H, e);
             if (HudStyle.panels()) {
                 panelToast(ctx, s, text, t, x1, y1, w, e, editor, age);
-                yy += (up ? -1 : 1) * (H + GAP) * e;
+                yy += (up ? -1 : 1) * (H + GAP) * space;
                 continue;
             }
             s.circle(x1 + 8f, y1 + H / 2f, 2.6f, Shapes.alpha(t.color(), e));

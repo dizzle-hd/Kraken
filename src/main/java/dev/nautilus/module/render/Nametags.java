@@ -36,6 +36,11 @@ public class Nametags extends Module {
     private static final EquipmentSlot[] SLOTS = {EquipmentSlot.MAINHAND, EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS,
             EquipmentSlot.FEET, EquipmentSlot.OFFHAND};
 
+    /** Per player: how far the tag has faded in, and the health shown by the bar (glides). */
+    private final java.util.Map<java.util.UUID, float[]> anim = new java.util.HashMap<>();
+    private long lastFrame;
+    private float dt;
+
     public Nametags() {
         super("Nametags", "Shows a glass tag above players with name, health, distance, pops and armor – also through walls.", Category.RENDER, Items.NAME_TAG);
     }
@@ -58,6 +63,12 @@ public class Nametags extends Module {
         // far ones first so near tags are drawn on top
         Vec3 cam = Projection.camera();
         players.sort(Comparator.comparingDouble((Player p) -> -p.position().distanceToSqr(cam)));
+        long now = System.currentTimeMillis();
+        dt = lastFrame == 0 ? 0.016f : Math.min(0.1f, (now - lastFrame) / 1000f);
+        lastFrame = now;
+        java.util.Set<java.util.UUID> seen = new java.util.HashSet<>();
+        for (Player p : players) seen.add(p.getUUID());
+        anim.keySet().retainAll(seen);
         for (Player p : players) tag(ctx, s, text, p, partialTick);
     }
 
@@ -66,7 +77,13 @@ public class Nametags extends Module {
         float[] sc = Projection.toScreen(pos);
         if (sc == null) return;
         double dist = mc.player.distanceTo(p);
-        float k = scale.getFloat() * 0.8f * (float) Math.max(0.65, Math.min(1.0, 1.5 - dist / 40.0));
+        float k0 = scale.getFloat() * 0.8f * (float) Math.max(0.65, Math.min(1.0, 1.5 - dist / 40.0));
+
+        float[] st = anim.computeIfAbsent(p.getUUID(), id -> new float[]{0f, p.getHealth()});
+        st[0] = dev.nautilus.hud.Anim.approach(st[0], 1f, dt, 9f);                  // fade in
+        st[1] = dev.nautilus.hud.Anim.approach(st[1], p.getHealth(), dt, 8f);       // health bar glides
+        float al = st[0];
+        float k = k0 * (0.85f + 0.15f * dev.nautilus.hud.Anim.easeOutBack(al)); // grows in while fading in
 
         boolean friend = Friends.is(p);
         String name = p.getGameProfile().name();
@@ -83,25 +100,25 @@ public class Nametags extends Module {
         float nameW = HudStyle.width(name, false, ts), infoW = inf.isEmpty() ? 0f : HudStyle.width(inf, false, is) + 5f * k;
         float pad = 5f * k, h = (health.isOn() ? 15f : 12f) * k, w = Math.max(40f * k, pad * 2 + nameW + infoW);
         float x1 = sc[0] - w / 2f, y2 = sc[1], y1 = y2 - h;
-        HudStyle.panel(ctx, s, x1, y1, x1 + w, y2, 1f);
+        HudStyle.panel(ctx, s, x1, y1, x1 + w, y2, al);
         if (friend) s.roundRectRim(x1, y1, x1 + w, y2, Math.min(h / 2f, 4.5f), 0.9f, HudStyle.GOOD);
         float max = Math.max(1f, p.getMaxHealth());
         if (health.isOn()) { // thin bar in the accent colour; absorption in gold after it
-            float frac = Math.min(1f, p.getHealth() / max), abs = Math.min(1f - frac, p.getAbsorptionAmount() / max);
+            float frac = Math.min(1f, Math.max(0f, st[1] / max)), abs = Math.min(1f - frac, p.getAbsorptionAmount() / max);
             float bx1 = x1 + pad, bx2 = x1 + w - pad, by = y2 - 4f * k;
             s.roundRect(bx1, by, bx2, by + 1.6f * k, 0.8f * k, 0x26FFFFFF);
             int c = frac < 0.3f ? HudStyle.BAD : HudStyle.accent();
             if (frac > 0.01f) s.roundRect(bx1, by, bx1 + (bx2 - bx1) * frac, by + 1.6f * k, 0.8f * k, c);
             if (abs > 0.01f) s.roundRect(bx1 + (bx2 - bx1) * frac, by, bx1 + (bx2 - bx1) * (frac + abs), by + 1.6f * k, 0.8f * k, 0xFFFFC23D);
         }
-        int nameColor = friend ? HudStyle.GOOD : p.isInvisible() ? HudStyle.TEXT_DIM : HudStyle.TEXT;
+        int nameColor = Shapes.alpha(friend ? HudStyle.GOOD : p.isInvisible() ? HudStyle.TEXT_DIM : HudStyle.TEXT, al);
         float cy = y1 + (health.isOn() ? 5.6f : 6f) * k;
 
         // items above the tag, each in its own small dark box
         List<ItemStack> items = new ArrayList<>();
         if (armor.isOn()) for (EquipmentSlot slot : SLOTS) {
-            ItemStack st = p.getItemBySlot(slot);
-            if (!st.isEmpty()) items.add(st);
+            ItemStack worn = p.getItemBySlot(slot);
+            if (!worn.isEmpty()) items.add(worn);
         }
         float box = 11f * k, gap = 1.5f * k;
         float ix = sc[0] - (items.size() * (box + gap) - gap) / 2f, iy = y1 - box - 2f * k;
@@ -112,7 +129,7 @@ public class Nametags extends Module {
         }
         text.add(() -> {
             HudStyle.text(ctx, name, x1 + pad, cy, ts, nameColor, false);
-            if (!inf.isEmpty()) HudStyle.text(ctx, inf, x1 + w - pad - HudStyle.width(inf, false, is), cy + 0.3f * k, is, HudStyle.TEXT_DIM, false);
+            if (!inf.isEmpty()) HudStyle.text(ctx, inf, x1 + w - pad - HudStyle.width(inf, false, is), cy + 0.3f * k, is, Shapes.alpha(HudStyle.TEXT_DIM, al), false);
             for (int i = 0; i < items.size(); i++) HudStyle.item(ctx, items.get(i), ix + i * (box + gap) + 1.2f * k, iy + 1.2f * k, box - 2.4f * k);
         });
     }

@@ -33,8 +33,12 @@ public class Hotbar extends Module {
     private static final float S = 18f, G = 2f, P = 4f;
     private static final float CELL_H = 17f, PAD = 5f, GAP = 3f;
 
-    private float selX = -1f;
+    private final dev.nautilus.hud.Anim.Spring sel = new dev.nautilus.hud.Anim.Spring(420f, 30f); // slides with a soft overshoot
+    private int lastSel = -1;
+    private long selChangedAt;
     private float shownHp = -1f, shownFood = -1f, hurtFlash, lastHp = -1f;
+    // item name pill: the name shown (keeps fading out after switching to an empty slot)
+    private String pillName = "";
     private long lastFrame;
     private ItemStack lastHeld = ItemStack.EMPTY;
     private int lastSlot = -1;
@@ -92,9 +96,9 @@ public class Hotbar extends Module {
         // ---- hotbar
         HudStyle.panel(ctx, s, x1, y1, x2, y2, 1f);
         int sel = p.getInventory().getSelectedSlot();
-        float target = x1 + P + sel * (S + G);
-        if (selX < 0) selX = target;
-        selX += (target - selX) * Math.min(1f, dt * 22f);
+        if (sel != lastSel) { lastSel = sel; selChangedAt = now; }
+        float selX = this.sel.update(x1 + P + sel * (S + G), dt);
+        float pop = dev.nautilus.hud.Anim.bump((now - selChangedAt) / 260f); // the new item pops a little
         s.roundRect(selX - 1f, y1 + P - 1f, selX + S + 1f, y1 + P + S + 1f, 3.5f, 0x26FFFFFF);
         s.roundRectRim(selX - 1f, y1 + P - 1f, selX + S + 1f, y1 + P + S + 1f, 3.5f, 0.6f, 0x30FFFFFF);
         s.roundRect(selX + 5f, y1 + P + S + 1.6f, selX + S - 5f, y1 + P + S + 2.6f, 0.5f, HudStyle.accent());
@@ -106,7 +110,8 @@ public class Hotbar extends Module {
         text.add(() -> {
             for (int i = 0; i < 9; i++) {
                 float sx = x1 + P + i * (S + G) + 1f, sy = y1 + P + 1f;
-                slotItem(ctx, p.getInventory().getItem(i), sx, sy);
+                if (i == sel && pop > 0.01f) slotItem(ctx, p.getInventory().getItem(i), sx, sy, 1f + 0.14f * pop);
+                else slotItem(ctx, p.getInventory().getItem(i), sx, sy);
                 if (numbers.isOn()) HudStyle.text(ctx, String.valueOf(i + 1), sx - 0.5f, sy + 1.5f, 0.45f, i == sel ? HudStyle.accent() : 0x99FFFFFF, true);
             }
             if (!off.isEmpty()) slotItem(ctx, off, ox + P + 1f, y1 + P + 1f);
@@ -150,10 +155,15 @@ public class Hotbar extends Module {
         for (Runnable r : text) r.run();
     }
 
-    private static void slotItem(GuiGraphicsExtractor ctx, ItemStack st, float x, float y) {
+    private static void slotItem(GuiGraphicsExtractor ctx, ItemStack st, float x, float y) { slotItem(ctx, st, x, y, 1f); }
+
+    /** Item with count/durability, scaled around its centre (for the selection pop). */
+    private static void slotItem(GuiGraphicsExtractor ctx, ItemStack st, float x, float y, float scale) {
         if (st.isEmpty()) return;
         ctx.pose().pushMatrix();
-        ctx.pose().translate(x, y);
+        ctx.pose().translate(x + 8f, y + 8f);
+        ctx.pose().scale(scale, scale);
+        ctx.pose().translate(-8f, -8f);
         ctx.item(mc.player, st, 0, 0, 0);
         ctx.itemDecorations(mc.font, st, 0, 0);
         ctx.pose().popMatrix();
@@ -189,14 +199,15 @@ public class Hotbar extends Module {
         if (lastHp >= 0 && hp < lastHp - 0.01f) hurtFlash = 1f;
         lastHp = hp;
         hurtFlash = Math.max(0f, hurtFlash - dt * 3f);
-        shownHp += (hp - shownHp) * Math.min(1f, dt * 10f);
+        shownHp = dev.nautilus.hud.Anim.approach(shownHp, hp, dt, 9f);
         int color = p.hasEffect(MobEffects.POISON) ? 0xFFA8C83A
                 : p.hasEffect(MobEffects.WITHER) ? 0xFF8A8A8A
                 : p.isFullyFrozen() ? 0xFF9AD8FF
                 : HudStyle.accent();
         if (shownHp / max < 0.3f) color = Shapes.lerp(color, 0xFFFF4D5E, 0.5f + 0.5f * (float) Math.sin(System.currentTimeMillis() / 140.0));
         color = Shapes.lerp(color, 0xFFFFFFFF, hurtFlash * 0.6f);
-        String value = Math.round(hp) + (abs > 0 ? " +" + Math.round(abs) : "");
+        // the number counts towards the real value together with the segments
+        String value = Math.round(shownHp) + (abs > 0 ? " +" + Math.round(abs) : "");
         cellHead(ctx, s, text, Icons.HEART, "Health", value, HudStyle.TEXT, x1, y, x2);
         // one segment per heart (2 HP), partly filled segments for half hearts
         int n = Math.max(1, (int) Math.ceil(max / 2f));
@@ -220,9 +231,9 @@ public class Hotbar extends Module {
         var food = p.getFoodData();
         float f = food.getFoodLevel();
         if (shownFood < 0) shownFood = f;
-        shownFood += (f - shownFood) * Math.min(1f, dt * 8f);
+        shownFood = dev.nautilus.hud.Anim.approach(shownFood, f, dt, 8f);
         int color = p.hasEffect(MobEffects.HUNGER) ? 0xFF8BA33A : HudStyle.accent();
-        cellHead(ctx, s, text, Icons.FOOD, "Food", String.valueOf((int) f), HudStyle.TEXT, x1, y, x2);
+        cellHead(ctx, s, text, Icons.FOOD, "Food", String.valueOf(Math.round(shownFood)), HudStyle.TEXT, x1, y, x2);
         bar(s, x1, y + 11.5f, x2, 2.2f, shownFood / 20f, color);
         float sat = food.getSaturationLevel();
         if (sat > 0) s.roundRect(x1, y + 14.4f, x1 + (x2 - x1) * Math.min(1f, sat / 20f), y + 15.2f, 0.4f, 0x80FFE08A);
@@ -242,20 +253,33 @@ public class Hotbar extends Module {
         if (slot != lastSlot || !ItemStack.isSameItemSameComponents(held, lastHeld)) {
             lastSlot = slot;
             lastHeld = held.copy();
-            heldSince = now;
+            if (!held.isEmpty()) {
+                // switching while the pill is visible: no fade-out/in, just a quick pop of the new name
+                float age0 = (now - heldSince) / 1000f;
+                heldSince = age0 < 2.2f && !pillName.isEmpty() ? now - 90 : now;
+                pillName = held.getHoverName().getString();
+            }
         }
-        if (held.isEmpty()) return;
+        if (pillName.isEmpty()) return;
         float age = (now - heldSince) / 1000f;
-        float a = age < 2f ? Math.min(1f, age / 0.12f) : Math.max(0f, 1f - (age - 2f) / 0.5f);
-        if (a <= 0.01f) return;
-        String name = held.getHoverName().getString();
+        float in = dev.nautilus.hud.Anim.easeOutBack(age / 0.28f);
+        float out = age < 2f ? 0f : dev.nautilus.hud.Anim.easeInCubic((age - 2f) / 0.45f);
+        float a = Math.min(1f, age / 0.15f) * (1f - out);
+        if (a <= 0.01f) { if (age > 2.5f) pillName = ""; return; }
+        String name = pillName;
         Shapes.setPixelSize(1f / Math.max(1, mc.getWindow().getGuiScale()));
         float tw = HudStyle.width(name, false, 0.8f), h = 15f, w = tw + 12f + 10f;
-        float cx = ctx.guiWidth() / 2f, y2 = (top > 0 ? top : ctx.guiHeight() - 60f) - 4f, y1 = y2 - h;
+        float lift = (1f - in) * 7f + out * 5f, scale = 0.9f + 0.1f * in;
+        float cx = ctx.guiWidth() / 2f, y2 = (top > 0 ? top : ctx.guiHeight() - 60f) - 4f + lift, y1 = y2 - h, cy = (y1 + y2) / 2f;
+        ctx.pose().pushMatrix();
+        ctx.pose().translate(cx, cy);
+        ctx.pose().scale(scale, scale);
+        ctx.pose().translate(-cx, -cy);
         Shapes s = new Shapes();
         HudStyle.panel(ctx, s, cx - w / 2f, y1, cx + w / 2f, y2, a);
-        Icons.CUBE.draw(s, cx - w / 2f + 9f, (y1 + y2) / 2f, 7f, Shapes.alpha(Shapes.lerp(HudStyle.accent(), 0xFFFFFFFF, 0.25f), a));
+        Icons.CUBE.draw(s, cx - w / 2f + 9f, cy, 7f, Shapes.alpha(Shapes.lerp(HudStyle.accent(), 0xFFFFFFFF, 0.25f), a));
         s.submit(ctx);
-        HudStyle.text(ctx, name, cx - w / 2f + 16f, (y1 + y2) / 2f, 0.8f, Shapes.alpha(HudStyle.TEXT, a), false);
+        HudStyle.text(ctx, name, cx - w / 2f + 16f, cy, 0.8f, Shapes.alpha(HudStyle.TEXT, a), false);
+        ctx.pose().popMatrix();
     }
 }

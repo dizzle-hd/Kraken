@@ -25,6 +25,15 @@ public class ValueElement extends HudElement {
     private String unit = "";
     private DoubleSupplier bar;
     private float shownBar = -1f; // eases towards the real value
+    private String shownValue;
+    private long valueAt;
+
+    /** The value refreshes four times a second – numbers like the FPS don't flicker every frame. */
+    private String value() {
+        long now = System.currentTimeMillis();
+        if (shownValue == null || now - valueAt > 250) { shownValue = value.get(); valueAt = now; }
+        return shownValue;
+    }
 
     public ValueElement(String id, String name, String label, boolean enabled, int ax, int ay, float ox, float oy,
                         Supplier<String> value, IntSupplier color) {
@@ -42,10 +51,10 @@ public class ValueElement extends HudElement {
         return this;
     }
 
-    private String fullValue() { return unit.isEmpty() ? value.get() : value.get() + " " + unit; }
+    private String fullValue() { return unit.isEmpty() ? value() : value() + " " + unit; }
 
     private float tileWidth() {
-        float w = 3f + BOX + 6f + HudStyle.width(value.get(), true, 0.95f);
+        float w = 3f + BOX + 6f + HudStyle.width(value(), true, 0.95f);
         if (!unit.isEmpty()) w += 3f + HudStyle.width(unit, false, 0.65f);
         return Math.max(64f, w + 8f);
     }
@@ -66,10 +75,10 @@ public class ValueElement extends HudElement {
         float cy = y + (bar == null ? TILE_H / 2f : 8.5f);
         if (bar != null) {
             float target = (float) Math.max(0.0, Math.min(1.0, bar.getAsDouble()));
-            shownBar = shownBar < 0 ? target : shownBar + (target - shownBar) * Math.min(1f, dt * 6f);
+            shownBar = shownBar < 0 ? target : dev.nautilus.hud.Anim.approach(shownBar, target, dt, 5f);
             HudStyle.line(s, tx, y + TILE_H - 4.5f, right, shownBar, HudStyle.accent(), 1f);
         }
-        String v = value.get();
+        String v = value();
         int c = color.getAsInt();
         text.add(() -> {
             // value right-aligned like a gauge, unit after it
