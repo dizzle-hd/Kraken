@@ -95,6 +95,7 @@ public final class ModuleManager {
         register(new dev.nautilus.module.visuals.Hotbar());
         register(new dev.nautilus.module.visuals.Sky());
         register(new dev.nautilus.module.visuals.ItemOutline());
+        register(new dev.nautilus.module.visuals.Animations());
         register(new dev.nautilus.module.visuals.GlowParticles());
         register(new dev.nautilus.module.visuals.SwordFx());
         register(new dev.nautilus.module.visuals.HitFx());

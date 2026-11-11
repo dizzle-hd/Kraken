@@ -2494,6 +2494,96 @@
    "presets": []
   },
   {
+   "id": "Animations",
+   "name": "Animations",
+   "category": "VISUALS",
+   "description": "First-person animations: smooth swing styles and speed, a throw flick, soft item switching, idle sway and the item position.",
+   "settings": [
+    {
+     "name": "Swing",
+     "desc": "Smooth = soft eased swing, Slide = diagonal cut, Stab = thrust forward, Spin = twirl, Vanilla = unchanged",
+     "type": "mode",
+     "default": "Smooth",
+     "modes": [
+      "Smooth",
+      "Slide",
+      "Stab",
+      "Spin",
+      "Vanilla"
+     ]
+    },
+    {
+     "name": "Swing speed",
+     "desc": "Speed of the swing animation in percent (lower = slower, smoother; only visual)",
+     "type": "number",
+     "default": 85,
+     "min": 40,
+     "max": 200,
+     "step": 5
+    },
+    {
+     "name": "Throw",
+     "desc": "Wind charges, pearls, snowballs, eggs and potions are thrown forward with a flick",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "Item switch",
+     "desc": "Smooth = the item glides in, Off = no animation, Vanilla = the hand dips down",
+     "type": "mode",
+     "default": "Smooth",
+     "modes": [
+      "Smooth",
+      "Off",
+      "Vanilla"
+     ]
+    },
+    {
+     "name": "Idle sway",
+     "desc": "The held item floats gently",
+     "type": "bool",
+     "default": true
+    },
+    {
+     "name": "X",
+     "desc": "Item position: left / right",
+     "type": "number",
+     "default": 0,
+     "min": -0.5,
+     "max": 0.5,
+     "step": 0.02
+    },
+    {
+     "name": "Y",
+     "desc": "Item position: down / up",
+     "type": "number",
+     "default": 0,
+     "min": -0.5,
+     "max": 0.5,
+     "step": 0.02
+    },
+    {
+     "name": "Z",
+     "desc": "Item position: closer / further",
+     "type": "number",
+     "default": 0,
+     "min": -0.5,
+     "max": 0.5,
+     "step": 0.02
+    },
+    {
+     "name": "Size",
+     "desc": "Size of the held items in percent",
+     "type": "number",
+     "default": 100,
+     "min": 50,
+     "max": 150,
+     "step": 5
+    }
+   ],
+   "presets": []
+  },
+  {
    "id": "GlowParticles",
    "name": "Glow particles",
    "category": "VISUALS",

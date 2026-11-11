@@ -819,6 +819,21 @@ public class NautilusClientGameTest implements FabricClientGameTest {
         ctx.waitTicks(20);
         ctx.takeScreenshot("15-hud-default");
         ctx.waitTicks(5);
+        // first-person animations: in the middle of a swing, and of a throw (wind charge) – creative, no fall damage
+        srv.runCommand("gamemode creative @a");
+        ctx.runOnClient(c -> { c.player.getInventory().setSelectedSlot(0); c.player.setXRot(0); });
+        srv.runCommand("item replace entity @p hotbar.0 with minecraft:netherite_sword");
+        ctx.waitTicks(10);
+        ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+        ctx.waitTicks(2);
+        ctx.takeScreenshot("16-swing");
+        srv.runCommand("item replace entity @p hotbar.0 with minecraft:wind_charge 16");
+        ctx.waitTicks(15);
+        ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_RIGHT);
+        ctx.waitTicks(2);
+        ctx.takeScreenshot("16b-throw");
+        ctx.waitTicks(10);
+        srv.runCommand("gamemode survival @a");
     }
 
     private static void clickWheel(ClientGameTestContext ctx, double angle, int button, boolean panelOpen) {
